@@ -2,8 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["es5", "dom"],
-    "types": ["cypress", "node"],
-    "baseUrl": "localhost:3000"
+    "types": ["cypress", "node"]
   },
   "include": ["**/*.ts"]
 }
