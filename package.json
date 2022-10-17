@@ -26,11 +26,12 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject",
     "lint": "eslint ./src/**/*.{ts,tsx} --fix",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "cypress:open": "cypress open"
   },
   "eslintConfig": {
     "extends": [
@@ -54,6 +55,7 @@
     "@types/styled-components": "^5.1.25",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
+    "cypress": "^10.10.0",
     "eslint": "^8.17.0",
     "eslint-plugin-react": "^7.30.0",
     "husky": "^8.0.1",
