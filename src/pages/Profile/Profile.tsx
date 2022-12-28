@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Divider, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { ProfileName } from "../../components/ProfileName/ProfileName";
 import {
