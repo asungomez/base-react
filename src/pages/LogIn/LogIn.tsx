@@ -6,17 +6,14 @@ import {
   LogInForm,
   LogInFormValues,
 } from "../../components/LogInForm/LogInForm";
+import { useAuth } from "../../context/AuthContext";
 import { logIn } from "../../services/authentication";
 import { ErrorCode, isErrorCode } from "../../services/error";
-import { CognitoUser } from "amazon-cognito-identity-js";
 
-type LogInPageProps = {
-  onLogIn: (user: CognitoUser) => void;
-};
-
-export const LogInPage: FC<LogInPageProps> = ({ onLogIn }) => {
+export const LogInPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
+  const { setUser } = useAuth();
 
   const navigate = useNavigate();
 
@@ -28,7 +25,9 @@ export const LogInPage: FC<LogInPageProps> = ({ onLogIn }) => {
     logIn(formValues.email, formValues.password)
       .then((user) => {
         setLoading(false);
-        onLogIn(user);
+        if (setUser) {
+          setUser(user);
+        }
         if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
           navigate("/set-password");
         } else {

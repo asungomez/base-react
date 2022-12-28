@@ -6,36 +6,40 @@ import {
   SetPasswordForm,
   SetPasswordFormValues,
 } from "../../components/SetPasswordForm/SetPasswordForm";
+import { useAuth } from "../../context/AuthContext";
 import { setPassword } from "../../services/authentication";
 import { ErrorCode, isErrorCode } from "../../services/error";
-import { CognitoUser } from "amazon-cognito-identity-js";
 
-type SetPasswordPageProps = {
-  user: CognitoUser;
-};
-
-export const SetPasswordPage: FC<SetPasswordPageProps> = ({ user }) => {
+export const SetPasswordPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
+  const { user, setUser } = useAuth();
 
   const navigate = useNavigate();
 
   const submitHandler = ({ password }: SetPasswordFormValues) => {
-    setLoading(true);
-    setError(null);
-    setPassword(user, password)
-      .then(() => {
-        setLoading(false);
-        navigate("/users");
-      })
-      .catch((error) => {
-        setLoading(false);
-        if (isErrorCode(error.message)) {
-          setError(error.message);
-        } else {
-          setError("INTERNAL_ERROR");
-        }
-      });
+    if (user) {
+      setLoading(true);
+      setError(null);
+      setPassword(user, password)
+        .then((user) => {
+          if (setUser) {
+            setUser(user);
+          }
+          setLoading(false);
+          navigate("/users");
+        })
+        .catch((error) => {
+          setLoading(false);
+          if (isErrorCode(error.message)) {
+            setError(error.message);
+          } else {
+            setError("INTERNAL_ERROR");
+          }
+        });
+    } else {
+      navigate("/log-in");
+    }
   };
 
   return (
