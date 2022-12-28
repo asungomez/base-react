@@ -8,8 +8,13 @@ import {
 } from "../../components/SetPasswordForm/SetPasswordForm";
 import { setPassword } from "../../services/authentication";
 import { ErrorCode, isErrorCode } from "../../services/error";
+import { CognitoUser } from "amazon-cognito-identity-js";
 
-export const SetPasswordPage: FC = () => {
+type SetPasswordPageProps = {
+  user: CognitoUser;
+};
+
+export const SetPasswordPage: FC<SetPasswordPageProps> = ({ user }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
 
@@ -18,7 +23,7 @@ export const SetPasswordPage: FC = () => {
   const submitHandler = ({ password }: SetPasswordFormValues) => {
     setLoading(true);
     setError(null);
-    setPassword(password)
+    setPassword(user, password)
       .then(() => {
         setLoading(false);
         navigate("/users");

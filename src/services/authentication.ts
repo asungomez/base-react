@@ -1,4 +1,5 @@
 import { Auth } from "aws-amplify";
+import { CognitoUser } from "amazon-cognito-identity-js";
 
 export type User = {
   id?: number;
@@ -72,13 +73,13 @@ const hasCode = (value: unknown): value is { code: string } =>
   typeof value === "object" &&
   (value as Record<string, unknown>).code !== undefined;
 
-export const logIn = async (email: string, password: string): Promise<User> => {
+export const logIn = async (
+  email: string,
+  password: string
+): Promise<CognitoUser> => {
   try {
     const user = await Auth.signIn(email, password);
-    return {
-      email,
-      mustChangePassword: user.challengeName === "NEW_PASSWORD_REQUIRED",
-    };
+    return user;
   } catch (error) {
     if (hasCode(error)) {
       if (error.code === "UserNotFoundException") {
@@ -107,10 +108,17 @@ export const resetPassword = async (email: string, newPassword: string) => {
   };
 };
 
-export const setPassword = async (newPassword: string) => {
-  await sleep(1000);
-  if (newPassword.length === 0) {
-    throw new Error("INVALID_PASSWORD");
+export const setPassword = async (user: CognitoUser, newPassword: string) => {
+  try {
+    const updatedUser = await Auth.completeNewPassword(user, newPassword);
+    return updatedUser;
+  } catch (error) {
+    if (hasCode(error)) {
+      if (error.code === "InvalidPasswordException") {
+        throw new Error("INVALID_PASSWORD");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
   }
 };
 
