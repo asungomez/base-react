@@ -69,6 +69,15 @@ export const getUsers = async () => {
   return USERS;
 };
 
+export const getAuthenticatedUser = async (): Promise<CognitoUser | null> => {
+  try {
+    const user = await Auth.currentAuthenticatedUser();
+    return user;
+  } catch (error) {
+    return null;
+  }
+};
+
 const hasCode = (value: unknown): value is { code: string } =>
   typeof value === "object" &&
   (value as Record<string, unknown>).code !== undefined;
@@ -89,6 +98,14 @@ export const logIn = async (
         throw new Error("INCORRECT_PASSWORD");
       }
     }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
+export const logOut = async () => {
+  try {
+    await Auth.signOut();
+  } catch (e) {
     throw new Error("INTERNAL_ERROR");
   }
 };

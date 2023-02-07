@@ -9,11 +9,18 @@
       "UnauthRoleName": "amplify-auth-dev-125655-unauthRole",
       "StackName": "amplify-auth-dev-125655",
       "StackId": "arn:aws:cloudformation:eu-west-1:291311682549:stack/amplify-auth-dev-125655/bab460f0-86a6-11ed-b6e2-02bf1a95cf1b",
-      "AmplifyAppId": "d3o14objxf9quy"
+      "AmplifyAppId": "d3o14objxf9quy",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-auth-dev-125655-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
         "authentication": {}
+      },
+      "function": {
+        "authenticationCustomMessage": {
+          "deploymentBucketName": "amplify-auth-dev-125655-deployment",
+          "s3Key": "amplify-builds/authenticationCustomMessage-5951394a67533376654f-build.zip"
+        }
       }
     }
   }

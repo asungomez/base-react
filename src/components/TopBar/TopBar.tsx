@@ -11,10 +11,13 @@ import {
 } from "@mui/material";
 import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { Bar, Logo } from "./TopBar.style";
 
 export const TopBar: FC = () => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+
+  const { logOut } = useAuth();
   const navigate = useNavigate();
 
   const openUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -30,9 +33,11 @@ export const TopBar: FC = () => {
     closeUserMenu();
     navigate("/users/me");
   };
-  const logOut = () => {
-    closeUserMenu();
-    navigate("/");
+  const logOutHandler = () => {
+    logOut().then(() => {
+      closeUserMenu();
+      navigate("/");
+    });
   };
 
   return (
@@ -68,7 +73,7 @@ export const TopBar: FC = () => {
                 <Typography textAlign="center">Profile</Typography>
               </MenuItem>
 
-              <MenuItem onClick={logOut}>
+              <MenuItem onClick={logOutHandler}>
                 <Typography textAlign="center">Log out</Typography>
               </MenuItem>
             </Menu>
