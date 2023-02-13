@@ -19,7 +19,7 @@
       "function": {
         "authenticationCustomMessage": {
           "deploymentBucketName": "amplify-auth-dev-125655-deployment",
-          "s3Key": "amplify-builds/authenticationCustomMessage-5951394a67533376654f-build.zip"
+          "s3Key": "amplify-builds/authenticationCustomMessage-674a4935556a462b2f58-build.zip"
         }
       }
     }
