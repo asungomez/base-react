@@ -1,6 +1,6 @@
 {
   "auth": {
-    "authentication": {
+    "auth": {
       "customAuth": false,
       "dependsOn": [
         {
@@ -9,7 +9,7 @@
             "Name"
           ],
           "category": "function",
-          "resourceName": "authenticationCustomMessage",
+          "resourceName": "authCustomMessage",
           "triggerProvider": "Cognito"
         }
       ],
@@ -38,26 +38,33 @@
     }
   },
   "function": {
-    "authenticationCustomMessage": {
+    "authCustomMessage": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
   },
+  "hosting": {
+    "amplifyhosting": {
+      "lastPushTimeStamp": "2023-02-17T10:05:05.044Z",
+      "service": "amplifyhosting",
+      "type": "cicd"
+    }
+  },
   "parameters": {
-    "AMPLIFY_function_authenticationCustomMessage_deploymentBucketName": {
+    "AMPLIFY_hosting_amplifyhosting_appId": {
       "usedBy": [
         {
-          "category": "function",
-          "resourceName": "authenticationCustomMessage"
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
         }
       ]
     },
-    "AMPLIFY_function_authenticationCustomMessage_s3Key": {
+    "AMPLIFY_hosting_amplifyhosting_type": {
       "usedBy": [
         {
-          "category": "function",
-          "resourceName": "authenticationCustomMessage"
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
         }
       ]
     }
