@@ -58,7 +58,9 @@ export const currentUser = async () => {
 
 export const forgotPassword = async (email: string) => {
   try {
-    await Auth.forgotPassword(email);
+    await Auth.forgotPassword(email, {
+      redirectTo: process.env.REACT_APP_HOST || "",
+    });
   } catch (error) {
     if (hasCode(error)) {
       if (error.code === "UserNotFoundException") {

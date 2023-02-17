@@ -4,10 +4,7 @@
       "customAuth": false,
       "dependsOn": [
         {
-          "attributes": [
-            "Arn",
-            "Name"
-          ],
+          "attributes": ["Arn", "Name"],
           "category": "function",
           "resourceName": "authCustomMessage",
           "triggerProvider": "Cognito"
@@ -15,23 +12,15 @@
       ],
       "frontendAuthConfig": {
         "mfaConfiguration": "OFF",
-        "mfaTypes": [
-          "SMS"
-        ],
+        "mfaTypes": ["SMS"],
         "passwordProtectionSettings": {
           "passwordPolicyCharacters": [],
           "passwordPolicyMinLength": 8
         },
-        "signupAttributes": [
-          "EMAIL"
-        ],
+        "signupAttributes": ["EMAIL"],
         "socialProviders": [],
-        "usernameAttributes": [
-          "EMAIL"
-        ],
-        "verificationMechanisms": [
-          "EMAIL"
-        ]
+        "usernameAttributes": ["EMAIL"],
+        "verificationMechanisms": ["EMAIL"]
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"

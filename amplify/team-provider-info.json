@@ -25,7 +25,7 @@
       "function": {
         "authCustomMessage": {
           "deploymentBucketName": "amplify-auth-dev-110238-deployment",
-          "s3Key": "amplify-builds/authCustomMessage-4c2b3650304c35453768-build.zip"
+          "s3Key": "amplify-builds/authCustomMessage-7348546445504a474233-build.zip"
         }
       }
     }

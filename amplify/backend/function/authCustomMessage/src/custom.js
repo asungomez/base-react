@@ -12,7 +12,12 @@ exports.handler = async (event, context) => {
     event.response.emailSubject = "Reset your password in the example app";
     const email = event.request.userAttributes.email;
     const code = event.request.codeParameter;
-    event.response.emailMessage = forgotPasswordTemplate(email, code);
+    const redirectTo = event.request.clientMetadata.redirectTo;
+    event.response.emailMessage = forgotPasswordTemplate(
+      email,
+      code,
+      redirectTo
+    );
   }
   return event;
 };
@@ -45,9 +50,9 @@ const createUserTemplate = (
   </div>
 </html>`;
 
-const forgotPasswordTemplate = (email, code) => `
+const forgotPasswordTemplate = (email, code, redirectTo) => `
   <p>To reset your password, follow this link:</p>
-  <a href="http://localhost:3000/reset-password?code=${code}&email=${email}" target="_blank">
+  <a href="${redirectTo}/reset-password?code=${code}&email=${email}" target="_blank">
   Click here
   </a>
 `;
