@@ -15,8 +15,18 @@ export const ResetPasswordPage: FC = () => {
   const [searchParameters] = useSearchParams();
   const email = searchParameters.get("email");
   const code = searchParameters.get("code");
-
   const navigate = useNavigate();
+
+  if (!email || !code) {
+    return (
+      <>
+        <Typography variant="h3" gutterBottom align="center">
+          Invalid link
+        </Typography>
+        <Error code="INVALID_RESET_PASSWORD_LINK" />
+      </>
+    );
+  }
 
   const submitHandler = ({ password }: ResetPasswordFormValues) => {
     if (email && code) {

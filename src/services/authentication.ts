@@ -120,21 +120,23 @@ export const resetPassword = async (
   newPassword: string,
   code: string
 ) => {
-  // await sleep(1000);
-  // const userIndex = USERS.findIndex((user) => email === user.email);
-  // if (userIndex === -1) {
-  //   throw new Error("USER_NOT_EXISTS");
-  // }
-  // if (!newPassword) {
-  //   throw new Error("INVALID_PASSWORD");
-  // }
-  // USERS[userIndex] = {
-  //   ...USERS[userIndex],
-  //   password: newPassword,
-  // };
   try {
     await Auth.forgotPasswordSubmit(email, code, newPassword);
   } catch (error) {
+    if (hasCode(error)) {
+      if (error.code === "UserNotFoundException") {
+        throw new Error("USER_NOT_EXISTS");
+      }
+      if (error.code === "InvalidPasswordException") {
+        throw new Error("INVALID_PASSWORD");
+      }
+      if (error.code === "CodeMismatchException") {
+        throw new Error("INVALID_RESET_PASSWORD_LINK");
+      }
+      if (error.code === "LimitExceededException") {
+        throw new Error("TOO_MANY_RETRIES");
+      }
+    }
     throw new Error("INTERNAL_ERROR");
   }
 };

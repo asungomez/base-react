@@ -11,6 +11,7 @@ export const Error: FC<ErrorProps> = ({ code }) => {
   const navigate = useNavigate();
 
   const toForgotPassword = () => navigate("forgot-password");
+  const toLogIn = () => navigate("/log-in");
 
   if (code === "INCORRECT_PASSWORD") {
     return (
@@ -42,6 +43,25 @@ export const Error: FC<ErrorProps> = ({ code }) => {
     return (
       <Alert severity="warning">
         <Typography>The email you specified is already registered</Typography>
+      </Alert>
+    );
+  }
+  if (code === "INVALID_RESET_PASSWORD_LINK") {
+    return (
+      <Alert severity="error">
+        <Typography>This reset password link is not valid</Typography>
+        <Button color="inherit" onClick={toLogIn}>
+          Log in
+        </Button>
+      </Alert>
+    );
+  }
+  if (code === "TOO_MANY_RETRIES") {
+    return (
+      <Alert severity="warning">
+        <Typography>
+          You exceeded the limit of retries. Please wait before trying again.
+        </Typography>
       </Alert>
     );
   }
