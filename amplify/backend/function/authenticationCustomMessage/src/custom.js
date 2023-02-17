@@ -2,17 +2,22 @@
  * @type {import('@types/aws-lambda').APIGatewayProxyHandler}
  */
 exports.handler = async (event, context) => {
-  // insert code to be executed by your lambda trigger
   if (event.triggerSource === "CustomMessage_AdminCreateUser") {
     event.response.emailSubject = "Welcome to the example app";
     const email = event.request.usernameParameter;
     const password = event.request.codeParameter;
-    event.response.emailMessage = emailTemplate(email, password);
+    event.response.emailMessage = createUserTemplate(email, password);
+  }
+  if (event.triggerSource === "CustomMessage_ForgotPassword") {
+    event.response.emailSubject = "Reset your password in the example app";
+    const email = event.request.userAttributes.email;
+    const code = event.request.codeParameter;
+    event.response.emailMessage = forgotPasswordTemplate(email, code);
   }
   return event;
 };
 
-const emailTemplate = (
+const createUserTemplate = (
   email,
   password
 ) => `<html style="margin: 0;padding: 0;font-family: &quot;Lucida Sans&quot;, &quot;Lucida Sans Regular&quot;, &quot;Lucida Grande&quot;,
@@ -39,3 +44,10 @@ const emailTemplate = (
     </table>
   </div>
 </html>`;
+
+const forgotPasswordTemplate = (email, code) => `
+  <p>To reset your password, follow this link:</p>
+  <a href="http://localhost:3000/reset-password?code=${code}&email=${email}" target="_blank">
+  Click here
+  </a>
+`;

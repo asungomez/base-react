@@ -57,10 +57,15 @@ export const currentUser = async () => {
 };
 
 export const forgotPassword = async (email: string) => {
-  await sleep(1000);
-  const user = USERS.find((user) => email === user.email);
-  if (!user) {
-    throw new Error("USER_NOT_EXISTS");
+  try {
+    await Auth.forgotPassword(email);
+  } catch (error) {
+    if (hasCode(error)) {
+      if (error.code === "UserNotFoundException") {
+        throw new Error("USER_NOT_EXISTS");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
   }
 };
 
@@ -110,19 +115,28 @@ export const logOut = async () => {
   }
 };
 
-export const resetPassword = async (email: string, newPassword: string) => {
-  await sleep(1000);
-  const userIndex = USERS.findIndex((user) => email === user.email);
-  if (userIndex === -1) {
-    throw new Error("USER_NOT_EXISTS");
+export const resetPassword = async (
+  email: string,
+  newPassword: string,
+  code: string
+) => {
+  // await sleep(1000);
+  // const userIndex = USERS.findIndex((user) => email === user.email);
+  // if (userIndex === -1) {
+  //   throw new Error("USER_NOT_EXISTS");
+  // }
+  // if (!newPassword) {
+  //   throw new Error("INVALID_PASSWORD");
+  // }
+  // USERS[userIndex] = {
+  //   ...USERS[userIndex],
+  //   password: newPassword,
+  // };
+  try {
+    await Auth.forgotPasswordSubmit(email, code, newPassword);
+  } catch (error) {
+    throw new Error("INTERNAL_ERROR");
   }
-  if (!newPassword) {
-    throw new Error("INVALID_PASSWORD");
-  }
-  USERS[userIndex] = {
-    ...USERS[userIndex],
-    password: newPassword,
-  };
 };
 
 export const setPassword = async (user: CognitoUser, newPassword: string) => {

@@ -13,7 +13,7 @@ import { ErrorCode, isErrorCode } from "../../services/error";
 export const LogInPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
-  const { logIn } = useAuth();
+  const { logIn, setUser } = useAuth();
 
   const navigate = useNavigate();
 
@@ -25,10 +25,13 @@ export const LogInPage: FC = () => {
     AWSLogIn(formValues.email, formValues.password)
       .then((user) => {
         setLoading(false);
-        logIn(user);
         if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
+          if (setUser) {
+            setUser(user);
+          }
           navigate("/set-password");
         } else {
+          logIn(user);
           navigate("/users");
         }
       })
