@@ -52,6 +52,22 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_authCustomMessage_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "authCustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_authCustomMessage_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "authCustomMessage"
+        }
+      ]
+    },
     "AMPLIFY_hosting_amplifyhosting_appId": {
       "usedBy": [
         {
