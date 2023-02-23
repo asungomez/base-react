@@ -1,12 +1,7 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import { Box, Typography } from "@mui/material";
+import { FC, useState } from "react";
 import { ProfileName } from "../../components/ProfileName/ProfileName";
-import {
-  currentUser,
-  updateName,
-  updatePassword,
-  User,
-} from "../../services/authentication";
+import { updateName, updatePassword } from "../../services/authentication";
 import { ErrorCode, isErrorCode } from "../../services/error";
 import { Error } from "../../components/Error/Error";
 import {
@@ -14,39 +9,27 @@ import {
   ProfilePasswordFormValues,
 } from "../../components/ProfilePassword/ProfilePassword";
 import { Line } from "./Profile.style";
+import { useAuth } from "../../context/AuthContext";
 
 export const ProfilePage: FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [changingName, setChangingName] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
+  const { user, setUser } = useAuth();
 
-  useEffect(() => {
-    if (loading) {
-      currentUser()
-        .then((user) => {
-          setUser(user);
-          setLoading(false);
-        })
-        .catch((error) => {
-          setLoading(false);
-          if (isErrorCode(error.message)) {
-            setError(error.message);
-          } else {
-            setError("INTERNAL_ERROR");
-          }
-        });
-    }
-  });
+  if (!user) {
+    return <Error code="USER_NOT_EXISTS" />;
+  }
 
   const changeNameHandler = (newName: string) => {
     if (user) {
       setChangingName(true);
-      updateName(user?.email, newName)
+      updateName(user, newName)
         .then((newUser) => {
           setChangingName(false);
-          setUser(newUser);
+          if (setUser) {
+            setUser(newUser);
+          }
         })
         .catch((error) => {
           setChangingName(false);
@@ -65,12 +48,13 @@ export const ProfilePage: FC = () => {
   }: ProfilePasswordFormValues) => {
     if (user) {
       setChangingPassword(true);
-      updatePassword(user.email, oldPassword, newPassword)
+      setError(null);
+      updatePassword(user, oldPassword, newPassword)
         .then(() => {
           setChangingPassword(false);
         })
         .catch((error) => {
-          setChangingName(false);
+          setChangingPassword(false);
           if (isErrorCode(error.message)) {
             setError(error.message);
           } else {
@@ -79,31 +63,26 @@ export const ProfilePage: FC = () => {
         });
     }
   };
+
+  const name: string = user?.attributes?.name || "";
   return (
     <>
       <Typography variant="h3" gutterBottom>
         My Profile
       </Typography>
-      {loading ? (
-        <CircularProgress />
-      ) : error ? (
-        <Error code={error} />
-      ) : user ? (
-        <Box>
-          <ProfileName
-            name={user?.name}
-            onChange={changeNameHandler}
-            loading={changingName}
-          />
-          <Line flexItem />
-          <ProfilePassword
-            onChange={changePasswordHandler}
-            loading={changingPassword}
-          />
-        </Box>
-      ) : (
-        <Error code="USER_NOT_EXISTS" />
-      )}
+      {error && <Error code={error} />}
+      <Box>
+        <ProfileName
+          name={name}
+          onChange={changeNameHandler}
+          loading={changingName}
+        />
+        <Line flexItem />
+        <ProfilePassword
+          onChange={changePasswordHandler}
+          loading={changingPassword}
+        />
+      </Box>
     </>
   );
 };

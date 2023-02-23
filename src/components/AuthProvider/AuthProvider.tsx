@@ -1,7 +1,7 @@
 import { FC, ReactNode, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import { CognitoUser } from "amazon-cognito-identity-js";
 import {
+  CognitoUserWithAttributes,
   getAuthenticatedUser,
   logOut as AWSLogOut,
 } from "../../services/authentication";
@@ -12,7 +12,7 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<CognitoUser | null>(null);
+  const [user, setUser] = useState<CognitoUserWithAttributes | null>(null);
   const [authStatus, setAuthStatus] = useState<
     "checking" | "authenticated" | "unauthenticated"
   >("checking");
@@ -28,7 +28,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     });
   }, []);
 
-  const logIn = (user: CognitoUser) => {
+  const logIn = (user: CognitoUserWithAttributes) => {
     setUser(user);
     setAuthStatus("authenticated");
   };

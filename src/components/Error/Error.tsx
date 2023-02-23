@@ -10,7 +10,7 @@ type ErrorProps = {
 export const Error: FC<ErrorProps> = ({ code }) => {
   const navigate = useNavigate();
 
-  const toForgotPassword = () => navigate("forgot-password");
+  const toForgotPassword = () => navigate("/forgot-password");
   const toLogIn = () => navigate("/log-in");
 
   if (code === "INCORRECT_PASSWORD") {
