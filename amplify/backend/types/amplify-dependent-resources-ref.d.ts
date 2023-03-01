@@ -1,4 +1,11 @@
 export type AmplifyDependentResourcesAttributes = {
+  api: {
+    AdminQueries: {
+      ApiId: "string";
+      ApiName: "string";
+      RootUrl: "string";
+    };
+  };
   auth: {
     auth: {
       AppClientID: "string";
@@ -9,8 +16,18 @@ export type AmplifyDependentResourcesAttributes = {
       UserPoolId: "string";
       UserPoolName: "string";
     };
+    userPoolGroups: {
+      AdminGroupRole: "string";
+    };
   };
   function: {
+    AdminQueries56514224: {
+      Arn: "string";
+      LambdaExecutionRole: "string";
+      LambdaExecutionRoleArn: "string";
+      Name: "string";
+      Region: "string";
+    };
     authCustomMessage: {
       Arn: "string";
       LambdaExecutionRole: "string";

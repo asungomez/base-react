@@ -6,6 +6,7 @@ const ERROR_CODES = [
   "INVALID_PASSWORD",
   "INVALID_RESET_PASSWORD_LINK",
   "TOO_MANY_RETRIES",
+  "UNAUTHORIZED",
 ] as const;
 
 export type ErrorCode = typeof ERROR_CODES[number];

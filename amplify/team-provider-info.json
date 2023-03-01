@@ -20,13 +20,21 @@
         }
       },
       "auth": {
-        "auth": {}
+        "auth": {},
+        "userPoolGroups": {}
       },
       "function": {
         "authCustomMessage": {
           "deploymentBucketName": "amplify-auth-dev-110238-deployment",
-          "s3Key": "amplify-builds/authCustomMessage-7348546445504a474233-build.zip"
+          "s3Key": "amplify-builds/authCustomMessage-3646724a344a4f384354-build.zip"
+        },
+        "AdminQueries56514224": {
+          "deploymentBucketName": "amplify-auth-dev-110238-deployment",
+          "s3Key": "amplify-builds/AdminQueries56514224-36683038367763627238-build.zip"
         }
+      },
+      "api": {
+        "AdminQueries": {}
       }
     }
   }

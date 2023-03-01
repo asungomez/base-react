@@ -65,6 +65,13 @@ export const Error: FC<ErrorProps> = ({ code }) => {
       </Alert>
     );
   }
+  if (code === "UNAUTHORIZED") {
+    return (
+      <Alert severity="error">
+        <Typography>You&apos;re not authorized to see this page.</Typography>
+      </Alert>
+    );
+  }
   return (
     <Alert severity="error">
       <Typography>Internal error</Typography>

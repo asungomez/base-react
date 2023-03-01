@@ -44,8 +44,33 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const isInGroup = (group: string): boolean => {
+    if (!user) {
+      return false;
+    }
+    const session = user.getSignInUserSession();
+    if (!session) {
+      return false;
+    }
+    const accessToken = session.getAccessToken();
+    if (!accessToken) {
+      return false;
+    }
+    const payload = accessToken.decodePayload();
+    if (!payload) {
+      return false;
+    }
+    const groups = payload["cognito:groups"];
+    if (!groups || !Array.isArray(groups) || !groups.length) {
+      return false;
+    }
+    return groups.includes(group);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, authStatus, logOut, logIn }}>
+    <AuthContext.Provider
+      value={{ user, setUser, authStatus, logOut, logIn, isInGroup }}
+    >
       {authStatus === "checking" ? <CircularProgress /> : children}
     </AuthContext.Provider>
   );

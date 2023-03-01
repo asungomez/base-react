@@ -7,6 +7,7 @@ type AuthContextData = {
   authStatus: "checking" | "authenticated" | "unauthenticated";
   logOut: () => Promise<void>;
   logIn: (user: CognitoUserWithAttributes) => void;
+  isInGroup: (group: string) => boolean;
 };
 
 export const AuthContext = createContext<AuthContextData>({
@@ -16,6 +17,7 @@ export const AuthContext = createContext<AuthContextData>({
     console.log("Log out");
   },
   logIn: () => console.log("Log in"),
+  isInGroup: () => false,
 });
 
 export const useAuth = () => useContext(AuthContext);

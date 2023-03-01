@@ -35,7 +35,7 @@
       "CustomMessage": ["custom"]
     },
     "hostedUI": false,
-    "userPoolGroupList": [],
+    "userPoolGroupList": ["Admin"],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
     "useEnabledMfas": true,
@@ -59,6 +59,7 @@
       "Ref": "AWS::StackId"
     },
     "authTriggerConnections": "[\n  {\n    \"triggerType\": \"CustomMessage\",\n    \"lambdaFunctionName\": \"authCustomMessage\"\n  }\n]",
-    "permissions": []
+    "permissions": [],
+    "adminQueryGroup": "Admin"
   }
 }

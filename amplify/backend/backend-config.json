@@ -1,4 +1,23 @@
 {
+  "api": {
+    "AdminQueries": {
+      "authorizationType": "AMAZON_COGNITO_USER_POOLS",
+      "dependsOn": [
+        {
+          "attributes": ["UserPoolId"],
+          "category": "auth",
+          "resourceName": "auth"
+        },
+        {
+          "attributes": ["Arn", "Name"],
+          "category": "function",
+          "resourceName": "AdminQueries56514224"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
   "auth": {
     "auth": {
       "customAuth": false,
@@ -24,9 +43,37 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    },
+    "userPoolGroups": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId",
+            "AppClientIDWeb",
+            "AppClientID",
+            "IdentityPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "auth"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito-UserPool-Groups"
     }
   },
   "function": {
+    "AdminQueries56514224": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": ["UserPoolId"],
+          "category": "auth",
+          "resourceName": "auth"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "authCustomMessage": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -41,6 +88,22 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_AdminQueries56514224_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "AdminQueries56514224"
+        }
+      ]
+    },
+    "AMPLIFY_function_AdminQueries56514224_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "AdminQueries56514224"
+        }
+      ]
+    },
     "AMPLIFY_function_authCustomMessage_deploymentBucketName": {
       "usedBy": [
         {
