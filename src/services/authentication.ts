@@ -19,22 +19,36 @@ export type CognitoUserWithAttributes = CognitoUser & {
   };
 };
 
-const sleep = async (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 export const createUser = async (email: string, password: string) => {
-  await sleep(1000);
-  // const existingUser = USERS.find((user) => user.email === email);
-  // if (existingUser) {
-  //   throw new Error("DUPLICATED_USER");
-  // }
-  // const user: User = {
-  //   id: USERS.length + 1,
-  //   email,
-  //   password,
-  //   mustChangePassword: true,
-  // };
-  // USERS.push(user);
-  // return user;
+  try {
+    await AdminQueries.post("/createUser", {
+      email,
+      password,
+    });
+  } catch (error) {
+    if (isResponse(error)) {
+      if (
+        error.response.data.message ===
+        "User does not have permissions to perform administrative tasks"
+      ) {
+        throw new Error("UNAUTHORIZED");
+      }
+      if (
+        error.response.data.message ===
+        "An account with the given email already exists."
+      ) {
+        throw new Error("DUPLICATED_USER");
+      }
+      if (
+        error.response.data.message.includes(
+          "Password did not conform with password policy"
+        )
+      ) {
+        throw new Error("INVALID_PASSWORD");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
 };
 
 const findAttributeValue = (user: UserResponse, attribute: string) =>
@@ -117,6 +131,27 @@ const isAttribute = (
   "Value" in value &&
   !!(value as { Name: string; Value: string })["Name"] &&
   !!(value as { Name: string; Value: string })["Value"];
+
+const isResponse = (
+  value: unknown
+): value is { response: { data: { message: string } } } => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const objectValue = value as Record<string, unknown>;
+  if (
+    typeof objectValue.response !== "object" ||
+    objectValue.response === null
+  ) {
+    return false;
+  }
+  const response = objectValue.response as Record<string, unknown>;
+  if (typeof response.data !== "object" || response.data === null) {
+    return false;
+  }
+  const data = response.data as Record<string, unknown>;
+  return typeof data.message === "string";
+};
 
 export const logIn = async (
   email: string,

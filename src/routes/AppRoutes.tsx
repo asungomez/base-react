@@ -9,6 +9,7 @@ import { ProfilePage } from "../pages/Profile/Profile";
 import { ResetPasswordPage } from "../pages/ResetPassword/ResetPassword";
 import { SetPasswordPage } from "../pages/SetPassword/SetPassword";
 import { UsersPage } from "../pages/Users/Users";
+import { AdminRoute } from "./AdminRoute";
 import { AuthenticatedRoute } from "./AuthenticatedRoute";
 import { UnauthenticatedRoute } from "./UnauthenticatedRoute";
 
@@ -32,7 +33,9 @@ export const AppRoutes: FC = () => (
       path="users"
       element={
         <AuthenticatedRoute>
-          <UsersLayout />
+          <AdminRoute>
+            <UsersLayout />
+          </AdminRoute>
         </AuthenticatedRoute>
       }
     >

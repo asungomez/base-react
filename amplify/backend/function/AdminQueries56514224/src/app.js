@@ -18,6 +18,7 @@ const {
   addUserToGroup,
   removeUserFromGroup,
   listUsers,
+  createUser,
 } = require("./cognitoActions");
 
 const app = express();
@@ -101,6 +102,20 @@ app.post("/removeUserFromGroup", async (req, res, next) => {
       req.body.username,
       req.body.groupname
     );
+    res.status(200).json(response);
+  } catch (err) {
+    next(err);
+  }
+});
+app.post("/createUser", async (req, res, next) => {
+  if (!req.body.email || !req.body.password) {
+    const err = new Error("email is required");
+    err.statusCode = 400;
+    return next(err);
+  }
+
+  try {
+    const response = await createUser(req.body.email, req.body.password);
     res.status(200).json(response);
   } catch (err) {
     next(err);

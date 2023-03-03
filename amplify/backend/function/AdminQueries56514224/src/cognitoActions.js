@@ -85,7 +85,31 @@ async function listUsers(Limit, PaginationToken) {
   }
 }
 
+async function createUser(email, password) {
+  const params = {
+    UserAttributes: [
+      { Name: "email", Value: email },
+      { Name: "email_verified", Value: "True" },
+    ],
+    UserPoolId: userPoolId,
+    Username: email,
+    TemporaryPassword: password,
+  };
+  console.log(`Attempting to create user with email ${email}`);
+
+  try {
+    const result = await cognitoIdentityServiceProvider
+      .adminCreateUser(params)
+      .promise();
+    return result;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 module.exports = {
+  createUser,
   addUserToGroup,
   removeUserFromGroup,
   listUsers,
