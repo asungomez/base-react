@@ -59,3 +59,5 @@ export const ResetPasswordPage: FC = () => {
     </>
   );
 };
+
+export { useNavigate };
