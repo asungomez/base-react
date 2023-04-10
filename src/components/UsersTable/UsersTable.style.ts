@@ -5,5 +5,5 @@ type WrapperProps = {
 };
 
 export const Wrapper = styledComponents.div<WrapperProps>(({ elements }) => ({
-  height: `${52 * elements + 111}px`,
+  height: `${elements > 0 ? 52 * elements + 111 : 150}px`,
 }));

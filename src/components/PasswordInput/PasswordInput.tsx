@@ -44,7 +44,10 @@ export const PasswordInput: FC<PasswordInputProps> = ({
         ),
         endAdornment: (
           <InputAdornment position="end">
-            <IconButton onClick={togglePasswordVisibility}>
+            <IconButton
+              onClick={togglePasswordVisibility}
+              aria-label={showPassword ? "hide password" : "show password"}
+            >
               {showPassword ? <VisibilityOff /> : <Visibility />}
             </IconButton>
           </InputAdornment>

@@ -22,14 +22,13 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --passWithNoTests",
-    "test:ci": "react-scripts test --passWithNoTests --watchAll=false",
     "eject": "react-scripts eject",
     "lint": "eslint ./src/**/*.{ts,tsx} --fix",
     "format": "prettier --write .",
     "prepare": "husky install",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "test:unit": "cypress run --component",
+    "test:e2e": "start-server-and-test --expect 200 \"npm start\" http-get://127.0.0.1:3000 \"cypress run --e2e\""
   },
   "eslintConfig": {
     "extends": [
@@ -50,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/cypress": "^9.0.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
@@ -58,12 +58,14 @@
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
     "@types/styled-components": "^5.1.25",
+    "@types/testing-library__cypress": "^5.0.9",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
-    "cypress": "^10.10.0",
+    "cypress": "^12.7.0",
     "eslint": "^8.17.0",
     "eslint-plugin-react": "^7.30.0",
     "husky": "^8.0.1",
-    "prettier": "2.6.2"
+    "prettier": "2.6.2",
+    "start-server-and-test": "^2.0.0"
   }
 }

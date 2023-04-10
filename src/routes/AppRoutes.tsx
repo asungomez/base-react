@@ -12,6 +12,7 @@ import { UsersPage } from "../pages/Users/Users";
 import { AdminRoute } from "./AdminRoute";
 import { AuthenticatedRoute } from "./AuthenticatedRoute";
 import { UnauthenticatedRoute } from "./UnauthenticatedRoute";
+import { UserDetails } from "../pages/UserDetails/UserDetails";
 
 export const AppRoutes: FC = () => (
   <Routes>
@@ -42,6 +43,7 @@ export const AppRoutes: FC = () => (
       <Route index element={<UsersPage />} />
       <Route path="create" element={<CreateUserPage />} />
       <Route path="me" element={<ProfilePage />} />
+      <Route path=":id" element={<UserDetails />} />
     </Route>
   </Routes>
 );
