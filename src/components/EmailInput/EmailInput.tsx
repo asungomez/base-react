@@ -5,9 +5,16 @@ import { FC } from "react";
 type EmailInputProps = {
   value?: string;
   onChange?: (email: string) => void;
+  errorMessage?: string | null;
+  name?: string;
 };
 
-export const EmailInput: FC<EmailInputProps> = ({ value, onChange }) => {
+export const EmailInput: FC<EmailInputProps> = ({
+  value,
+  onChange,
+  errorMessage,
+  name = "email",
+}) => {
   const changeHandler: React.ChangeEventHandler<
     HTMLTextAreaElement | HTMLInputElement
   > = (event) => {
@@ -18,11 +25,13 @@ export const EmailInput: FC<EmailInputProps> = ({ value, onChange }) => {
   return (
     <TextField
       label="Email"
-      name="email"
+      name={name}
       variant="outlined"
       value={value}
       margin="normal"
       onChange={changeHandler}
+      error={!!errorMessage}
+      helperText={errorMessage}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

@@ -7,6 +7,7 @@ type PasswordInputProps = {
   value?: string;
   label?: string;
   name?: string;
+  errorMessage?: string | null;
 };
 
 export const PasswordInput: FC<PasswordInputProps> = ({
@@ -14,6 +15,7 @@ export const PasswordInput: FC<PasswordInputProps> = ({
   value,
   label = "Password",
   name = "password",
+  errorMessage,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,6 +38,8 @@ export const PasswordInput: FC<PasswordInputProps> = ({
       type={showPassword ? "text" : "password"}
       margin="normal"
       onChange={changeHandler}
+      error={!!errorMessage}
+      helperText={errorMessage}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
