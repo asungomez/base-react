@@ -5,6 +5,11 @@ export type AmplifyDependentResourcesAttributes = {
       ApiName: "string";
       RootUrl: "string";
     };
+    dataapi: {
+      ApiId: "string";
+      ApiName: "string";
+      RootUrl: "string";
+    };
   };
   auth: {
     auth: {
@@ -29,6 +34,13 @@ export type AmplifyDependentResourcesAttributes = {
       Region: "string";
     };
     authCustomMessage: {
+      Arn: "string";
+      LambdaExecutionRole: "string";
+      LambdaExecutionRoleArn: "string";
+      Name: "string";
+      Region: "string";
+    };
+    dataapi: {
       Arn: "string";
       LambdaExecutionRole: "string";
       LambdaExecutionRoleArn: "string";

@@ -1,18 +1,24 @@
 import { LoadingButton } from "@mui/lab";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { EmailInput } from "../EmailInput/EmailInput";
 import { Form } from "../Form/Form";
+import * as yup from "yup";
+import { useFormik } from "formik";
 
 export type ForgotPasswordFormValues = {
   email: string;
 };
 
-const EMPTY_FORM = {
+const EMPTY_FORM: ForgotPasswordFormValues = {
   email: "",
 };
 
+const validationSchema = yup.object<ForgotPasswordFormValues>({
+  email: yup.string().email().required(),
+});
+
 type ForgotPasswordFormProps = {
-  onSubmit?: (values: ForgotPasswordFormValues) => void;
+  onSubmit: (values: ForgotPasswordFormValues) => void;
   loading?: boolean;
   initialValues?: ForgotPasswordFormValues;
 };
@@ -22,29 +28,18 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
   loading = false,
   initialValues = EMPTY_FORM,
 }) => {
-  const [formValues, setFormValues] = useState(initialValues);
-
-  const submitHandler = () => {
-    if (onSubmit && formValues.email.length) {
-      onSubmit(formValues);
-    }
-  };
-
-  const changeHandler = (
-    value: string,
-    key: keyof ForgotPasswordFormValues
-  ) => {
-    setFormValues((formValues) => ({
-      ...formValues,
-      [key]: value,
-    }));
-  };
+  const formik = useFormik<ForgotPasswordFormValues>({
+    initialValues,
+    validationSchema,
+    onSubmit,
+  });
 
   return (
-    <Form onSubmit={submitHandler}>
+    <Form onSubmit={formik.handleSubmit}>
       <EmailInput
-        value={formValues.email}
-        onChange={(email) => changeHandler(email, "email")}
+        value={formik.values.email}
+        name="email"
+        onChange={formik.handleChange}
       />
       <LoadingButton loading={loading} variant="outlined" type="submit">
         Send

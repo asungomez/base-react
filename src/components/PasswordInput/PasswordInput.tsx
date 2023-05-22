@@ -3,7 +3,7 @@ import { Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import { FC, useState } from "react";
 
 type PasswordInputProps = {
-  onChange?: (password: string) => void;
+  onChange?: (event: { target: { value: string; name: string } }) => void;
   value?: string;
   label?: string;
   name?: string;
@@ -23,7 +23,7 @@ export const PasswordInput: FC<PasswordInputProps> = ({
     HTMLTextAreaElement | HTMLInputElement
   > = (event) => {
     if (onChange) {
-      onChange(event.target.value);
+      onChange(event);
     }
   };
 

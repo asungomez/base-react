@@ -1,8 +1,10 @@
 import { LoadingButton } from "@mui/lab";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { EmailInput } from "../EmailInput/EmailInput";
 import { Form } from "../Form/Form";
 import { PasswordInput } from "../PasswordInput/PasswordInput";
+import * as yup from "yup";
+import { useFormik } from "formik";
 
 export type CreateUserFormValues = {
   email: string;
@@ -14,8 +16,13 @@ const EMPTY_FORM = {
   password: "",
 };
 
+const validationSchema = yup.object<CreateUserFormValues>({
+  email: yup.string().email().required(),
+  password: yup.string().required().min(8),
+});
+
 type CreateUserFormProps = {
-  onSubmit?: (values: CreateUserFormValues) => void;
+  onSubmit: (values: CreateUserFormValues) => void;
   loading?: boolean;
   initialValues?: CreateUserFormValues;
 };
@@ -25,30 +32,22 @@ export const CreateUserForm: FC<CreateUserFormProps> = ({
   loading = false,
   initialValues = EMPTY_FORM,
 }) => {
-  const [formValues, setFormValues] = useState(initialValues);
-
-  const submitHandler = () => {
-    if (onSubmit && formValues.email.length && formValues.password.length) {
-      onSubmit(formValues);
-    }
-  };
-
-  const changeHandler = (value: string, key: keyof CreateUserFormValues) => {
-    setFormValues((formValues) => ({
-      ...formValues,
-      [key]: value,
-    }));
-  };
+  const formik = useFormik<CreateUserFormValues>({
+    initialValues,
+    validationSchema,
+    onSubmit,
+  });
 
   return (
-    <Form onSubmit={submitHandler}>
+    <Form onSubmit={formik.handleSubmit}>
       <EmailInput
-        value={formValues.email}
-        onChange={(email) => changeHandler(email, "email")}
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        name="email"
       />
       <PasswordInput
-        value={formValues.password}
-        onChange={(password) => changeHandler(password, "password")}
+        value={formik.values.password}
+        onChange={formik.handleChange}
       />
       <LoadingButton loading={loading} variant="outlined" type="submit">
         Create

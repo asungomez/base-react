@@ -1,18 +1,24 @@
 import { LoadingButton } from "@mui/lab";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Form } from "../Form/Form";
 import { PasswordInput } from "../PasswordInput/PasswordInput";
+import * as yup from "yup";
+import { useFormik } from "formik";
 
 export type ResetPasswordFormValues = {
   password: string;
 };
 
-const EMPTY_FORM = {
+const EMPTY_FORM: ResetPasswordFormValues = {
   password: "",
 };
 
+const validationSchema = yup.object<ResetPasswordFormValues>({
+  password: yup.string().required().min(8),
+});
+
 type ResetPasswordFormProps = {
-  onSubmit?: (values: ResetPasswordFormValues) => void;
+  onSubmit: (values: ResetPasswordFormValues) => void;
   loading?: boolean;
   initialValues?: ResetPasswordFormValues;
 };
@@ -22,26 +28,18 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
   loading = false,
   initialValues = EMPTY_FORM,
 }) => {
-  const [formValues, setFormValues] = useState(initialValues);
-
-  const submitHandler = () => {
-    if (onSubmit && formValues.password.length) {
-      onSubmit(formValues);
-    }
-  };
-
-  const changeHandler = (value: string, key: keyof ResetPasswordFormValues) => {
-    setFormValues((formValues) => ({
-      ...formValues,
-      [key]: value,
-    }));
-  };
+  const formik = useFormik<ResetPasswordFormValues>({
+    initialValues,
+    validationSchema,
+    onSubmit,
+  });
 
   return (
-    <Form onSubmit={submitHandler}>
+    <Form onSubmit={formik.handleSubmit}>
       <PasswordInput
-        value={formValues.password}
-        onChange={(password) => changeHandler(password, "password")}
+        value={formik.values.password}
+        onChange={formik.handleChange}
+        name="password"
       />
       <LoadingButton loading={loading} variant="outlined" type="submit">
         Change password

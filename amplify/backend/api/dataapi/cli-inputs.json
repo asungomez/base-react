@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "paths": {
+    "/customers": {
+      "name": "/customers",
+      "lambdaFunction": "dataapi",
+      "permissions": {
+        "setting": "private",
+        "auth": ["create", "read", "update", "delete"],
+        "groups": {
+          "Admin": ["create", "read", "update", "delete"]
+        }
+      }
+    }
+  }
+}

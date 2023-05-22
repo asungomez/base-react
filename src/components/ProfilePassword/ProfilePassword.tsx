@@ -1,8 +1,10 @@
 import { LoadingButton } from "@mui/lab";
 import { Typography } from "@mui/material";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Form } from "../Form/Form";
 import { PasswordInput } from "../PasswordInput/PasswordInput";
+import * as yup from "yup";
+import { useFormik } from "formik";
 
 export type ProfilePasswordFormValues = {
   oldPassword: string;
@@ -14,8 +16,12 @@ const INITIAL_VALUES: ProfilePasswordFormValues = {
   newPassword: "",
 };
 
+const validationSchema = yup.object<ProfilePasswordFormValues>({
+  password: yup.string().required().min(8),
+});
+
 type ProfilePasswordProps = {
-  onChange?: (formValues: ProfilePasswordFormValues) => void;
+  onChange: (formValues: ProfilePasswordFormValues) => void;
   loading?: boolean;
 };
 
@@ -23,37 +29,27 @@ export const ProfilePassword: FC<ProfilePasswordProps> = ({
   onChange,
   loading = false,
 }) => {
-  const [formValues, setFormValues] = useState(INITIAL_VALUES);
-
-  const submitHandler = () => {
-    if (onChange) {
-      onChange(formValues);
-    }
-  };
-
-  const changeHandler = (
-    value: string,
-    key: keyof ProfilePasswordFormValues
-  ) => {
-    setFormValues((formValues) => ({
-      ...formValues,
-      [key]: value,
-    }));
-  };
+  const formik = useFormik<ProfilePasswordFormValues>({
+    initialValues: INITIAL_VALUES,
+    validationSchema,
+    onSubmit: onChange,
+  });
 
   return (
     <>
       <Typography variant="h4">Change password</Typography>
-      <Form onSubmit={submitHandler}>
+      <Form onSubmit={formik.handleSubmit}>
         <PasswordInput
-          value={formValues.oldPassword}
-          onChange={(password) => changeHandler(password, "oldPassword")}
+          value={formik.values.oldPassword}
+          onChange={formik.handleChange}
           label="Current password"
+          name="oldPassword"
         />
         <PasswordInput
-          value={formValues.newPassword}
-          onChange={(password) => changeHandler(password, "newPassword")}
+          value={formik.values.newPassword}
+          onChange={formik.handleChange}
           label="New password"
+          name="newPassword"
         />
         <LoadingButton loading={loading} variant="outlined" type="submit">
           Change password

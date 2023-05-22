@@ -4,7 +4,7 @@ import { FC } from "react";
 
 type EmailInputProps = {
   value?: string;
-  onChange?: (email: string) => void;
+  onChange?: (event: { target: { value: string; name: string } }) => void;
   errorMessage?: string | null;
   name?: string;
 };
@@ -19,7 +19,7 @@ export const EmailInput: FC<EmailInputProps> = ({
     HTMLTextAreaElement | HTMLInputElement
   > = (event) => {
     if (onChange) {
-      onChange(event.target.value);
+      onChange(event);
     }
   };
   return (

@@ -16,6 +16,27 @@
       ],
       "providerPlugin": "awscloudformation",
       "service": "API Gateway"
+    },
+    "dataapi": {
+      "dependsOn": [
+        {
+          "attributes": ["Name", "Arn"],
+          "category": "function",
+          "resourceName": "dataapi"
+        },
+        {
+          "attributes": ["UserPoolId"],
+          "category": "auth",
+          "resourceName": "auth"
+        },
+        {
+          "attributes": ["AdminGroupRole"],
+          "category": "auth",
+          "resourceName": "userPoolGroups"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
     }
   },
   "auth": {
@@ -78,6 +99,12 @@
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
+    },
+    "dataapi": {
+      "build": true,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
     }
   },
   "hosting": {
@@ -117,6 +144,22 @@
         {
           "category": "function",
           "resourceName": "authCustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_dataapi_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "dataapi"
+        }
+      ]
+    },
+    "AMPLIFY_function_dataapi_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "dataapi"
         }
       ]
     },

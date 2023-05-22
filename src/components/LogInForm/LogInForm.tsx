@@ -1,5 +1,5 @@
 import { LoadingButton } from "@mui/lab";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { EmailInput } from "../EmailInput/EmailInput";
 import { Form } from "../Form/Form";
 import { PasswordInput } from "../PasswordInput/PasswordInput";
@@ -11,21 +11,21 @@ export type LogInFormValues = {
   password: string;
 };
 
-const EMPTY_FORM = {
+const EMPTY_FORM: LogInFormValues = {
   email: "",
   password: "",
-};
-
-type LogInFormProps = {
-  onSubmit: (values: LogInFormValues) => void;
-  loading?: boolean;
-  initialValues?: LogInFormValues;
 };
 
 const validationSchema = yup.object<LogInFormValues>({
   email: yup.string().email().required(),
   password: yup.string().required(),
 });
+
+type LogInFormProps = {
+  onSubmit: (values: LogInFormValues) => void;
+  loading?: boolean;
+  initialValues?: LogInFormValues;
+};
 
 export const LogInForm: FC<LogInFormProps> = ({
   onSubmit,

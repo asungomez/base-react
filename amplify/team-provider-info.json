@@ -10,7 +10,8 @@
       "StackName": "amplify-auth-dev-110238",
       "StackId": "arn:aws:cloudformation:eu-west-1:291311682549:stack/amplify-auth-dev-110238/36982f50-aeaa-11ed-b062-0249a356705d",
       "AmplifyAppId": "d1s5jl1a4rv69t",
-      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-auth-dev-110238-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-auth-dev-110238-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-auth-dev-110238-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "hosting": {
@@ -30,11 +31,16 @@
         },
         "AdminQueries56514224": {
           "deploymentBucketName": "amplify-auth-dev-110238-deployment",
-          "s3Key": "amplify-builds/AdminQueries56514224-734b43374c2f65375562-build.zip"
+          "s3Key": "amplify-builds/AdminQueries56514224-47327430434d6c2f5971-build.zip"
+        },
+        "dataapi": {
+          "deploymentBucketName": "amplify-auth-dev-110238-deployment",
+          "s3Key": "amplify-builds/dataapi-773478535938444c3542-build.zip"
         }
       },
       "api": {
-        "AdminQueries": {}
+        "AdminQueries": {},
+        "dataapi": {}
       }
     }
   }
