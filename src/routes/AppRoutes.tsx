@@ -14,6 +14,7 @@ import { AuthenticatedRoute } from "./AuthenticatedRoute";
 import { UnauthenticatedRoute } from "./UnauthenticatedRoute";
 import { UserDetails } from "../pages/UserDetails/UserDetails";
 import { CustomersPage } from "../pages/Customers/Customers";
+import { CreateCustomerPage } from "../pages/CreateCustomer/CreateCustomer";
 
 export const AppRoutes: FC = () => (
   <Routes>
@@ -56,6 +57,7 @@ export const AppRoutes: FC = () => (
       }
     >
       <Route index element={<CustomersPage />} />
+      <Route path="create" element={<CreateCustomerPage />} />
     </Route>
   </Routes>
 );

@@ -7,6 +7,7 @@ type EmailInputProps = {
   onChange?: (event: { target: { value: string; name: string } }) => void;
   errorMessage?: string | null;
   name?: string;
+  withAdornment?: boolean;
 };
 
 export const EmailInput: FC<EmailInputProps> = ({
@@ -14,6 +15,7 @@ export const EmailInput: FC<EmailInputProps> = ({
   onChange,
   errorMessage,
   name = "email",
+  withAdornment = true,
 }) => {
   const changeHandler: React.ChangeEventHandler<
     HTMLTextAreaElement | HTMLInputElement
@@ -33,11 +35,11 @@ export const EmailInput: FC<EmailInputProps> = ({
       error={!!errorMessage}
       helperText={errorMessage}
       InputProps={{
-        startAdornment: (
+        startAdornment: withAdornment ? (
           <InputAdornment position="start">
             <AccountCircle />
           </InputAdornment>
-        ),
+        ) : undefined,
       }}
     />
   );
