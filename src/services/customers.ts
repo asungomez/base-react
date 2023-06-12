@@ -12,6 +12,12 @@ const get = async (
   });
 };
 
+const post = async (path: string, body: { [param: string]: string } = {}) => {
+  return API.post("dataapi", path, {
+    body,
+  });
+};
+
 export const CUSTOMER_TYPES = ["individual", "company", "other"] as const;
 export type CustomerType = typeof CUSTOMER_TYPES[number];
 export type Customer = {
@@ -38,11 +44,11 @@ const isCustomer = (value: unknown): value is Customer => {
 export const createCustomer = async (
   formValues: CreateCustomerFormValues
 ): Promise<Customer> => {
-  await sleep(1000);
-  return {
-    id: "1",
-    ...formValues,
-  };
+  const response = await post("/customers", formValues);
+  if (!isCustomer(response.customer)) {
+    throw new Error("INTERNAL_ERROR");
+  }
+  return response.customer;
 };
 
 export const getCustomers = async (): Promise<Customer[]> => {

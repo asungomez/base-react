@@ -61,8 +61,11 @@ app.get("/customers/*", function (req, res) {
  ****************************/
 
 app.post("/customers", function (req, res) {
-  // Add your code here
-  res.json({ success: "post call succeed!", url: req.url, body: req.body });
+  const customer = req.body;
+  const id = customers.length + 1;
+  customer.id = id;
+  customers.push(customer);
+  res.json({ customer });
 });
 
 app.post("/customers/*", function (req, res) {
