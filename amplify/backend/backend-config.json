@@ -204,5 +204,11 @@
         }
       ]
     }
+  },
+  "storage": {
+    "exercisesdb": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
+    }
   }
 }

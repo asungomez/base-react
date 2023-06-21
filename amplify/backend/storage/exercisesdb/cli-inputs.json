@@ -1,0 +1,10 @@
+{
+  "resourceName": "exercisesdb",
+  "tableName": "customers",
+  "partitionKey": {
+    "fieldName": "id",
+    "fieldType": "string"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}
