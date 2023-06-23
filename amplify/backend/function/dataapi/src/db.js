@@ -5,6 +5,13 @@ const uuid = require("node-uuid");
 AWS.config.update({ region: "eu-west-1" });
 const ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
+const mapCustomerFromDB = (customer) => ({
+  id: customer.id.S,
+  name: customer.name.S,
+  email: customer.email.S,
+  type: customer.type.S,
+});
+
 const createCustomer = async (customer) => {
   const id = uuid.v1();
   const params = {
@@ -31,17 +38,23 @@ const createCustomer = async (customer) => {
   };
 };
 
+const getCustomer = async (id) => {
+  const params = {
+    TableName: "customers-dev",
+    Key: {
+      id: { S: id },
+    },
+  };
+  const result = await ddb.getItem(params).promise();
+  return mapCustomerFromDB(result.Item);
+};
+
 const getCustomers = async () => {
   const params = {
     TableName: "customers-dev",
   };
   const result = await ddb.scan(params).promise();
-  return result.Items.map((item) => ({
-    id: item.id.S,
-    name: item.name.S,
-    email: item.email.S,
-    type: item.type.S,
-  }));
+  return result.Items.map(mapCustomerFromDB);
 };
 
-module.exports = { createCustomer, getCustomers };
+module.exports = { createCustomer, getCustomer, getCustomers };

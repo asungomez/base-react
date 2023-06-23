@@ -28,6 +28,10 @@ export const CustomersPage: FC = () => {
     navigate("/customers/create");
   };
 
+  const onCustomerClick = (customer: Customer) => {
+    navigate(`/customers/${customer.id}`);
+  };
+
   return (
     <>
       <Typography variant="h3" gutterBottom>
@@ -40,7 +44,10 @@ export const CustomersPage: FC = () => {
           <Button onClick={onCreate}>Create new customer</Button>
           <CustomersList>
             {customers.map((customer) => (
-              <ListItemButton key={customer.id}>
+              <ListItemButton
+                key={customer.id}
+                onClick={() => onCustomerClick(customer)}
+              >
                 <CustomerItem customer={customer} />
               </ListItemButton>
             ))}

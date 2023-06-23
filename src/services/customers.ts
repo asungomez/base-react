@@ -1,8 +1,6 @@
 import { API } from "aws-amplify";
 import { CreateCustomerFormValues } from "../components/CreateCustomerForm/CreateCustomerForm";
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 const get = async (
   path: string,
   queryParams: { [param: string]: string } = {}
@@ -45,6 +43,14 @@ export const createCustomer = async (
   formValues: CreateCustomerFormValues
 ): Promise<Customer> => {
   const response = await post("/customers", formValues);
+  if (!isCustomer(response.customer)) {
+    throw new Error("INTERNAL_ERROR");
+  }
+  return response.customer;
+};
+
+export const getCustomer = async (id: string): Promise<Customer> => {
+  const response = await get(`/customers/${id}`);
   if (!isCustomer(response.customer)) {
     throw new Error("INTERNAL_ERROR");
   }

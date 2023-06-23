@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
-const { createCustomer, getCustomers } = require("./db");
+const { createCustomer, getCustomer, getCustomers } = require("./db");
 
 // declare a new express app
 const app = express();
@@ -24,9 +24,10 @@ app.get("/customers", async function (_, res) {
   res.json({ customers });
 });
 
-app.get("/customers/*", function (req, res) {
-  // Add your code here
-  res.json({ success: "get call succeed!", url: req.url });
+app.get("/customers/*", async function (req, res) {
+  const id = req.params[0];
+  const customer = await getCustomer(id);
+  res.json({ customer });
 });
 
 /****************************
