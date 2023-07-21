@@ -1,5 +1,5 @@
 import { API } from "aws-amplify";
-import { CreateCustomerFormValues } from "../components/CreateCustomerForm/CreateCustomerForm";
+import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
 
 const get = async (
   path: string,
@@ -12,6 +12,12 @@ const get = async (
 
 const post = async (path: string, body: { [param: string]: string } = {}) => {
   return API.post("dataapi", path, {
+    body,
+  });
+};
+
+const put = async (path: string, body: { [param: string]: string } = {}) => {
+  return API.put("dataapi", path, {
     body,
   });
 };
@@ -62,7 +68,7 @@ const isResponseError = (value: unknown): value is ResponseError => {
 };
 
 export const createCustomer = async (
-  formValues: CreateCustomerFormValues
+  formValues: CustomerFormValues
 ): Promise<Customer> => {
   try {
     const response = await post("/customers", formValues);
@@ -71,7 +77,6 @@ export const createCustomer = async (
     }
     return response.customer;
   } catch (error) {
-    console.dir(error);
     if (isResponseError(error)) {
       const status = error.response.status;
       if (status === 400) {
@@ -80,6 +85,32 @@ export const createCustomer = async (
         }
         if (error.response.data.error === "Email is required") {
           throw new Error("REQUIRED_EMAIL");
+        }
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
+export const editCustomer = async (
+  id: string,
+  formValues: CustomerFormValues
+): Promise<Customer> => {
+  try {
+    const response = await put("/customers/" + id, formValues);
+    if (!isCustomer(response.customer)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.customer;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "Email is required") {
+          throw new Error("REQUIRED_EMAIL");
+        }
+        if (error.response.data.error === "This email already exists") {
+          throw new Error("DUPLICATED_CUSTOMER");
         }
       }
     }

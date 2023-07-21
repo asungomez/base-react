@@ -75,4 +75,41 @@ const queryCustomerByEmail = async (email) => {
   return result.Items.map(mapCustomerFromDB);
 };
 
-module.exports = { createCustomer, getCustomer, getCustomers };
+const updateCustomer = async (id, customer) => {
+  const customersWithSameEmail = await queryCustomerByEmail(customer.email);
+  if (customersWithSameEmail.length > 0) {
+    throw new Error("This email already exists");
+  }
+  const params = {
+    ExpressionAttributeNames: {
+      "#N": "name",
+      "#E": "email",
+      "#T": "type",
+    },
+    ExpressionAttributeValues: {
+      ":name": {
+        S: customer.name,
+      },
+      ":email": {
+        S: customer.email,
+      },
+      ":type": {
+        S: customer.type,
+      },
+    },
+    Key: {
+      id: {
+        S: id,
+      },
+    },
+    TableName: "customers-dev",
+    UpdateExpression: "SET #N = :name, #E = :email, #T = :type",
+  };
+  await ddb.updateItem(params).promise();
+  return {
+    id,
+    ...customer,
+  };
+};
+
+module.exports = { createCustomer, getCustomer, getCustomers, updateCustomer };

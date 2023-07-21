@@ -1,9 +1,10 @@
 import { FC, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Customer, getCustomer } from "../../services/customers";
 import { ErrorCode, isErrorCode } from "../../services/error";
 import { Error } from "../../components/Error/Error";
 import {
+  Button,
   CircularProgress,
   List,
   ListItem,
@@ -23,6 +24,7 @@ export const CustomerDetailsPage: FC = () => {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [error, setError] = useState<ErrorCode | null>(null);
   const { id } = useParams<CustomerDetailsParams>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (loading && id) {
@@ -42,16 +44,20 @@ export const CustomerDetailsPage: FC = () => {
     }
   }, []);
 
+  const editClickHandler = () => navigate(`/customers/${id}/edit`);
+
   if (!id) {
     return <Error code="INTERNAL_ERROR" />;
   }
   if (loading) {
-    <>
-      <Typography variant="h3" gutterBottom>
-        Customer details page
-      </Typography>
-      <CircularProgress />
-    </>;
+    return (
+      <>
+        <Typography variant="h3" gutterBottom>
+          Customer details page
+        </Typography>
+        <CircularProgress />
+      </>
+    );
   }
   if (error) {
     return <Error code={error} />;
@@ -64,6 +70,9 @@ export const CustomerDetailsPage: FC = () => {
       <Typography variant="h3" gutterBottom>
         {customer.name}
       </Typography>
+      <Button variant="contained" onClick={editClickHandler}>
+        Edit
+      </Button>
       <List>
         <ListItem disablePadding>
           <ListItemIcon>

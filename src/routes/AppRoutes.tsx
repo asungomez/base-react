@@ -16,6 +16,7 @@ import { UserDetails } from "../pages/UserDetails/UserDetails";
 import { CustomersPage } from "../pages/Customers/Customers";
 import { CreateCustomerPage } from "../pages/CreateCustomer/CreateCustomer";
 import { CustomerDetailsPage } from "../pages/CustomerDetails/CustomerDetails";
+import { EditCustomerPage } from "../pages/EditCustomer/EditCustomer";
 
 export const AppRoutes: FC = () => (
   <Routes>
@@ -58,7 +59,10 @@ export const AppRoutes: FC = () => (
       }
     >
       <Route index element={<CustomersPage />} />
-      <Route path=":id" element={<CustomerDetailsPage />} />
+      <Route path=":id">
+        <Route index element={<CustomerDetailsPage />} />
+        <Route path="edit" element={<EditCustomerPage />} />
+      </Route>
       <Route path="create" element={<CreateCustomerPage />} />
     </Route>
   </Routes>

@@ -1,9 +1,9 @@
 import { FC, useState } from "react";
 import { Typography } from "@mui/material";
 import {
-  CreateCustomerForm,
-  CreateCustomerFormValues,
-} from "../../components/CreateCustomerForm/CreateCustomerForm";
+  CustomerForm,
+  CustomerFormValues,
+} from "../../components/CustomerForm/CustomerForm";
 import { createCustomer } from "../../services/customers";
 import { useNavigate } from "react-router-dom";
 import { ErrorCode, isErrorCode } from "../../services/error";
@@ -13,7 +13,8 @@ export const CreateCustomerPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
   const navigate = useNavigate();
-  const submitHandler = (formValues: CreateCustomerFormValues) => {
+
+  const submitHandler = (formValues: CustomerFormValues) => {
     setLoading(true);
     setError(null);
     createCustomer(formValues)
@@ -36,7 +37,7 @@ export const CreateCustomerPage: FC = () => {
         Customers
       </Typography>
       {error && <Error code={error} />}
-      <CreateCustomerForm onSubmit={submitHandler} loading={loading} />
+      <CustomerForm onSubmit={submitHandler} loading={loading} />
     </>
   );
 };

@@ -1,7 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
-const { createCustomer, getCustomer, getCustomers } = require("./db");
+const {
+  createCustomer,
+  getCustomer,
+  getCustomers,
+  updateCustomer,
+} = require("./db");
 const { validateCustomer } = require("./validation");
 
 // declare a new express app
@@ -35,10 +40,6 @@ app.get("/customers/*", async function (req, res) {
   res.json({ customer });
 });
 
-/****************************
- * Example post method *
- ****************************/
-
 app.post("/customers", async function (req, res) {
   try {
     const customer = req.body;
@@ -58,32 +59,24 @@ app.post("/customers", async function (req, res) {
   }
 });
 
-app.post("/customers/*", function (req, res) {
-  // Add your code here
-  res.json({ success: "post call succeed!", url: req.url, body: req.body });
-});
-
-/****************************
- * Example put method *
- ****************************/
-
-app.put("/customers", function (req, res) {
-  // Add your code here
-  res.json({ success: "put call succeed!", url: req.url, body: req.body });
-});
-
-app.put("/customers/*", function (req, res) {
-  // Add your code here
-  res.json({ success: "put call succeed!", url: req.url, body: req.body });
-});
-
-/****************************
- * Example delete method *
- ****************************/
-
-app.delete("/customers", function (req, res) {
-  // Add your code here
-  res.json({ success: "delete call succeed!", url: req.url });
+app.put("/customers/*", async function (req, res) {
+  try {
+    const id = req.params[0];
+    const customer = req.body;
+    validateCustomer(customer);
+    const updatedCustomer = await updateCustomer(id, customer);
+    res.json({ customer: updatedCustomer });
+  } catch (e) {
+    if (e.message === "Email is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "This email already exists") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
 });
 
 app.delete("/customers/*", function (req, res) {
