@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
 const { createCustomer, getCustomer, getCustomers } = require("./db");
+const { validateCustomer } = require("./validation");
 
 // declare a new express app
 const app = express();
@@ -27,6 +28,10 @@ app.get("/customers", async function (_, res) {
 app.get("/customers/*", async function (req, res) {
   const id = req.params[0];
   const customer = await getCustomer(id);
+  if (!customer) {
+    res.status(404).json({ error: "Customer not found" });
+    return;
+  }
   res.json({ customer });
 });
 
@@ -35,9 +40,22 @@ app.get("/customers/*", async function (req, res) {
  ****************************/
 
 app.post("/customers", async function (req, res) {
-  const customer = req.body;
-  const createdCustomer = await createCustomer(customer);
-  res.json({ customer: createdCustomer });
+  try {
+    const customer = req.body;
+    validateCustomer(customer);
+    const createdCustomer = await createCustomer(customer);
+    res.json({ customer: createdCustomer });
+  } catch (e) {
+    if (e.message === "This email already exists") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Email is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
 });
 
 app.post("/customers/*", function (req, res) {

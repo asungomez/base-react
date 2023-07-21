@@ -53,11 +53,11 @@ export const CustomerDetailsPage: FC = () => {
       <CircularProgress />
     </>;
   }
-  if (!customer) {
-    return <Error code="INTERNAL_ERROR" />;
-  }
   if (error) {
     return <Error code={error} />;
+  }
+  if (!customer) {
+    return <Error code="INTERNAL_ERROR" />;
   }
   return (
     <>

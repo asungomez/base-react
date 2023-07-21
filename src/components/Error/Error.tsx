@@ -12,6 +12,7 @@ export const Error: FC<ErrorProps> = ({ code }) => {
 
   const toForgotPassword = () => navigate("/forgot-password");
   const toLogIn = () => navigate("/log-in");
+  const toCustomers = () => navigate("/customers");
 
   if (code === "INCORRECT_PASSWORD") {
     return (
@@ -71,6 +72,33 @@ export const Error: FC<ErrorProps> = ({ code }) => {
         <Typography>
           You&apos;re not authorized to perform this action.
         </Typography>
+      </Alert>
+    );
+  }
+  if (code === "CUSTOMER_NOT_FOUND") {
+    return (
+      <Alert severity="warning">
+        <Typography>
+          This Customer doesn&apos;t exist or has been deleted.
+        </Typography>
+        <Button color="inherit" onClick={toCustomers}>
+          Back
+        </Button>
+      </Alert>
+    );
+  }
+  if (code === "DUPLICATED_CUSTOMER") {
+    return (
+      <Alert severity="error">
+        <Typography>This Customer&apos;s email already exists</Typography>
+      </Alert>
+    );
+  }
+
+  if (code === "REQUIRED_EMAIL") {
+    return (
+      <Alert severity="error">
+        <Typography>The field email is required</Typography>
       </Alert>
     );
   }

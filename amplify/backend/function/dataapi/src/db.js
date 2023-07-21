@@ -13,6 +13,10 @@ const mapCustomerFromDB = (customer) => ({
 });
 
 const createCustomer = async (customer) => {
+  const customersWithSameEmail = await queryCustomerByEmail(customer.email);
+  if (customersWithSameEmail.length > 0) {
+    throw new Error("This email already exists");
+  }
   const id = uuid.v1();
   const params = {
     TableName: "customers-dev",
@@ -46,6 +50,7 @@ const getCustomer = async (id) => {
     },
   };
   const result = await ddb.getItem(params).promise();
+  if (!result.Item) return null;
   return mapCustomerFromDB(result.Item);
 };
 
@@ -54,6 +59,19 @@ const getCustomers = async () => {
     TableName: "customers-dev",
   };
   const result = await ddb.scan(params).promise();
+  return result.Items.map(mapCustomerFromDB);
+};
+
+const queryCustomerByEmail = async (email) => {
+  const params = {
+    ExpressionAttributeValues: {
+      ":email": { S: email },
+    },
+    KeyConditionExpression: "email = :email",
+    TableName: "customers-dev",
+    IndexName: "search_by_email",
+  };
+  const result = await ddb.query(params).promise();
   return result.Items.map(mapCustomerFromDB);
 };
 

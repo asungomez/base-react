@@ -39,22 +39,70 @@ const isCustomer = (value: unknown): value is Customer => {
   );
 };
 
+type ResponseError = {
+  response: {
+    status: number;
+    data: { error: string };
+  };
+};
+
+const isResponseError = (value: unknown): value is ResponseError => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const responseError = value as ResponseError;
+  return (
+    typeof responseError.response === "object" &&
+    responseError.response !== null &&
+    typeof responseError.response.status === "number" &&
+    typeof responseError.response.data === "object" &&
+    responseError.response.data !== null &&
+    typeof responseError.response.data.error === "string"
+  );
+};
+
 export const createCustomer = async (
   formValues: CreateCustomerFormValues
 ): Promise<Customer> => {
-  const response = await post("/customers", formValues);
-  if (!isCustomer(response.customer)) {
+  try {
+    const response = await post("/customers", formValues);
+    if (!isCustomer(response.customer)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.customer;
+  } catch (error) {
+    console.dir(error);
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "This email already exists") {
+          throw new Error("DUPLICATED_CUSTOMER");
+        }
+        if (error.response.data.error === "Email is required") {
+          throw new Error("REQUIRED_EMAIL");
+        }
+      }
+    }
     throw new Error("INTERNAL_ERROR");
   }
-  return response.customer;
 };
 
 export const getCustomer = async (id: string): Promise<Customer> => {
-  const response = await get(`/customers/${id}`);
-  if (!isCustomer(response.customer)) {
+  try {
+    const response = await get(`/customers/${id}`);
+    if (!isCustomer(response.customer)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.customer;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
     throw new Error("INTERNAL_ERROR");
   }
-  return response.customer;
 };
 
 export const getCustomers = async (): Promise<Customer[]> => {
