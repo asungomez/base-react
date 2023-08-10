@@ -42,6 +42,16 @@ const createCustomer = async (customer) => {
   };
 };
 
+const deleteCustomer = async (id) => {
+  const params = {
+    TableName: "customers-dev",
+    Key: {
+      id: { S: id },
+    },
+  };
+  await ddb.deleteItem(params).promise();
+};
+
 const getCustomer = async (id) => {
   const params = {
     TableName: "customers-dev",
@@ -112,4 +122,10 @@ const updateCustomer = async (id, customer) => {
   };
 };
 
-module.exports = { createCustomer, getCustomer, getCustomers, updateCustomer };
+module.exports = {
+  createCustomer,
+  deleteCustomer,
+  getCustomer,
+  getCustomers,
+  updateCustomer,
+};

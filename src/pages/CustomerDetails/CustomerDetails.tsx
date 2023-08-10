@@ -10,10 +10,12 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Stack,
   Typography,
 } from "@mui/material";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import { CustomerIcon } from "../../components/CustomerIcon/CustomerIcon";
+import { DeleteCustomerButton } from "../../components/DeleteCustomerButton/DeleteCustomerButton";
 
 type CustomerDetailsParams = {
   id: string;
@@ -45,6 +47,8 @@ export const CustomerDetailsPage: FC = () => {
   }, []);
 
   const editClickHandler = () => navigate(`/customers/${id}/edit`);
+  const deleteCustomerHandler = () => navigate("/customers");
+  const errorDeletingHandler = (code: ErrorCode) => setError(code);
 
   if (!id) {
     return <Error code="INTERNAL_ERROR" />;
@@ -70,9 +74,16 @@ export const CustomerDetailsPage: FC = () => {
       <Typography variant="h3" gutterBottom>
         {customer.name}
       </Typography>
-      <Button variant="contained" onClick={editClickHandler}>
-        Edit
-      </Button>
+      <Stack direction="row" spacing={2}>
+        <Button variant="contained" onClick={editClickHandler}>
+          Edit
+        </Button>
+        <DeleteCustomerButton
+          customerId={customer.id}
+          onDelete={deleteCustomerHandler}
+          onError={errorDeletingHandler}
+        />
+      </Stack>
       <List>
         <ListItem disablePadding>
           <ListItemIcon>
