@@ -49,7 +49,7 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "storage": {
-    "exercisesdb": {
+    "exercises": {
       "Arn": "string",
       "Name": "string",
       "PartitionKeyName": "string",

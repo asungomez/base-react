@@ -1,5 +1,5 @@
 {
-  "resourceName": "exercisesdb",
+  "resourceName": "exercises",
   "tableName": "customers",
   "partitionKey": {
     "fieldName": "id",

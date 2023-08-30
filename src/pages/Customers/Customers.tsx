@@ -10,21 +10,30 @@ import { CustomersList } from "./Customers.style";
 import { Customer, getCustomers } from "../../services/customers";
 import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
+import { SearchBar } from "../../components/SearchBar/SearchBar";
 
 export const CustomersPage: FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [nextToken, setNextToken] = useState<string | undefined>();
+  const [searching, setSearching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
     if (loading) {
-      getCustomers().then(({ customers, nextToken }) => {
-        setLoading(false);
-        setCustomers(customers);
-        setNextToken(nextToken);
-      });
+      getCustomers()
+        .then(({ customers, nextToken }) => {
+          setLoading(false);
+          setCustomers(customers);
+          setNextToken(nextToken);
+        })
+        .catch(() => {
+          setLoading(false);
+          setCustomers([]);
+          setNextToken(undefined);
+        });
     }
   }, [loading, setLoading]);
 
@@ -39,7 +48,7 @@ export const CustomersPage: FC = () => {
   const loadMoreHandler = () => {
     if (nextToken) {
       setLoadingMore(true);
-      getCustomers(nextToken)
+      getCustomers(nextToken, searchTerm)
         .then(({ customers, nextToken }) => {
           setLoadingMore(false);
           setCustomers((prevCustomers) => [...prevCustomers, ...customers]);
@@ -52,15 +61,32 @@ export const CustomersPage: FC = () => {
     }
   };
 
+  const searchHandler = (searchTerm: string) => {
+    setSearching(true);
+    setSearchTerm(searchTerm);
+    getCustomers(undefined, searchTerm)
+      .then(({ customers, nextToken }) => {
+        setSearching(false);
+        setCustomers(customers);
+        setNextToken(nextToken);
+      })
+      .catch(() => {
+        setSearching(false);
+        setCustomers([]);
+        setNextToken(undefined);
+      });
+  };
+
   return (
     <>
       <Typography variant="h3" gutterBottom>
         Customers
       </Typography>
-      {loading ? (
+      {loading || searching ? (
         <CircularProgress />
       ) : (
         <>
+          <SearchBar onSearch={searchHandler} initialValue={searchTerm} />
           <Button onClick={onCreate}>Create new customer</Button>
           <CustomersList>
             {customers.map((customer) => (

@@ -145,13 +145,17 @@ export const getCustomer = async (id: string): Promise<Customer> => {
 };
 
 export const getCustomers = async (
-  nextToken?: string
+  nextToken?: string,
+  searchInput?: string
 ): Promise<{
   customers: Customer[];
   nextToken?: string;
 }> => {
   try {
-    const response = await get("/customers", { nextToken });
+    const response = await get("/customers", {
+      nextToken,
+      search: searchInput,
+    });
     if (
       !("customers" in response) ||
       !Array.isArray(response.customers) ||

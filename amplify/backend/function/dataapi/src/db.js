@@ -24,6 +24,9 @@ const createCustomer = async (customer) => {
       name: {
         S: customer.name,
       },
+      name_lowercase: {
+        S: customer.name?.toLowerCase(),
+      },
       email: {
         S: customer.email,
       },
@@ -93,14 +96,50 @@ const getCustomer = async (id) => {
   return mapCustomerFromDB(result.Item);
 };
 
-const getCustomers = async (nextTokenParam) => {
-  const params = {
+const getCustomers = async (nextTokenParam, searchInput) => {
+  const PAGE_SIZE = 5;
+  let params = {
     TableName: "customers-dev",
-    Limit: 5,
-    ExclusiveStartKey: parseToken(nextTokenParam),
+    Limit: PAGE_SIZE,
   };
-  const result = await ddb.scan(params).promise();
+
+  if (nextTokenParam) {
+    const nextToken = parseToken(nextTokenParam);
+    params = {
+      ...params,
+      ExclusiveStartKey: nextToken,
+    };
+  }
+
+  if (searchInput) {
+    const searchParams = {
+      ExpressionAttributeNames: {
+        "#NL": "name_lowercase",
+      },
+      ExpressionAttributeValues: {
+        ":name": { S: searchInput.toLowerCase() },
+      },
+      FilterExpression: "contains(#NL, :name)",
+    };
+    params = {
+      ...params,
+      ...searchParams,
+    };
+  }
+
+  let result = await ddb.scan(params).promise();
   const items = result.Items.map(mapCustomerFromDB);
+  while (result.LastEvaluatedKey && items.length < PAGE_SIZE) {
+    const exclusiveStartKey = result.LastEvaluatedKey;
+    params = {
+      ...params,
+      ExclusiveStartKey: exclusiveStartKey,
+      Limit: PAGE_SIZE - items.length,
+    };
+    result = await ddb.scan(params).promise();
+    items.push(...result.Items.map(mapCustomerFromDB));
+  }
+
   const nextToken = await generateToken(result);
   return { items, nextToken };
 };
@@ -131,12 +170,16 @@ const updateCustomer = async (id, customer) => {
   const params = {
     ExpressionAttributeNames: {
       "#N": "name",
+      "#NL": "name_lowercase",
       "#E": "email",
       "#T": "type",
     },
     ExpressionAttributeValues: {
       ":name": {
         S: customer.name,
+      },
+      ":name_lowercase": {
+        S: customer.name?.toLowerCase(),
       },
       ":email": {
         S: customer.email,
@@ -151,7 +194,8 @@ const updateCustomer = async (id, customer) => {
       },
     },
     TableName: "customers-dev",
-    UpdateExpression: "SET #N = :name, #E = :email, #T = :type",
+    UpdateExpression:
+      "SET #N = :name, #E = :email, #T = :type, #NL = :name_lowercase",
   };
   await ddb.updateItem(params).promise();
   return {
