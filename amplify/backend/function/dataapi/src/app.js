@@ -26,9 +26,10 @@ app.use(function (req, res, next) {
  * Example get method *
  **********************/
 
-app.get("/customers", async function (_, res) {
-  const customers = await getCustomers();
-  res.json({ customers });
+app.get("/customers", async function (req, res) {
+  const nextTokenParam = req.query?.nextToken;
+  const { items, nextToken } = await getCustomers(nextTokenParam);
+  res.json({ customers: items, nextToken });
 });
 
 app.get("/customers/*", async function (req, res) {

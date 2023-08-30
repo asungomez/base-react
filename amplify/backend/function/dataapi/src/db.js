@@ -52,6 +52,35 @@ const deleteCustomer = async (id) => {
   await ddb.deleteItem(params).promise();
 };
 
+const decodeToken = (token) => {
+  if (!token) return;
+  return JSON.parse(Buffer.from(token, "base64").toString("utf8"));
+};
+
+const encodeToken = (token) => {
+  if (!token) return;
+  return Buffer.from(JSON.stringify(token)).toString("base64");
+};
+
+// Find next customer after the last evaluated key
+const findNextCustomer = async (startKey) => {
+  const params = {
+    TableName: "customers-dev",
+    Limit: 1,
+    ExclusiveStartKey: startKey,
+  };
+  const result = await ddb.scan(params).promise();
+  if (result.Items.length === 0) return;
+  return result.Items[0];
+};
+
+const generateToken = async (scanOutput) => {
+  if (!scanOutput.LastEvaluatedKey) return;
+  const nextCustomer = await findNextCustomer(scanOutput.LastEvaluatedKey);
+  if (!nextCustomer) return;
+  return encodeToken(JSON.stringify(scanOutput.LastEvaluatedKey));
+};
+
 const getCustomer = async (id) => {
   const params = {
     TableName: "customers-dev",
@@ -64,12 +93,16 @@ const getCustomer = async (id) => {
   return mapCustomerFromDB(result.Item);
 };
 
-const getCustomers = async () => {
+const getCustomers = async (nextTokenParam) => {
   const params = {
     TableName: "customers-dev",
+    Limit: 5,
+    ExclusiveStartKey: parseToken(nextTokenParam),
   };
   const result = await ddb.scan(params).promise();
-  return result.Items.map(mapCustomerFromDB);
+  const items = result.Items.map(mapCustomerFromDB);
+  const nextToken = await generateToken(result);
+  return { items, nextToken };
 };
 
 const queryCustomerByEmail = async (email) => {
@@ -83,6 +116,11 @@ const queryCustomerByEmail = async (email) => {
   };
   const result = await ddb.query(params).promise();
   return result.Items.map(mapCustomerFromDB);
+};
+
+const parseToken = (token) => {
+  if (!token) return;
+  return JSON.parse(decodeToken(token));
 };
 
 const updateCustomer = async (id, customer) => {
