@@ -4,15 +4,16 @@ import {
   CustomerForm,
   CustomerFormValues,
 } from "../../components/CustomerForm/CustomerForm";
-import { createCustomer } from "../../services/customers";
 import { useNavigate } from "react-router-dom";
 import { ErrorCode, isErrorCode } from "../../services/error";
 import { Error } from "../../components/Error/Error";
+import { useCustomers } from "../../context/CustomersContext";
 
 export const CreateCustomerPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorCode | null>(null);
   const navigate = useNavigate();
+  const { createCustomer } = useCustomers();
 
   const submitHandler = (formValues: CustomerFormValues) => {
     setLoading(true);

@@ -7,10 +7,11 @@ import {
 import { FC, useEffect, useState } from "react";
 import { CustomerItem } from "../../components/CustomerItem/CustomerItem";
 import { CustomersList } from "./Customers.style";
-import { Customer, getCustomers } from "../../services/customers";
+import { Customer } from "../../services/customers";
 import { useNavigate } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import { SearchBar } from "../../components/SearchBar/SearchBar";
+import { useCustomers } from "../../context/CustomersContext";
 
 export const CustomersPage: FC = () => {
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ export const CustomersPage: FC = () => {
   const [searching, setSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const navigate = useNavigate();
+  const { getCustomers } = useCustomers();
 
   useEffect(() => {
     if (loading) {
