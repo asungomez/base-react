@@ -3,6 +3,8 @@ import { TopBar } from "./TopBar";
 import { AuthContext, AuthContextData } from "../../context/AuthContext";
 import { CognitoUser, CognitoUserPool } from "amazon-cognito-identity-js";
 import { CognitoUserWithAttributes } from "../../services/authentication";
+import { ThemeProvider } from "@mui/material";
+import { theme } from "../../theme/theme";
 
 const mountWithUser = (userData: { name?: string; email: string }) => {
   const user: CognitoUserWithAttributes = new CognitoUser({
@@ -23,13 +25,15 @@ const mountWithUser = (userData: { name?: string; email: string }) => {
     isInGroup: cy.stub(),
   };
   cy.mount(
-    <AuthContext.Provider value={value}>
-      <MemoryRouter initialEntries={["/topbar"]}>
-        <Routes>
-          <Route path="/topbar" element={<TopBar />} />
-        </Routes>
-      </MemoryRouter>
-    </AuthContext.Provider>
+    <ThemeProvider theme={theme}>
+      <AuthContext.Provider value={value}>
+        <MemoryRouter initialEntries={["/topbar"]}>
+          <Routes>
+            <Route path="/topbar" element={<TopBar />} />
+          </Routes>
+        </MemoryRouter>
+      </AuthContext.Provider>
+    </ThemeProvider>
   );
 };
 
