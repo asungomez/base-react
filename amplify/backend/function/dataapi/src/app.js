@@ -2,13 +2,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
 const {
+  addTaxDataToCustomer,
   createCustomer,
   deleteCustomer,
   getCustomer,
   getCustomers,
   updateCustomer,
 } = require("./db");
-const { validateCustomer } = require("./validation");
+const { validateCustomer, validateTaxData } = require("./validation");
 
 // declare a new express app
 const app = express();
@@ -22,10 +23,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-/**********************
- * Example get method *
- **********************/
-
 app.get("/customers", async function (req, res) {
   const nextTokenParam = req.query?.nextToken;
   const searchInput = req.query?.search;
@@ -33,8 +30,8 @@ app.get("/customers", async function (req, res) {
   res.json({ customers: items, nextToken });
 });
 
-app.get("/customers/*", async function (req, res) {
-  const id = req.params[0];
+app.get("/customers/:id", async function (req, res) {
+  const id = req.params.id;
   const customer = await getCustomer(id);
   if (!customer) {
     res.status(404).json({ error: "Customer not found" });
@@ -62,9 +59,37 @@ app.post("/customers", async function (req, res) {
   }
 });
 
-app.put("/customers/*", async function (req, res) {
+app.post("/customers/:id/tax-data", async function (req, res) {
   try {
-    const id = req.params[0];
+    const customerId = req.params.id;
+    const taxData = req.body;
+    validateTaxData(taxData);
+    const insertedTaxData = await addTaxDataToCustomer(customerId, taxData);
+    res.json({ taxData: insertedTaxData });
+  } catch (e) {
+    if (e.message === "Tax ID is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Company name is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Company address is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
+app.put("/customers/:id", async function (req, res) {
+  try {
+    const id = req.params.id;
     const customer = req.body;
     validateCustomer(customer);
     const updatedCustomer = await updateCustomer(id, customer);
@@ -82,8 +107,8 @@ app.put("/customers/*", async function (req, res) {
   }
 });
 
-app.delete("/customers/*", async function (req, res) {
-  const id = req.params[0];
+app.delete("/customers/:id", async function (req, res) {
+  const id = req.params.id;
   await deleteCustomer(id);
   res.json({ message: "Customer deleted" });
 });
@@ -92,7 +117,4 @@ app.listen(3000, function () {
   console.log("App started");
 });
 
-// Export the app object. When executing the application local this does nothing. However,
-// to port it to AWS Lambda we will create a wrapper around that will load the app from
-// this file
 module.exports = app;

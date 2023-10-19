@@ -10,6 +10,9 @@ const ERROR_CODES = [
   "CUSTOMER_NOT_FOUND",
   "DUPLICATED_CUSTOMER",
   "REQUIRED_EMAIL",
+  "REQUIRED_TAX_ID",
+  "REQUIRED_COMPANY_NAME",
+  "REQUIRED_COMPANY_ADDRESS",
 ] as const;
 
 export type ErrorCode = typeof ERROR_CODES[number];

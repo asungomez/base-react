@@ -1,5 +1,6 @@
 import { API } from "aws-amplify";
 import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
+import { TaxDataFormValues } from "../components/TaxDataForm/TaxDataForm";
 
 const del = async (path: string) => {
   return API.del("dataapi", path, {});
@@ -35,6 +36,12 @@ export type Customer = {
   type: CustomerType;
 };
 
+export type TaxData = {
+  taxId: string;
+  companyName: string;
+  companyAddress: string;
+};
+
 const isCustomer = (value: unknown): value is Customer => {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -46,6 +53,18 @@ const isCustomer = (value: unknown): value is Customer => {
     typeof customer.email === "string" &&
     typeof customer.type === "string" &&
     CUSTOMER_TYPES.includes(customer.type as CustomerType)
+  );
+};
+
+const isTaxData = (value: unknown): value is TaxData => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const taxData = value as TaxData;
+  return (
+    typeof taxData.taxId === "string" &&
+    typeof taxData.companyName === "string" &&
+    typeof taxData.companyAddress === "string"
   );
 };
 
@@ -69,6 +88,41 @@ const isResponseError = (value: unknown): value is ResponseError => {
     responseError.response.data !== null &&
     typeof responseError.response.data.error === "string"
   );
+};
+
+export const addTaxData = async (
+  customerId: string,
+  formValues: TaxDataFormValues
+): Promise<TaxData> => {
+  try {
+    const response = await post(
+      `/customers/${customerId}/tax-data`,
+      formValues
+    );
+    if (!isTaxData(response.taxData)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.taxData;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "Tax ID is required") {
+          throw new Error("REQUIRED_TAX_ID");
+        }
+        if (error.response.data.error === "Company name is required") {
+          throw new Error("REQUIRED_COMPANY_NAME");
+        }
+        if (error.response.data.error === "Company address is required") {
+          throw new Error("REQUIRED_COMPANY_ADDRESS");
+        }
+      }
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
 };
 
 export const createCustomer = async (

@@ -102,6 +102,31 @@ export const Error: FC<ErrorProps> = ({ code }) => {
       </Alert>
     );
   }
+
+  if (code === "REQUIRED_TAX_ID") {
+    return (
+      <Alert severity="error">
+        <Typography>The field Tax ID is required</Typography>
+      </Alert>
+    );
+  }
+
+  if (code === "REQUIRED_COMPANY_NAME") {
+    return (
+      <Alert severity="error">
+        <Typography>The field Company Name is required</Typography>
+      </Alert>
+    );
+  }
+
+  if (code === "REQUIRED_COMPANY_ADDRESS") {
+    return (
+      <Alert severity="error">
+        <Typography>The field Company Address is required</Typography>
+      </Alert>
+    );
+  }
+
   return (
     <Alert severity="error">
       <Typography>Internal error</Typography>

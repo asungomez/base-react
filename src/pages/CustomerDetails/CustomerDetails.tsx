@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import AddIcon from "@mui/icons-material/Add";
 import { CustomerIcon } from "../../components/CustomerIcon/CustomerIcon";
 import { DeleteCustomerButton } from "../../components/DeleteCustomerButton/DeleteCustomerButton";
 import { useCustomers } from "../../context/CustomersContext";
@@ -51,6 +52,7 @@ export const CustomerDetailsPage: FC = () => {
   const editClickHandler = () => navigate(`/customers/${id}/edit`);
   const deleteCustomerHandler = () => navigate("/customers");
   const errorDeletingHandler = (code: ErrorCode) => setError(code);
+  const addTaxDataHandler = () => navigate(`/customers/${id}/tax-data/add`);
 
   if (!id) {
     return <Error code="INTERNAL_ERROR" />;
@@ -100,6 +102,13 @@ export const CustomerDetailsPage: FC = () => {
           <ListItemText primary="Type" secondary={customer.type} />
         </ListItem>
       </List>
+      <Button
+        variant="outlined"
+        startIcon={<AddIcon />}
+        onClick={addTaxDataHandler}
+      >
+        Add tax information
+      </Button>
     </>
   );
 };
