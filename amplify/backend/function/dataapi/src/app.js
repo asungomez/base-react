@@ -113,6 +113,11 @@ app.delete("/customers/:id", async function (req, res) {
   res.json({ message: "Customer deleted" });
 });
 
+app.delete("/customers/:id/tax-data", async function (req, res) {
+  const customerId = req.params.id;
+  res.json({ message: `Tax data for customer ${customerId} deleted` });
+});
+
 app.listen(3000, function () {
   console.log("App started");
 });

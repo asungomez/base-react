@@ -7,6 +7,7 @@ import {
   createCustomer as createCustomerFromService,
   editCustomer as editCustomerFromService,
   deleteCustomer as deleteCustomerFromService,
+  deleteTaxData as deleteCustomerTaxDataFromService,
 } from "../../services/customers";
 import { CustomerFormValues } from "../CustomerForm/CustomerForm";
 
@@ -105,6 +106,11 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return deleteCustomerFromService(id);
   };
 
+  const deleteTaxData = async (id: string): Promise<void> => {
+    setGetCustomerStore({});
+    return deleteCustomerTaxDataFromService(id);
+  };
+
   return (
     <CustomersContext.Provider
       value={{
@@ -113,6 +119,7 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
         createCustomer,
         editCustomer,
         deleteCustomer,
+        deleteTaxData,
       }}
     >
       {children}

@@ -17,6 +17,7 @@ export type CustomersContextData = {
     formValues: CustomerFormValues
   ) => Promise<Customer>;
   deleteCustomer: (id: string) => Promise<void>;
+  deleteTaxData: (id: string) => Promise<void>;
 };
 
 export const CustomersContext = createContext<CustomersContextData>({
@@ -25,6 +26,7 @@ export const CustomersContext = createContext<CustomersContextData>({
   createCustomer: () => Promise.resolve({} as Customer),
   editCustomer: () => Promise.resolve({} as Customer),
   deleteCustomer: () => Promise.resolve(),
+  deleteTaxData: () => Promise.resolve(),
 });
 
 export const useCustomers = () => useContext(CustomersContext);

@@ -1,13 +1,17 @@
 {
-  "resourceName": "exercises",
-  "tableName": "customers",
+  "resourceName": "carlos",
+  "tableName": "exercises",
   "partitionKey": {
-    "fieldName": "id",
+    "fieldName": "PK",
+    "fieldType": "string"
+  },
+  "sortKey": {
+    "fieldName": "SK",
     "fieldType": "string"
   },
   "gsi": [
     {
-      "name": "search_by_email",
+      "name": "customer_email",
       "partitionKey": {
         "fieldName": "email",
         "fieldType": "string"

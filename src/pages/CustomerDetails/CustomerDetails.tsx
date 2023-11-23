@@ -18,6 +18,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { CustomerIcon } from "../../components/CustomerIcon/CustomerIcon";
 import { DeleteCustomerButton } from "../../components/DeleteCustomerButton/DeleteCustomerButton";
 import { useCustomers } from "../../context/CustomersContext";
+import { CustomerTaxData } from "../../components/CustomerTaxData/CustomerTaxData";
 
 type CustomerDetailsParams = {
   id: string;
@@ -53,6 +54,14 @@ export const CustomerDetailsPage: FC = () => {
   const deleteCustomerHandler = () => navigate("/customers");
   const errorDeletingHandler = (code: ErrorCode) => setError(code);
   const addTaxDataHandler = () => navigate(`/customers/${id}/tax-data/add`);
+  const deleteTaxDataHandler = () => {
+    setCustomer((customer) => {
+      if (customer) {
+        return { ...customer, taxData: undefined };
+      }
+      return null;
+    });
+  };
 
   if (!id) {
     return <Error code="INTERNAL_ERROR" />;
@@ -102,13 +111,21 @@ export const CustomerDetailsPage: FC = () => {
           <ListItemText primary="Type" secondary={customer.type} />
         </ListItem>
       </List>
-      <Button
-        variant="outlined"
-        startIcon={<AddIcon />}
-        onClick={addTaxDataHandler}
-      >
-        Add tax information
-      </Button>
+      {customer.taxData ? (
+        <CustomerTaxData
+          taxData={customer.taxData}
+          customerId={customer.id}
+          onDelete={deleteTaxDataHandler}
+        />
+      ) : (
+        <Button
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={addTaxDataHandler}
+        >
+          Add tax data
+        </Button>
+      )}
     </>
   );
 };

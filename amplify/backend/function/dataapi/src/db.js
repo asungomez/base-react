@@ -2,15 +2,24 @@ const AWS = require("aws-sdk");
 const { get } = require("http");
 const uuid = require("node-uuid");
 
+const TABLE_NAME = "exercises-dev";
+
 // set DynamoDb client
 AWS.config.update({ region: "eu-west-1" });
 const ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
 const mapCustomerFromDB = (customer) => ({
-  id: customer.id.S,
+  id: customer.PK.S.replace("customer_", ""),
   name: customer.name.S,
   email: customer.email.S,
   type: customer.type.S,
+  taxData: customer.taxData ? mapTaxDataFromDB(customer.taxData.M) : undefined,
+});
+
+const mapTaxDataFromDB = (taxData) => ({
+  taxId: taxData.taxId.S,
+  companyName: taxData.companyName.S,
+  companyAddress: taxData.companyAddress.S,
 });
 
 const addTaxDataToCustomer = async (customerId, taxData) => {
@@ -37,11 +46,14 @@ const addTaxDataToCustomer = async (customerId, taxData) => {
       },
     },
     Key: {
-      id: {
-        S: customerId,
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
       },
     },
-    TableName: "customers-dev",
+    TableName: TABLE_NAME,
     UpdateExpression: "SET #TD = :taxData",
   };
   await ddb.updateItem(params).promise();
@@ -55,7 +67,7 @@ const createCustomer = async (customer) => {
   }
   const id = uuid.v1();
   const params = {
-    TableName: "customers-dev",
+    TableName: TABLE_NAME,
     Item: {
       name: {
         S: customer.name,
@@ -64,13 +76,16 @@ const createCustomer = async (customer) => {
         S: customer.name?.toLowerCase(),
       },
       email: {
-        S: customer.email,
+        S: customer.email.toLowerCase(),
       },
       type: {
         S: customer.type,
       },
-      id: {
-        S: id,
+      PK: {
+        S: `customer_${id}`,
+      },
+      SK: {
+        S: "profile",
       },
     },
   };
@@ -83,9 +98,10 @@ const createCustomer = async (customer) => {
 
 const deleteCustomer = async (id) => {
   const params = {
-    TableName: "customers-dev",
+    TableName: TABLE_NAME,
     Key: {
-      id: { S: id },
+      PK: { S: `customer_${id}` },
+      SK: { S: "profile" },
     },
   };
   await ddb.deleteItem(params).promise();
@@ -104,7 +120,7 @@ const encodeToken = (token) => {
 // Find next customer after the last evaluated key
 const findNextCustomer = async (startKey) => {
   const params = {
-    TableName: "customers-dev",
+    TableName: TABLE_NAME,
     Limit: 1,
     ExclusiveStartKey: startKey,
   };
@@ -122,9 +138,10 @@ const generateToken = async (scanOutput) => {
 
 const getCustomer = async (id) => {
   const params = {
-    TableName: "customers-dev",
+    TableName: TABLE_NAME,
     Key: {
-      id: { S: id },
+      PK: { S: `customer_${id}` },
+      SK: { S: "profile" },
     },
   };
   const result = await ddb.getItem(params).promise();
@@ -135,7 +152,7 @@ const getCustomer = async (id) => {
 const getCustomers = async (nextTokenParam, searchInput) => {
   const PAGE_SIZE = 5;
   let params = {
-    TableName: "customers-dev",
+    TableName: TABLE_NAME,
     Limit: PAGE_SIZE,
   };
 
@@ -183,11 +200,11 @@ const getCustomers = async (nextTokenParam, searchInput) => {
 const queryCustomerByEmail = async (email) => {
   const params = {
     ExpressionAttributeValues: {
-      ":email": { S: email },
+      ":email": { S: email.toLowerCase() },
     },
     KeyConditionExpression: "email = :email",
-    TableName: "customers-dev",
-    IndexName: "search_by_email",
+    TableName: TABLE_NAME,
+    IndexName: "customer_email",
   };
   const result = await ddb.query(params).promise();
   return result.Items.map(mapCustomerFromDB);
@@ -199,7 +216,9 @@ const parseToken = (token) => {
 };
 
 const updateCustomer = async (id, customer) => {
-  const customersWithSameEmail = await queryCustomerByEmail(customer.email);
+  const customersWithSameEmail = (
+    await queryCustomerByEmail(customer.email)
+  ).filter((customer) => customer.id !== id);
   if (customersWithSameEmail.length > 0) {
     throw new Error("This email already exists");
   }
@@ -218,18 +237,21 @@ const updateCustomer = async (id, customer) => {
         S: customer.name?.toLowerCase(),
       },
       ":email": {
-        S: customer.email,
+        S: customer.email.toLowerCase(),
       },
       ":type": {
         S: customer.type,
       },
     },
     Key: {
-      id: {
-        S: id,
+      PK: {
+        S: `customer_${id}`,
+      },
+      SK: {
+        S: "profile",
       },
     },
-    TableName: "customers-dev",
+    TableName: TABLE_NAME,
     UpdateExpression:
       "SET #N = :name, #E = :email, #T = :type, #NL = :name_lowercase",
   };

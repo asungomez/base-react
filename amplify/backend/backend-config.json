@@ -206,7 +206,7 @@
     }
   },
   "storage": {
-    "exercises": {
+    "carlos": {
       "providerPlugin": "awscloudformation",
       "service": "DynamoDB"
     }

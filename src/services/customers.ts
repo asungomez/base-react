@@ -1,6 +1,7 @@
 import { API } from "aws-amplify";
 import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
 import { TaxDataFormValues } from "../components/TaxDataForm/TaxDataForm";
+import { is } from "cypress/types/bluebird";
 
 const del = async (path: string) => {
   return API.del("dataapi", path, {});
@@ -34,6 +35,7 @@ export type Customer = {
   name: string;
   email: string;
   type: CustomerType;
+  taxData?: TaxData;
 };
 
 export type TaxData = {
@@ -52,7 +54,9 @@ const isCustomer = (value: unknown): value is Customer => {
     typeof customer.name === "string" &&
     typeof customer.email === "string" &&
     typeof customer.type === "string" &&
-    CUSTOMER_TYPES.includes(customer.type as CustomerType)
+    CUSTOMER_TYPES.includes(customer.type) &&
+    ((typeof customer.taxData === "object" && isTaxData(customer.taxData)) ||
+      customer.taxData === undefined)
   );
 };
 
@@ -152,6 +156,10 @@ export const createCustomer = async (
 
 export const deleteCustomer = async (id: string): Promise<void> => {
   await del("/customers/" + id);
+};
+
+export const deleteTaxData = async (customerId: string): Promise<void> => {
+  console.log(`Deleting data from customer ${customerId}`);
 };
 
 export const editCustomer = async (
