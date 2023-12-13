@@ -33,7 +33,7 @@ export const CustomerTaxData: FC<CustomerTaxDataProps> = ({
 
   return (
     <>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h3" gutterBottom>
         Tax data
       </Typography>
       {error && <Error code={error} />}
