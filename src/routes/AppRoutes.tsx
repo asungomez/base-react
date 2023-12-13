@@ -19,6 +19,7 @@ import { CustomerDetailsPage } from "../pages/CustomerDetails/CustomerDetails";
 import { EditCustomerPage } from "../pages/EditCustomer/EditCustomer";
 import { AddCustomerTaxDataPage } from "../pages/AddCustomerTaxData/AddCustomerTaxData";
 import { EditCustomerTaxDataPage } from "../pages/EditCustomerTaxData/EditCustomerTaxData";
+import { AddCustomerMainAddressPage } from "../pages/AddCustomerMainAddress/AddCustomerMainAddress";
 
 export const AppRoutes: FC = () => (
   <Routes>
@@ -67,6 +68,9 @@ export const AppRoutes: FC = () => (
         <Route path="tax-data">
           <Route path="add" element={<AddCustomerTaxDataPage />} />
           <Route path="edit" element={<EditCustomerTaxDataPage />} />
+        </Route>
+        <Route path="main-address">
+          <Route path="add" element={<AddCustomerMainAddressPage />} />
         </Route>
       </Route>
       <Route path="create" element={<CreateCustomerPage />} />

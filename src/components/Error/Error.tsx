@@ -127,6 +127,38 @@ export const Error: FC<ErrorProps> = ({ code }) => {
     );
   }
 
+  if (code === "REQUIRED_CITY") {
+    return (
+      <Alert severity="error">
+        <Typography>The field City is required</Typography>
+      </Alert>
+    );
+  }
+
+  if (code === "REQUIRED_STREET") {
+    return (
+      <Alert severity="error">
+        <Typography>The field Street is required</Typography>
+      </Alert>
+    );
+  }
+
+  if (code === "REQUIRED_NUMBER") {
+    return (
+      <Alert severity="error">
+        <Typography>The field Number is required</Typography>
+      </Alert>
+    );
+  }
+
+  if (code === "REQUIRED_POSTCODE") {
+    return (
+      <Alert severity="error">
+        <Typography>The field Postcode is required</Typography>
+      </Alert>
+    );
+  }
+
   return (
     <Alert severity="error">
       <Typography>Internal error</Typography>

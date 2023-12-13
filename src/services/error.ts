@@ -13,6 +13,10 @@ const ERROR_CODES = [
   "REQUIRED_TAX_ID",
   "REQUIRED_COMPANY_NAME",
   "REQUIRED_COMPANY_ADDRESS",
+  "REQUIRED_STREET",
+  "REQUIRED_CITY",
+  "REQUIRED_NUMBER",
+  "REQUIRED_POSTCODE",
 ] as const;
 
 export type ErrorCode = typeof ERROR_CODES[number];

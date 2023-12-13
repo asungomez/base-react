@@ -32,4 +32,35 @@ const validateTaxData = (taxData) => {
   }
 };
 
-module.exports = { validateCustomer, validateTaxData };
+const validateCustomerAddress = (address) => {
+  if (
+    !address.street ||
+    typeof address.street !== "string" ||
+    address.street.length === 0
+  ) {
+    throw new Error("Street is required");
+  }
+  if (
+    !address.city ||
+    typeof address.city !== "string" ||
+    address.city.length === 0
+  ) {
+    throw new Error("City is required");
+  }
+  if (
+    !address.number ||
+    typeof address.number !== "string" ||
+    address.number.length === 0
+  ) {
+    throw new Error("State is required");
+  }
+  if (
+    !address.postcode ||
+    typeof address.postcode !== "string" ||
+    address.postcode.length === 0
+  ) {
+    throw new Error("Zip is required");
+  }
+};
+
+module.exports = { validateCustomer, validateTaxData, validateCustomerAddress };

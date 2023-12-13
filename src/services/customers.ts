@@ -1,6 +1,7 @@
 import { API } from "aws-amplify";
 import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
 import { TaxDataFormValues } from "../components/TaxDataForm/TaxDataForm";
+import { CustomerAddressFormValues } from "../components/CustomerAddressForm/CustomerAddressForm";
 
 const del = async (path: string) => {
   return API.del("dataapi", path, {});
@@ -35,12 +36,20 @@ export type Customer = {
   email: string;
   type: CustomerType;
   taxData?: TaxData;
+  mainAddress?: CustomerAddress;
 };
 
 export type TaxData = {
   taxId: string;
   companyName: string;
   companyAddress: string;
+};
+
+export type CustomerAddress = {
+  street: string;
+  number: string;
+  city: string;
+  postcode: string;
 };
 
 const isCustomer = (value: unknown): value is Customer => {
@@ -68,6 +77,19 @@ const isTaxData = (value: unknown): value is TaxData => {
     typeof taxData.taxId === "string" &&
     typeof taxData.companyName === "string" &&
     typeof taxData.companyAddress === "string"
+  );
+};
+
+const isCustomerAddress = (value: unknown): value is CustomerAddress => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const customerAddress = value as CustomerAddress;
+  return (
+    typeof customerAddress.street === "string" &&
+    typeof customerAddress.number === "string" &&
+    typeof customerAddress.city === "string" &&
+    typeof customerAddress.postcode === "string"
   );
 };
 
@@ -118,6 +140,44 @@ export const addTaxData = async (
         }
         if (error.response.data.error === "Company address is required") {
           throw new Error("REQUIRED_COMPANY_ADDRESS");
+        }
+      }
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
+export const addMainAddress = async (
+  customerId: string,
+  formValues: CustomerAddressFormValues
+): Promise<CustomerAddress> => {
+  try {
+    const response = await post(
+      `/customers/${customerId}/main-address`,
+      formValues
+    );
+    if (!isCustomerAddress(response.mainAddress)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.mainAddress;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "Street is required") {
+          throw new Error("REQUIRED_STREET");
+        }
+        if (error.response.data.error === "Number is required") {
+          throw new Error("REQUIRED_NUMBER");
+        }
+        if (error.response.data.error === "City is required") {
+          throw new Error("REQUIRED_CITY");
+        }
+        if (error.response.data.error === "Postcode is required") {
+          throw new Error("REQUIRED_POSTCODE");
         }
       }
       if (status === 404) {

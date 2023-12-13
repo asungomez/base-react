@@ -77,6 +77,25 @@ const createCustomer = async (customer) => {
   };
 };
 
+const createCustomerMainAddress = async (customerId, address) => {
+  if (!(await getCustomer(customerId))) {
+    throw new Error("Customer not found");
+  }
+  const params = {
+    TableName: TABLE_NAME,
+    Item: {
+      PK: { S: `customer_${customerId}` },
+      SK: { S: "address_main" },
+      street: { S: address.street },
+      city: { S: address.city },
+      number: { S: address.number },
+      postcode: { S: address.postcode },
+    },
+  };
+  await ddb.putItem(params).promise();
+  return address;
+};
+
 const deleteCustomer = async (id) => {
   const params = {
     TableName: TABLE_NAME,
@@ -283,6 +302,7 @@ const updateCustomer = async (id, customer) => {
 
 module.exports = {
   createCustomer,
+  createCustomerMainAddress,
   deleteCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,

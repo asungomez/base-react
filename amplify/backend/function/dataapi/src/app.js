@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
 const {
   createCustomer,
+  createCustomerMainAddress,
   deleteCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,
@@ -10,7 +11,11 @@ const {
   setCustomerTaxData,
   updateCustomer,
 } = require("./db");
-const { validateCustomer, validateTaxData } = require("./validation");
+const {
+  validateCustomer,
+  validateTaxData,
+  validateCustomerAddress,
+} = require("./validation");
 
 // declare a new express app
 const app = express();
@@ -130,6 +135,41 @@ app.put("/customers/:id", async function (req, res) {
     }
     if (e.message === "This email already exists") {
       res.status(400).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
+app.post("/customers/:id/main-address", async function (req, res) {
+  try {
+    const customerId = req.params.id;
+    const mainAddress = req.body;
+    validateCustomerAddress(mainAddress);
+    const insertedMainAddress = await createCustomerMainAddress(
+      customerId,
+      mainAddress
+    );
+    res.json({ mainAddress: insertedMainAddress });
+  } catch (e) {
+    if (e.message === "Street is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "City is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "State is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Postcode is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
       return;
     }
     throw e;

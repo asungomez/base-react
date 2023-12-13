@@ -16,11 +16,12 @@ import { CustomerTaxData } from "../../components/CustomerTaxData/CustomerTaxDat
 import { CustomerInformation } from "../../components/CustomerInformation/CustomerInformation";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 
-const tabNames = ["information", "taxData"] as const;
+const tabNames = ["information", "taxData", "mainAddress"] as const;
 type TabName = typeof tabNames[number];
 const tabLabels: Record<TabName, string> = {
   information: "Information",
   taxData: "Tax data",
+  mainAddress: "Main address",
 };
 
 type CustomerDetailsParams = {
@@ -77,6 +78,9 @@ export const CustomerDetailsPage: FC = () => {
     });
   };
 
+  const addMainAddressHandler = () =>
+    navigate(`/customers/${id}/main-address/add`);
+
   const changeTabHandler = (_: React.SyntheticEvent, newValue: TabName) => {
     setCurrentTab(newValue);
   };
@@ -128,6 +132,15 @@ export const CustomerDetailsPage: FC = () => {
                 Add tax data
               </Button>
             )}
+          </CustomerSectionTab>
+          <CustomerSectionTab value="mainAddress">
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={addMainAddressHandler}
+            >
+              Add main address
+            </Button>
           </CustomerSectionTab>
         </Stack>
       </TabContext>
