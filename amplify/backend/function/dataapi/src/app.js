@@ -2,12 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
 const {
-  addTaxDataToCustomer,
   createCustomer,
   deleteCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,
   getCustomers,
+  setCustomerTaxData,
   updateCustomer,
 } = require("./db");
 const { validateCustomer, validateTaxData } = require("./validation");
@@ -65,8 +65,36 @@ app.post("/customers/:id/tax-data", async function (req, res) {
     const customerId = req.params.id;
     const taxData = req.body;
     validateTaxData(taxData);
-    const insertedTaxData = await addTaxDataToCustomer(customerId, taxData);
+    const insertedTaxData = await setCustomerTaxData(customerId, taxData);
     res.json({ taxData: insertedTaxData });
+  } catch (e) {
+    if (e.message === "Tax ID is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Company name is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Company address is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
+app.put("/customers/:id/tax-data", async function (req, res) {
+  try {
+    const customerId = req.params.id;
+    const taxData = req.body;
+    validateTaxData(taxData);
+    const updatedTaxData = await setCustomerTaxData(customerId, taxData);
+    res.json({ taxData: updatedTaxData });
   } catch (e) {
     if (e.message === "Tax ID is required") {
       res.status(400).json({ error: e.message });

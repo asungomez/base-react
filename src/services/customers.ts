@@ -187,6 +187,38 @@ export const editCustomer = async (
   }
 };
 
+export const editTaxData = async (
+  customerId: string,
+  formValues: TaxDataFormValues
+): Promise<TaxData> => {
+  try {
+    const response = await put(`/customers/${customerId}/tax-data`, formValues);
+    if (!isTaxData(response.taxData)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.taxData;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "Tax ID is required") {
+          throw new Error("REQUIRED_TAX_ID");
+        }
+        if (error.response.data.error === "Company name is required") {
+          throw new Error("REQUIRED_COMPANY_NAME");
+        }
+        if (error.response.data.error === "Company address is required") {
+          throw new Error("REQUIRED_COMPANY_ADDRESS");
+        }
+      }
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
 export const getCustomer = async (id: string): Promise<Customer> => {
   try {
     const response = await get(`/customers/${id}`);

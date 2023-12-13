@@ -12,6 +12,7 @@ import {
 import { DeleteCustomerTaxDataButton } from "../DeleteCustomerTaxDataButton/DeleteCustomerTaxDataButton";
 import { Error } from "../Error/Error";
 import { ErrorCode } from "../../services/error";
+import { useNavigate } from "react-router-dom";
 
 type CustomerTaxDataProps = {
   taxData: TaxData;
@@ -25,8 +26,10 @@ export const CustomerTaxData: FC<CustomerTaxDataProps> = ({
   onDelete,
 }) => {
   const [error, setError] = useState<ErrorCode | null>(null);
+  const navigate = useNavigate();
 
   const errorHandler = (code: ErrorCode) => setError(code);
+  const editHandler = () => navigate(`/customers/${customerId}/tax-data/edit`);
 
   return (
     <>
@@ -35,7 +38,9 @@ export const CustomerTaxData: FC<CustomerTaxDataProps> = ({
       </Typography>
       {error && <Error code={error} />}
       <Stack direction="row" spacing={2}>
-        <Button variant="contained">Edit</Button>
+        <Button variant="contained" onClick={editHandler}>
+          Edit
+        </Button>
         <DeleteCustomerTaxDataButton
           customerId={customerId}
           onDelete={onDelete}

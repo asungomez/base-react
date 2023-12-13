@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
-import { Customer } from "../services/customers";
+import { Customer, TaxData } from "../services/customers";
 import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
+import { TaxDataFormValues } from "../components/TaxDataForm/TaxDataForm";
 
 export type CustomersContextData = {
   getCustomers: (
@@ -18,6 +19,14 @@ export type CustomersContextData = {
   ) => Promise<Customer>;
   deleteCustomer: (id: string) => Promise<void>;
   deleteTaxData: (id: string) => Promise<void>;
+  addTaxData: (
+    customerId: string,
+    formValues: TaxDataFormValues
+  ) => Promise<TaxData>;
+  editTaxData: (
+    customerId: string,
+    formValues: TaxDataFormValues
+  ) => Promise<TaxData>;
 };
 
 export const CustomersContext = createContext<CustomersContextData>({
@@ -27,6 +36,8 @@ export const CustomersContext = createContext<CustomersContextData>({
   editCustomer: () => Promise.resolve({} as Customer),
   deleteCustomer: () => Promise.resolve(),
   deleteTaxData: () => Promise.resolve(),
+  addTaxData: () => Promise.resolve({} as TaxData),
+  editTaxData: () => Promise.resolve({} as TaxData),
 });
 
 export const useCustomers = () => useContext(CustomersContext);

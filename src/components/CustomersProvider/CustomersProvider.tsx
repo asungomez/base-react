@@ -8,8 +8,12 @@ import {
   editCustomer as editCustomerFromService,
   deleteCustomer as deleteCustomerFromService,
   deleteTaxData as deleteCustomerTaxDataFromService,
+  addTaxData as addTaxDataFromService,
+  editTaxData as editTaxDataFromService,
+  TaxData,
 } from "../../services/customers";
 import { CustomerFormValues } from "../CustomerForm/CustomerForm";
+import { TaxDataFormValues } from "../TaxDataForm/TaxDataForm";
 
 type CustomersProviderProps = {
   children?: ReactNode;
@@ -111,6 +115,22 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return deleteCustomerTaxDataFromService(id);
   };
 
+  const addTaxData = async (
+    customerId: string,
+    formValues: TaxDataFormValues
+  ): Promise<TaxData> => {
+    setGetCustomerStore({});
+    return addTaxDataFromService(customerId, formValues);
+  };
+
+  const editTaxData = async (
+    customerId: string,
+    formValues: TaxDataFormValues
+  ): Promise<TaxData> => {
+    setGetCustomerStore({});
+    return editTaxDataFromService(customerId, formValues);
+  };
+
   return (
     <CustomersContext.Provider
       value={{
@@ -120,6 +140,8 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
         editCustomer,
         deleteCustomer,
         deleteTaxData,
+        addTaxData,
+        editTaxData,
       }}
     >
       {children}

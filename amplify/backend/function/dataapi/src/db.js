@@ -22,44 +22,6 @@ const mapTaxDataFromDB = (taxData) => ({
   companyAddress: taxData.companyAddress.S,
 });
 
-const addTaxDataToCustomer = async (customerId, taxData) => {
-  if (!(await getCustomer(customerId))) {
-    throw new Error("Customer not found");
-  }
-  const params = {
-    ExpressionAttributeNames: {
-      "#TD": "taxData",
-    },
-    ExpressionAttributeValues: {
-      ":taxData": {
-        M: {
-          taxId: {
-            S: taxData.taxId,
-          },
-          companyName: {
-            S: taxData.companyName,
-          },
-          companyAddress: {
-            S: taxData.companyAddress,
-          },
-        },
-      },
-    },
-    Key: {
-      PK: {
-        S: `customer_${customerId}`,
-      },
-      SK: {
-        S: "profile",
-      },
-    },
-    TableName: TABLE_NAME,
-    UpdateExpression: "SET #TD = :taxData",
-  };
-  await ddb.updateItem(params).promise();
-  return taxData;
-};
-
 const deleteTaxDataFromCustomer = async (customerId) => {
   const params = {
     ExpressionAttributeNames: {
@@ -234,6 +196,44 @@ const parseToken = (token) => {
   return JSON.parse(decodeToken(token));
 };
 
+const setCustomerTaxData = async (customerId, taxData) => {
+  if (!(await getCustomer(customerId))) {
+    throw new Error("Customer not found");
+  }
+  const params = {
+    ExpressionAttributeNames: {
+      "#TD": "taxData",
+    },
+    ExpressionAttributeValues: {
+      ":taxData": {
+        M: {
+          taxId: {
+            S: taxData.taxId,
+          },
+          companyName: {
+            S: taxData.companyName,
+          },
+          companyAddress: {
+            S: taxData.companyAddress,
+          },
+        },
+      },
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression: "SET #TD = :taxData",
+  };
+  await ddb.updateItem(params).promise();
+  return taxData;
+};
+
 const updateCustomer = async (id, customer) => {
   const customersWithSameEmail = (
     await queryCustomerByEmail(customer.email)
@@ -282,11 +282,11 @@ const updateCustomer = async (id, customer) => {
 };
 
 module.exports = {
-  addTaxDataToCustomer,
   createCustomer,
   deleteCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,
   getCustomers,
+  setCustomerTaxData,
   updateCustomer,
 };
