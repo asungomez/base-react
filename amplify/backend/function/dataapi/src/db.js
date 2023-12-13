@@ -60,6 +60,25 @@ const addTaxDataToCustomer = async (customerId, taxData) => {
   return taxData;
 };
 
+const deleteTaxDataFromCustomer = async (customerId) => {
+  const params = {
+    ExpressionAttributeNames: {
+      "#TD": "taxData",
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression: "REMOVE #TD",
+  };
+  await ddb.updateItem(params).promise();
+};
+
 const createCustomer = async (customer) => {
   const customersWithSameEmail = await queryCustomerByEmail(customer.email);
   if (customersWithSameEmail.length > 0) {
@@ -266,6 +285,7 @@ module.exports = {
   addTaxDataToCustomer,
   createCustomer,
   deleteCustomer,
+  deleteTaxDataFromCustomer,
   getCustomer,
   getCustomers,
   updateCustomer,

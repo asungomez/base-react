@@ -1,7 +1,6 @@
 import { API } from "aws-amplify";
 import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
 import { TaxDataFormValues } from "../components/TaxDataForm/TaxDataForm";
-import { is } from "cypress/types/bluebird";
 
 const del = async (path: string) => {
   return API.del("dataapi", path, {});
@@ -159,7 +158,7 @@ export const deleteCustomer = async (id: string): Promise<void> => {
 };
 
 export const deleteTaxData = async (customerId: string): Promise<void> => {
-  console.log(`Deleting data from customer ${customerId}`);
+  await del(`/customers/${customerId}/tax-data`);
 };
 
 export const editCustomer = async (

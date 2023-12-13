@@ -5,6 +5,7 @@ const {
   addTaxDataToCustomer,
   createCustomer,
   deleteCustomer,
+  deleteTaxDataFromCustomer,
   getCustomer,
   getCustomers,
   updateCustomer,
@@ -115,6 +116,7 @@ app.delete("/customers/:id", async function (req, res) {
 
 app.delete("/customers/:id/tax-data", async function (req, res) {
   const customerId = req.params.id;
+  await deleteTaxDataFromCustomer(customerId);
   res.json({ message: `Tax data for customer ${customerId} deleted` });
 });
 
