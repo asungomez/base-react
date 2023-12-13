@@ -27,6 +27,18 @@ type CustomerDetailsParams = {
   id: string;
 };
 
+type CustomerSectionTabProps = {
+  value: TabName;
+  children: React.ReactNode;
+};
+
+const CustomerSectionTab: FC<CustomerSectionTabProps> = ({
+  value,
+  children,
+}) => {
+  return <TabPanel value={value}>{children}</TabPanel>;
+};
+
 export const CustomerDetailsPage: FC = () => {
   const [loading, setLoading] = useState(true);
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -97,10 +109,10 @@ export const CustomerDetailsPage: FC = () => {
               <Tab label={tabLabels[tabName]} value={tabName} key={tabName} />
             ))}
           </TabList>
-          <TabPanel value="information">
+          <CustomerSectionTab value="information">
             <CustomerInformation customer={customer} />
-          </TabPanel>
-          <TabPanel value="taxData">
+          </CustomerSectionTab>
+          <CustomerSectionTab value="taxData">
             {customer.taxData ? (
               <CustomerTaxData
                 taxData={customer.taxData}
@@ -116,7 +128,7 @@ export const CustomerDetailsPage: FC = () => {
                 Add tax data
               </Button>
             )}
-          </TabPanel>
+          </CustomerSectionTab>
         </Stack>
       </TabContext>
     </>
