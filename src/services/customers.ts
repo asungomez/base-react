@@ -297,6 +297,29 @@ export const getCustomer = async (id: string): Promise<Customer> => {
   }
 };
 
+export const getMainAddress = async (
+  customerId: string
+): Promise<CustomerAddress> => {
+  try {
+    const response = await get(`/customers/${customerId}/main-address`);
+    if (
+      !isCustomerAddress(response.mainAddress) &&
+      response.mainAddress !== null
+    ) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.mainAddress;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
 export const getCustomers = async (
   nextToken?: string,
   searchInput?: string

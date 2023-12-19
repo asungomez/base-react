@@ -10,6 +10,7 @@ const {
   getCustomers,
   setCustomerTaxData,
   updateCustomer,
+  getCustomerMainAddress,
 } = require("./db");
 const {
   validateCustomer,
@@ -46,6 +47,20 @@ app.get("/customers/:id", async function (req, res) {
   res.json({ customer });
 });
 
+app.get("/customers/:id/main-address", async function (req, res) {
+  try {
+    const id = req.params.id;
+    const mainAddress = await getCustomerMainAddress(id);
+    res.json({ mainAddress });
+  } catch (e) {
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
 app.post("/customers", async function (req, res) {
   try {
     const customer = req.body;
@@ -59,6 +74,41 @@ app.post("/customers", async function (req, res) {
     }
     if (e.message === "Email is required") {
       res.status(400).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
+app.post("/customers/:id/main-address", async function (req, res) {
+  try {
+    const customerId = req.params.id;
+    const mainAddress = req.body;
+    validateCustomerAddress(mainAddress);
+    const insertedMainAddress = await createCustomerMainAddress(
+      customerId,
+      mainAddress
+    );
+    res.json({ mainAddress: insertedMainAddress });
+  } catch (e) {
+    if (e.message === "Street is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "City is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "State is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Postcode is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
       return;
     }
     throw e;
@@ -135,41 +185,6 @@ app.put("/customers/:id", async function (req, res) {
     }
     if (e.message === "This email already exists") {
       res.status(400).json({ error: e.message });
-      return;
-    }
-    throw e;
-  }
-});
-
-app.post("/customers/:id/main-address", async function (req, res) {
-  try {
-    const customerId = req.params.id;
-    const mainAddress = req.body;
-    validateCustomerAddress(mainAddress);
-    const insertedMainAddress = await createCustomerMainAddress(
-      customerId,
-      mainAddress
-    );
-    res.json({ mainAddress: insertedMainAddress });
-  } catch (e) {
-    if (e.message === "Street is required") {
-      res.status(400).json({ error: e.message });
-      return;
-    }
-    if (e.message === "City is required") {
-      res.status(400).json({ error: e.message });
-      return;
-    }
-    if (e.message === "State is required") {
-      res.status(400).json({ error: e.message });
-      return;
-    }
-    if (e.message === "Postcode is required") {
-      res.status(400).json({ error: e.message });
-      return;
-    }
-    if (e.message === "Customer not found") {
-      res.status(404).json({ error: e.message });
       return;
     }
     throw e;

@@ -1,5 +1,4 @@
 const AWS = require("aws-sdk");
-const { get } = require("http");
 const uuid = require("node-uuid");
 
 const TABLE_NAME = "exercises-dev";
@@ -7,39 +6,6 @@ const TABLE_NAME = "exercises-dev";
 // set DynamoDb client
 AWS.config.update({ region: "eu-west-1" });
 const ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
-
-const mapCustomerFromDB = (customer) => ({
-  id: customer.PK.S.replace("customer_", ""),
-  name: customer.name.S,
-  email: customer.email.S,
-  type: customer.type.S,
-  taxData: customer.taxData ? mapTaxDataFromDB(customer.taxData.M) : undefined,
-});
-
-const mapTaxDataFromDB = (taxData) => ({
-  taxId: taxData.taxId.S,
-  companyName: taxData.companyName.S,
-  companyAddress: taxData.companyAddress.S,
-});
-
-const deleteTaxDataFromCustomer = async (customerId) => {
-  const params = {
-    ExpressionAttributeNames: {
-      "#TD": "taxData",
-    },
-    Key: {
-      PK: {
-        S: `customer_${customerId}`,
-      },
-      SK: {
-        S: "profile",
-      },
-    },
-    TableName: TABLE_NAME,
-    UpdateExpression: "REMOVE #TD",
-  };
-  await ddb.updateItem(params).promise();
-};
 
 const createCustomer = async (customer) => {
   const customersWithSameEmail = await queryCustomerByEmail(customer.email);
@@ -96,6 +62,11 @@ const createCustomerMainAddress = async (customerId, address) => {
   return address;
 };
 
+const decodeToken = (token) => {
+  if (!token) return;
+  return JSON.parse(Buffer.from(token, "base64").toString("utf8"));
+};
+
 const deleteCustomer = async (id) => {
   const params = {
     TableName: TABLE_NAME,
@@ -107,9 +78,23 @@ const deleteCustomer = async (id) => {
   await ddb.deleteItem(params).promise();
 };
 
-const decodeToken = (token) => {
-  if (!token) return;
-  return JSON.parse(Buffer.from(token, "base64").toString("utf8"));
+const deleteTaxDataFromCustomer = async (customerId) => {
+  const params = {
+    ExpressionAttributeNames: {
+      "#TD": "taxData",
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression: "REMOVE #TD",
+  };
+  await ddb.updateItem(params).promise();
 };
 
 const encodeToken = (token) => {
@@ -117,7 +102,6 @@ const encodeToken = (token) => {
   return Buffer.from(JSON.stringify(token)).toString("base64");
 };
 
-// Find next customer after the last evaluated key
 const findNextCustomer = async (startKey) => {
   const params = {
     TableName: TABLE_NAME,
@@ -149,6 +133,19 @@ const getCustomer = async (id) => {
   return mapCustomerFromDB(result.Item);
 };
 
+const getCustomerMainAddress = async (customerId) => {
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      PK: { S: `customer_${customerId}` },
+      SK: { S: "address_main" },
+    },
+  };
+  const result = await ddb.getItem(params).promise();
+  if (!result.Item) return null;
+  return mapMainAddressFromDB(result.Item);
+};
+
 const getCustomers = async (nextTokenParam, searchInput) => {
   const PAGE_SIZE = 5;
   let params = {
@@ -164,21 +161,37 @@ const getCustomers = async (nextTokenParam, searchInput) => {
     };
   }
 
+  let searchParams = {
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: "customer_" },
+      ":sk": { S: "profile" },
+    },
+    FilterExpression: "begins_with(#PK, :pk) AND #SK = :sk",
+  };
+
   if (searchInput) {
-    const searchParams = {
+    searchParams = {
       ExpressionAttributeNames: {
+        ...searchParams.ExpressionAttributeNames,
         "#NL": "name_lowercase",
       },
       ExpressionAttributeValues: {
+        ...searchParams.ExpressionAttributeValues,
         ":name": { S: searchInput.toLowerCase() },
       },
-      FilterExpression: "contains(#NL, :name)",
-    };
-    params = {
-      ...params,
-      ...searchParams,
+      FilterExpression:
+        searchParams.FilterExpression + " AND contains(#NL, :name)",
     };
   }
+
+  params = {
+    ...params,
+    ...searchParams,
+  };
 
   let result = await ddb.scan(params).promise();
   const items = result.Items.map(mapCustomerFromDB);
@@ -197,6 +210,32 @@ const getCustomers = async (nextTokenParam, searchInput) => {
   return { items, nextToken };
 };
 
+const mapCustomerFromDB = (customer) => ({
+  id: customer.PK.S.replace("customer_", ""),
+  name: customer.name.S,
+  email: customer.email.S,
+  type: customer.type.S,
+  taxData: customer.taxData ? mapTaxDataFromDB(customer.taxData.M) : undefined,
+});
+
+const mapMainAddressFromDB = (mainAddress) => ({
+  street: mainAddress.street.S,
+  number: mainAddress.number.S,
+  city: mainAddress.city.S,
+  postcode: mainAddress.postcode.S,
+});
+
+const mapTaxDataFromDB = (taxData) => ({
+  taxId: taxData.taxId.S,
+  companyName: taxData.companyName.S,
+  companyAddress: taxData.companyAddress.S,
+});
+
+const parseToken = (token) => {
+  if (!token) return;
+  return JSON.parse(decodeToken(token));
+};
+
 const queryCustomerByEmail = async (email) => {
   const params = {
     ExpressionAttributeValues: {
@@ -208,11 +247,6 @@ const queryCustomerByEmail = async (email) => {
   };
   const result = await ddb.query(params).promise();
   return result.Items.map(mapCustomerFromDB);
-};
-
-const parseToken = (token) => {
-  if (!token) return;
-  return JSON.parse(decodeToken(token));
 };
 
 const setCustomerTaxData = async (customerId, taxData) => {
@@ -309,4 +343,5 @@ module.exports = {
   getCustomers,
   setCustomerTaxData,
   updateCustomer,
+  getCustomerMainAddress,
 };
