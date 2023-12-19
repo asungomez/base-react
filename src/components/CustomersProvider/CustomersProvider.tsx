@@ -12,6 +12,7 @@ import {
   editTaxData as editTaxDataFromService,
   addMainAddress as addMainAddressFromService,
   getMainAddress as getMainAddressFromService,
+  deleteMainAddress as deleteMainAddressFromService,
   TaxData,
   CustomerAddress,
 } from "../../services/customers";
@@ -165,6 +166,11 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return response;
   };
 
+  const deleteMainAddress = async (customerId: string): Promise<void> => {
+    setMainAddressStore({});
+    return deleteMainAddressFromService(customerId);
+  };
+
   return (
     <CustomersContext.Provider
       value={{
@@ -178,6 +184,7 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
         editTaxData,
         addMainAddress,
         getMainAddress,
+        deleteMainAddress,
       }}
     >
       {children}

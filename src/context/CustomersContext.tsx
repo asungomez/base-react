@@ -33,6 +33,7 @@ export type CustomersContextData = {
     formValues: CustomerAddressFormValues
   ) => Promise<CustomerAddress>;
   getMainAddress: (customerId: string) => Promise<CustomerAddress | null>;
+  deleteMainAddress: (customerId: string) => Promise<void>;
 };
 
 export const CustomersContext = createContext<CustomersContextData>({
@@ -46,6 +47,7 @@ export const CustomersContext = createContext<CustomersContextData>({
   editTaxData: () => Promise.resolve({} as TaxData),
   addMainAddress: () => Promise.resolve({} as CustomerAddress),
   getMainAddress: () => Promise.resolve(null),
+  deleteMainAddress: () => Promise.resolve(),
 });
 
 export const useCustomers = () => useContext(CustomersContext);

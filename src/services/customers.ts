@@ -217,6 +217,10 @@ export const deleteCustomer = async (id: string): Promise<void> => {
   await del("/customers/" + id);
 };
 
+export const deleteMainAddress = async (customerId: string): Promise<void> => {
+  await del(`/customers/${customerId}/main-address`);
+};
+
 export const deleteTaxData = async (customerId: string): Promise<void> => {
   await del(`/customers/${customerId}/tax-data`);
 };

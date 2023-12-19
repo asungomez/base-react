@@ -78,6 +78,17 @@ const deleteCustomer = async (id) => {
   await ddb.deleteItem(params).promise();
 };
 
+const deleteMainAddressFromCustomer = async (customerId) => {
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      PK: { S: `customer_${customerId}` },
+      SK: { S: "address_main" },
+    },
+  };
+  await ddb.deleteItem(params).promise();
+};
+
 const deleteTaxDataFromCustomer = async (customerId) => {
   const params = {
     ExpressionAttributeNames: {
@@ -338,10 +349,11 @@ module.exports = {
   createCustomer,
   createCustomerMainAddress,
   deleteCustomer,
+  deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,
+  getCustomerMainAddress,
   getCustomers,
   setCustomerTaxData,
   updateCustomer,
-  getCustomerMainAddress,
 };

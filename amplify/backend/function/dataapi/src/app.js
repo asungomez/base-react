@@ -5,6 +5,7 @@ const {
   createCustomer,
   createCustomerMainAddress,
   deleteCustomer,
+  deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,
   getCustomers,
@@ -201,6 +202,12 @@ app.delete("/customers/:id/tax-data", async function (req, res) {
   const customerId = req.params.id;
   await deleteTaxDataFromCustomer(customerId);
   res.json({ message: `Tax data for customer ${customerId} deleted` });
+});
+
+app.delete("/customers/:id/main-address", async function (req, res) {
+  const customerId = req.params.id;
+  await deleteMainAddressFromCustomer(customerId);
+  res.json({ message: `Main address for customer ${customerId} deleted` });
 });
 
 app.listen(3000, function () {

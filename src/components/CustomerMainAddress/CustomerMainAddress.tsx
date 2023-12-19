@@ -7,6 +7,7 @@ import { ErrorCode } from "../../services/error";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { useCustomers } from "../../context/CustomersContext";
+import { DeleteCustomerMainAddressButton } from "../DeleteCustomerMainAddressButton.tsx/DeleteCustomerMainAddressButton";
 
 type CustomerMainAddressProps = {
   customerId: string;
@@ -37,6 +38,10 @@ export const CustomerMainAddress: FC<CustomerMainAddressProps> = ({
 
   const addMainAddressHandler = () =>
     navigate(`/customers/${customerId}/main-address/add`);
+
+  const deleteErrorHandler = (error: ErrorCode) => setError(error);
+
+  const deleteHandler = () => setAddress(null);
 
   if (loading) {
     return (
@@ -75,9 +80,11 @@ export const CustomerMainAddress: FC<CustomerMainAddressProps> = ({
       {error && <Error code={error} />}
       <Stack direction="row" spacing={2}>
         <Button variant="contained">Edit</Button>
-        <Button variant="contained" color="error">
-          Delete
-        </Button>
+        <DeleteCustomerMainAddressButton
+          customerId={customerId}
+          onError={deleteErrorHandler}
+          onDelete={deleteHandler}
+        />
       </Stack>
       <CustomerAddress address={address} />
     </>
