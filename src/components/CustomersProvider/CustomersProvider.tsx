@@ -3,14 +3,12 @@ import { CustomersContext } from "../../context/CustomersContext";
 import {
   Customer,
   getCustomers as getCustomersFromService,
-  createCustomer as createCustomerFromService,
   deleteTaxData as deleteCustomerTaxDataFromService,
   addMainAddress as addMainAddressFromService,
   getMainAddress as getMainAddressFromService,
   deleteMainAddress as deleteMainAddressFromService,
   CustomerAddress,
 } from "../../services/customers";
-import { CustomerFormValues } from "../CustomerForm/CustomerForm";
 import { CustomerAddressFormValues } from "../CustomerAddressForm/CustomerAddressForm";
 
 type CustomersProviderProps = {
@@ -69,13 +67,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return response;
   };
 
-  const createCustomer = async (
-    formValues: CustomerFormValues
-  ): Promise<Customer> => {
-    setCustomersCollectionStore({});
-    return createCustomerFromService(formValues);
-  };
-
   const deleteTaxData = async (id: string): Promise<void> => {
     return deleteCustomerTaxDataFromService(id);
   };
@@ -116,7 +107,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     <CustomersContext.Provider
       value={{
         getCustomers,
-        createCustomer,
         deleteTaxData,
         addMainAddress,
         getMainAddress,

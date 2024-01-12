@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
 import { Customer, CustomerAddress } from "../services/customers";
-import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
 import { CustomerAddressFormValues } from "../components/CustomerAddressForm/CustomerAddressForm";
 
 export type CustomersContextData = {
@@ -11,7 +10,6 @@ export type CustomersContextData = {
     customers: Customer[];
     nextToken?: string;
   }>;
-  createCustomer: (formValues: CustomerFormValues) => Promise<Customer>;
   deleteTaxData: (id: string) => Promise<void>;
   addMainAddress: (
     customerId: string,
@@ -23,7 +21,6 @@ export type CustomersContextData = {
 
 export const CustomersContext = createContext<CustomersContextData>({
   getCustomers: () => Promise.resolve({ customers: [] }),
-  createCustomer: () => Promise.resolve({} as Customer),
   deleteTaxData: () => Promise.resolve(),
   addMainAddress: () => Promise.resolve({} as CustomerAddress),
   getMainAddress: () => Promise.resolve(null),
