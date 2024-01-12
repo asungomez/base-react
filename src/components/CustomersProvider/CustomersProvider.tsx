@@ -5,15 +5,12 @@ import {
   getCustomers as getCustomersFromService,
   createCustomer as createCustomerFromService,
   deleteTaxData as deleteCustomerTaxDataFromService,
-  addTaxData as addTaxDataFromService,
   addMainAddress as addMainAddressFromService,
   getMainAddress as getMainAddressFromService,
   deleteMainAddress as deleteMainAddressFromService,
-  TaxData,
   CustomerAddress,
 } from "../../services/customers";
 import { CustomerFormValues } from "../CustomerForm/CustomerForm";
-import { TaxDataFormValues } from "../TaxDataForm/TaxDataForm";
 import { CustomerAddressFormValues } from "../CustomerAddressForm/CustomerAddressForm";
 
 type CustomersProviderProps = {
@@ -83,13 +80,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return deleteCustomerTaxDataFromService(id);
   };
 
-  const addTaxData = async (
-    customerId: string,
-    formValues: TaxDataFormValues
-  ): Promise<TaxData> => {
-    return addTaxDataFromService(customerId, formValues);
-  };
-
   const addMainAddress = async (
     customerId: string,
     formValues: CustomerAddressFormValues
@@ -128,7 +118,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
         getCustomers,
         createCustomer,
         deleteTaxData,
-        addTaxData,
         addMainAddress,
         getMainAddress,
         deleteMainAddress,
