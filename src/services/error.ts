@@ -23,3 +23,13 @@ export type ErrorCode = typeof ERROR_CODES[number];
 
 export const isErrorCode = (value: unknown): value is ErrorCode =>
   typeof value === "string" && ERROR_CODES.includes(value as ErrorCode);
+
+export const extractErrorCode = (
+  error: Error | undefined
+): ErrorCode | null => {
+  let errorCode: ErrorCode | null = null;
+  if (error) {
+    errorCode = isErrorCode(error.message) ? error.message : "INTERNAL_ERROR";
+  }
+  return errorCode;
+};

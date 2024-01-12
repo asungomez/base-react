@@ -1,50 +1,31 @@
-import { CircularProgress, Typography } from "@mui/material";
-import { FC, useEffect, useState } from "react";
-import { ErrorCode, isErrorCode } from "../../services/error";
+import { Button, CircularProgress, Typography } from "@mui/material";
+import { FC } from "react";
 import {
   TaxDataForm,
   TaxDataFormValues,
 } from "../../components/TaxDataForm/TaxDataForm";
 import { Error } from "../../components/Error/Error";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCustomers } from "../../context/CustomersContext";
+import { useCustomer } from "../../hooks/useCustomer";
+import { useEditCustomerTaxData } from "../../hooks/useEditCustomerTaxData";
 
 type EditCustomerTaxDataParams = {
   id: string;
 };
 
 export const EditCustomerTaxDataPage: FC = () => {
-  const [submitting, setSubmitting] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<ErrorCode | null>(null);
-  const [taxData, setTaxData] = useState<TaxDataFormValues | null>(null);
   const { id: customerId } = useParams<EditCustomerTaxDataParams>();
-  const { getCustomer, editTaxData } = useCustomers();
+  const {
+    editCustomerTaxData,
+    loading: submitting,
+    error: errorAfterEdit,
+  } = useEditCustomerTaxData(customerId);
+  const {
+    error: errorInitialLoad,
+    customer,
+    loading,
+  } = useCustomer(customerId);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (customerId && loading) {
-      getCustomer(customerId)
-        .then((customer) => {
-          if (customer?.taxData) {
-            setTaxData(customer?.taxData);
-          }
-          setLoading(false);
-        })
-        .catch((e) => {
-          if (isErrorCode(e.message)) {
-            setError(e.message);
-          } else {
-            setError("INTERNAL_ERROR");
-          }
-          setLoading(false);
-        });
-    }
-  }, [loading, customerId]);
-
-  if (!customerId) {
-    return <Error code="INTERNAL_ERROR" />;
-  }
 
   if (loading) {
     return (
@@ -57,22 +38,27 @@ export const EditCustomerTaxDataPage: FC = () => {
     );
   }
 
+  if (!customerId) {
+    return <Error code="INTERNAL_ERROR" />;
+  }
+
+  const backClickHandler = () => navigate(`/customers/${customerId}`);
+
+  if (errorInitialLoad) {
+    return (
+      <>
+        <Error code={errorInitialLoad} />
+        <Button variant="contained" color="primary" onClick={backClickHandler}>
+          Back
+        </Button>
+      </>
+    );
+  }
+
   const submitHandler = (formValues: TaxDataFormValues) => {
-    setSubmitting(true);
-    setError(null);
-    editTaxData(customerId, formValues)
-      .then(() => {
-        setSubmitting(false);
-        navigate(`/customers/${customerId}`);
-      })
-      .catch((e) => {
-        if (isErrorCode(e.message)) {
-          setError(e.message);
-        } else {
-          setError("INTERNAL_ERROR");
-        }
-        setSubmitting(false);
-      });
+    editCustomerTaxData(formValues).then(() => {
+      navigate(`/customers/${customerId}`);
+    });
   };
 
   return (
@@ -80,12 +66,12 @@ export const EditCustomerTaxDataPage: FC = () => {
       <Typography variant="h3" gutterBottom align="center">
         Edit tax information
       </Typography>
-      {error && <Error code={error} />}
-      {taxData && (
+      {errorAfterEdit && <Error code={errorAfterEdit} />}
+      {customer?.taxData && (
         <TaxDataForm
           loading={submitting}
           onSubmit={submitHandler}
-          defaultValues={taxData}
+          defaultValues={customer?.taxData}
         />
       )}
     </>

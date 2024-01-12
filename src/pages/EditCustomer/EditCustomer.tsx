@@ -1,46 +1,27 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Error } from "../../components/Error/Error";
-import { Customer } from "../../services/customers";
-import { ErrorCode, isErrorCode } from "../../services/error";
 import { Button, CircularProgress, Typography } from "@mui/material";
 import {
   CustomerForm,
   CustomerFormValues,
 } from "../../components/CustomerForm/CustomerForm";
-import { useCustomers } from "../../context/CustomersContext";
+import { useCustomer } from "../../hooks/useCustomer";
+import { useEditCustomer } from "../../hooks/useEditCustomer";
 
 type EditCustomerParams = {
   id: string;
 };
 
 export const EditCustomerPage: FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const [error, setError] = useState<ErrorCode | null>(null);
-
   const { id } = useParams<EditCustomerParams>();
   const navigate = useNavigate();
-  const { getCustomer, editCustomer } = useCustomers();
-
-  useEffect(() => {
-    if (loading && id) {
-      getCustomer(id)
-        .then((customer) => {
-          setCustomer(customer);
-          setLoading(false);
-        })
-        .catch((error) => {
-          if (isErrorCode(error.message)) {
-            setError(error.message);
-          } else {
-            setError("INTERNAL_ERROR");
-          }
-          setLoading(false);
-        });
-    }
-  }, []);
+  const { customer, loading, error: errorInitialLoad } = useCustomer(id);
+  const {
+    editCustomer,
+    loading: editing,
+    error: errorAfterEdit,
+  } = useEditCustomer(id);
 
   const backClickHandler = () => navigate(`/customers/${id}`);
 
@@ -54,10 +35,10 @@ export const EditCustomerPage: FC = () => {
       </>
     );
   }
-  if (error) {
+  if (errorInitialLoad) {
     return (
       <>
-        <Error code={error} />
+        <Error code={errorInitialLoad} />
         <Button variant="contained" color="primary" onClick={backClickHandler}>
           Back
         </Button>
@@ -76,21 +57,9 @@ export const EditCustomerPage: FC = () => {
   }
 
   const submitHandler = (formValues: CustomerFormValues) => {
-    setEditing(true);
-    setError(null);
-    editCustomer(id, formValues)
-      .then((customer) => {
-        setEditing(false);
-        navigate(`/customers/${customer.id}`);
-      })
-      .catch((error) => {
-        setEditing(false);
-        if (isErrorCode(error.message)) {
-          setError(error.message);
-        } else {
-          setError("INTERNAL_ERROR");
-        }
-      });
+    editCustomer(formValues).then(() => {
+      navigate(`/customers/${id}`);
+    });
   };
 
   return (
@@ -98,6 +67,7 @@ export const EditCustomerPage: FC = () => {
       <Typography variant="h3" gutterBottom>
         Edit customer
       </Typography>
+      {errorAfterEdit && <Error code={errorAfterEdit} />}
       <CustomerForm
         defaultValues={customer}
         onSubmit={submitHandler}

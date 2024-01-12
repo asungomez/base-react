@@ -3,13 +3,10 @@ import { CustomersContext } from "../../context/CustomersContext";
 import {
   Customer,
   getCustomers as getCustomersFromService,
-  getCustomer as getCustomerFromService,
   createCustomer as createCustomerFromService,
-  editCustomer as editCustomerFromService,
   deleteCustomer as deleteCustomerFromService,
   deleteTaxData as deleteCustomerTaxDataFromService,
   addTaxData as addTaxDataFromService,
-  editTaxData as editTaxDataFromService,
   addMainAddress as addMainAddressFromService,
   getMainAddress as getMainAddressFromService,
   deleteMainAddress as deleteMainAddressFromService,
@@ -49,9 +46,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
       }
     >
   >({});
-  const [individualCustomerStore, setIndividualCustomerStore] = useState<
-    Record<string, { response: Customer | null; expiresAt: Date }>
-  >({});
   const [mainAddressStore, setMainAddressStore] = useState<
     Record<string, { response: CustomerAddress | null; expiresAt: Date }>
   >({});
@@ -79,23 +73,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return response;
   };
 
-  const getCustomer = async (id: string): Promise<Customer | null> => {
-    const args = JSON.stringify({ id });
-    if (
-      individualCustomerStore[args] &&
-      !isExpired(individualCustomerStore[args].expiresAt)
-    ) {
-      return individualCustomerStore[args].response;
-    }
-    const response = await getCustomerFromService(id);
-    const expiresAt = expirationDate(MINUTES_TO_EXPIRE);
-    setIndividualCustomerStore((individualCustomerStore) => ({
-      ...individualCustomerStore,
-      [args]: { response, expiresAt },
-    }));
-    return response;
-  };
-
   const createCustomer = async (
     formValues: CustomerFormValues
   ): Promise<Customer> => {
@@ -103,23 +80,12 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return createCustomerFromService(formValues);
   };
 
-  const editCustomer = async (
-    id: string,
-    formValues: CustomerFormValues
-  ): Promise<Customer> => {
-    setIndividualCustomerStore({});
-    setCustomersCollectionStore({});
-    return editCustomerFromService(id, formValues);
-  };
-
   const deleteCustomer = async (id: string): Promise<void> => {
-    setIndividualCustomerStore({});
     setCustomersCollectionStore({});
     return deleteCustomerFromService(id);
   };
 
   const deleteTaxData = async (id: string): Promise<void> => {
-    setIndividualCustomerStore({});
     return deleteCustomerTaxDataFromService(id);
   };
 
@@ -127,16 +93,7 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     customerId: string,
     formValues: TaxDataFormValues
   ): Promise<TaxData> => {
-    setIndividualCustomerStore({});
     return addTaxDataFromService(customerId, formValues);
-  };
-
-  const editTaxData = async (
-    customerId: string,
-    formValues: TaxDataFormValues
-  ): Promise<TaxData> => {
-    setIndividualCustomerStore({});
-    return editTaxDataFromService(customerId, formValues);
   };
 
   const addMainAddress = async (
@@ -175,13 +132,10 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     <CustomersContext.Provider
       value={{
         getCustomers,
-        getCustomer,
         createCustomer,
-        editCustomer,
         deleteCustomer,
         deleteTaxData,
         addTaxData,
-        editTaxData,
         addMainAddress,
         getMainAddress,
         deleteMainAddress,
