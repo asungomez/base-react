@@ -13,7 +13,6 @@ export type CustomersContextData = {
     nextToken?: string;
   }>;
   createCustomer: (formValues: CustomerFormValues) => Promise<Customer>;
-  deleteCustomer: (id: string) => Promise<void>;
   deleteTaxData: (id: string) => Promise<void>;
   addTaxData: (
     customerId: string,
@@ -30,7 +29,6 @@ export type CustomersContextData = {
 export const CustomersContext = createContext<CustomersContextData>({
   getCustomers: () => Promise.resolve({ customers: [] }),
   createCustomer: () => Promise.resolve({} as Customer),
-  deleteCustomer: () => Promise.resolve(),
   deleteTaxData: () => Promise.resolve(),
   addTaxData: () => Promise.resolve({} as TaxData),
   addMainAddress: () => Promise.resolve({} as CustomerAddress),

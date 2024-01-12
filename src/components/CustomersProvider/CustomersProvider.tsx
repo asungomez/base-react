@@ -4,7 +4,6 @@ import {
   Customer,
   getCustomers as getCustomersFromService,
   createCustomer as createCustomerFromService,
-  deleteCustomer as deleteCustomerFromService,
   deleteTaxData as deleteCustomerTaxDataFromService,
   addTaxData as addTaxDataFromService,
   addMainAddress as addMainAddressFromService,
@@ -80,11 +79,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return createCustomerFromService(formValues);
   };
 
-  const deleteCustomer = async (id: string): Promise<void> => {
-    setCustomersCollectionStore({});
-    return deleteCustomerFromService(id);
-  };
-
   const deleteTaxData = async (id: string): Promise<void> => {
     return deleteCustomerTaxDataFromService(id);
   };
@@ -133,7 +127,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
       value={{
         getCustomers,
         createCustomer,
-        deleteCustomer,
         deleteTaxData,
         addTaxData,
         addMainAddress,
