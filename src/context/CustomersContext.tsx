@@ -1,15 +1,8 @@
 import { createContext, useContext } from "react";
-import { Customer, CustomerAddress } from "../services/customers";
+import { CustomerAddress } from "../services/customers";
 import { CustomerAddressFormValues } from "../components/CustomerAddressForm/CustomerAddressForm";
 
 export type CustomersContextData = {
-  getCustomers: (
-    nextToken?: string,
-    searchInput?: string
-  ) => Promise<{
-    customers: Customer[];
-    nextToken?: string;
-  }>;
   addMainAddress: (
     customerId: string,
     formValues: CustomerAddressFormValues
@@ -19,7 +12,6 @@ export type CustomersContextData = {
 };
 
 export const CustomersContext = createContext<CustomersContextData>({
-  getCustomers: () => Promise.resolve({ customers: [] }),
   addMainAddress: () => Promise.resolve({} as CustomerAddress),
   getMainAddress: () => Promise.resolve(null),
   deleteMainAddress: () => Promise.resolve(),

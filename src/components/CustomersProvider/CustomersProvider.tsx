@@ -1,8 +1,6 @@
 import { FC, ReactNode, useState } from "react";
 import { CustomersContext } from "../../context/CustomersContext";
 import {
-  Customer,
-  getCustomers as getCustomersFromService,
   addMainAddress as addMainAddressFromService,
   getMainAddress as getMainAddressFromService,
   deleteMainAddress as deleteMainAddressFromService,
@@ -27,44 +25,9 @@ const isExpired = (expiresAt: Date) => {
 };
 
 export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
-  const [customersCollectionStore, setCustomersCollectionStore] = useState<
-    Record<
-      string,
-      {
-        response: {
-          customers: Customer[];
-          nextToken?: string;
-        };
-        expiresAt: Date;
-      }
-    >
-  >({});
   const [mainAddressStore, setMainAddressStore] = useState<
     Record<string, { response: CustomerAddress | null; expiresAt: Date }>
   >({});
-
-  const getCustomers = async (
-    nextToken?: string,
-    searchInput?: string
-  ): Promise<{
-    customers: Customer[];
-    nextToken?: string;
-  }> => {
-    const args = JSON.stringify({ nextToken, searchInput });
-    if (
-      customersCollectionStore[args] &&
-      !isExpired(customersCollectionStore[args].expiresAt)
-    ) {
-      return customersCollectionStore[args].response;
-    }
-    const response = await getCustomersFromService(nextToken, searchInput);
-    const expiresAt = expirationDate(MINUTES_TO_EXPIRE);
-    setCustomersCollectionStore((customersCollectionStore) => ({
-      ...customersCollectionStore,
-      [args]: { response, expiresAt },
-    }));
-    return response;
-  };
 
   const addMainAddress = async (
     customerId: string,
@@ -101,7 +64,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
   return (
     <CustomersContext.Provider
       value={{
-        getCustomers,
         addMainAddress,
         getMainAddress,
         deleteMainAddress,
