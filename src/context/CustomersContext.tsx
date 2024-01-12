@@ -10,7 +10,6 @@ export type CustomersContextData = {
     customers: Customer[];
     nextToken?: string;
   }>;
-  deleteTaxData: (id: string) => Promise<void>;
   addMainAddress: (
     customerId: string,
     formValues: CustomerAddressFormValues
@@ -21,7 +20,6 @@ export type CustomersContextData = {
 
 export const CustomersContext = createContext<CustomersContextData>({
   getCustomers: () => Promise.resolve({ customers: [] }),
-  deleteTaxData: () => Promise.resolve(),
   addMainAddress: () => Promise.resolve({} as CustomerAddress),
   getMainAddress: () => Promise.resolve(null),
   deleteMainAddress: () => Promise.resolve(),

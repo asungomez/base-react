@@ -3,7 +3,6 @@ import { CustomersContext } from "../../context/CustomersContext";
 import {
   Customer,
   getCustomers as getCustomersFromService,
-  deleteTaxData as deleteCustomerTaxDataFromService,
   addMainAddress as addMainAddressFromService,
   getMainAddress as getMainAddressFromService,
   deleteMainAddress as deleteMainAddressFromService,
@@ -67,10 +66,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     return response;
   };
 
-  const deleteTaxData = async (id: string): Promise<void> => {
-    return deleteCustomerTaxDataFromService(id);
-  };
-
   const addMainAddress = async (
     customerId: string,
     formValues: CustomerAddressFormValues
@@ -107,7 +102,6 @@ export const CustomersProvider: FC<CustomersProviderProps> = ({ children }) => {
     <CustomersContext.Provider
       value={{
         getCustomers,
-        deleteTaxData,
         addMainAddress,
         getMainAddress,
         deleteMainAddress,
