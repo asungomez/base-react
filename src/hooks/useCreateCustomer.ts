@@ -20,6 +20,17 @@ export const useCreateCustomer = () => {
         customer,
         { populateCache: true, revalidate: false }
       );
+      await mutate<
+        readonly [string, string | undefined, string | undefined],
+        {
+          customers: Customer[];
+          nextToken?: string;
+        }
+      >(
+        (key: unknown) => key && Array.isArray(key) && key[0] === "customers",
+        undefined,
+        { revalidate: false, populateCache: true }
+      );
       return customer;
     },
     { revalidate: false, populateCache: false }

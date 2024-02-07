@@ -1,7 +1,9 @@
 import useSWRMutation from "swr/mutation";
 import { Customer, deleteCustomer } from "../services/customers";
+import { useSWRConfig } from "swr";
 
 export const useDeleteCustomer = (id: string | undefined) => {
+  const { mutate } = useSWRConfig();
   const { trigger, isMutating, error } = useSWRMutation<
     void,
     Error,
@@ -10,7 +12,20 @@ export const useDeleteCustomer = (id: string | undefined) => {
     Customer | null
   >(
     id ? ["customer", id] : null,
-    async ([_operation, customerId]) => deleteCustomer(customerId),
+    async ([_operation, customerId]) => {
+      await deleteCustomer(customerId);
+      await mutate<
+        readonly [string, string | undefined, string | undefined],
+        {
+          customers: Customer[];
+          nextToken?: string;
+        }
+      >(
+        (key: unknown) => key && Array.isArray(key) && key[0] === "customers",
+        undefined,
+        { revalidate: false, populateCache: true }
+      );
+    },
     {
       revalidate: false,
       populateCache: () => null,
