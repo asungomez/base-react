@@ -9,7 +9,7 @@ import { CustomerItem } from "../../components/CustomerItem/CustomerItem";
 import { CustomersList } from "./Customers.style";
 import { Customer } from "../../services/customers";
 import { useNavigate } from "react-router-dom";
-import { useCustomers } from "../../hooks/useCustomers";
+import { useCustomers } from "../../hooks/customers/useCustomers";
 import { Error } from "../../components/Error/Error";
 import { LoadingButton } from "@mui/lab";
 import { SearchBar } from "../../components/SearchBar/SearchBar";

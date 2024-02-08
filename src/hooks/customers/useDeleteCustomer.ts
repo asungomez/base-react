@@ -1,5 +1,5 @@
 import useSWRMutation from "swr/mutation";
-import { Customer, deleteCustomer } from "../services/customers";
+import { Customer, deleteCustomer } from "../../services/customers";
 import { useSWRConfig } from "swr";
 
 export const useDeleteCustomer = (id: string | undefined) => {

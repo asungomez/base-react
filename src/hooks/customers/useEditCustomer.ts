@@ -1,7 +1,7 @@
-import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
+import { CustomerFormValues } from "../../components/CustomerForm/CustomerForm";
 import useSWRMutation from "swr/mutation";
-import { Customer, editCustomer } from "../services/customers";
-import { extractErrorCode } from "../services/error";
+import { Customer, editCustomer } from "../../services/customers";
+import { extractErrorCode } from "../../services/error";
 
 export const useEditCustomer = (id: string | undefined) => {
   const { trigger, isMutating, error } = useSWRMutation<

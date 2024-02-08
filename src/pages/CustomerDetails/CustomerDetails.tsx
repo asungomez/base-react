@@ -13,7 +13,7 @@ import { CustomerInformation } from "../../components/CustomerInformation/Custom
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { CustomerMainAddress } from "../../components/CustomerMainAddress/CustomerMainAddress";
 import AddIcon from "@mui/icons-material/Add";
-import { useCustomer } from "../../hooks/useCustomer";
+import { useCustomer } from "../../hooks/customers/useCustomer";
 
 const tabNames = ["information", "taxData", "mainAddress"] as const;
 type TabName = typeof tabNames[number];

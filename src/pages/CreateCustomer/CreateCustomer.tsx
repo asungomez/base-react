@@ -6,7 +6,7 @@ import {
 } from "../../components/CustomerForm/CustomerForm";
 import { useNavigate } from "react-router-dom";
 import { Error } from "../../components/Error/Error";
-import { useCreateCustomer } from "../../hooks/useCreateCustomer";
+import { useCreateCustomer } from "../../hooks/customers/useCreateCustomer";
 
 export const CreateCustomerPage: FC = () => {
   const navigate = useNavigate();

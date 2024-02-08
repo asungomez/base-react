@@ -1,6 +1,6 @@
 import useSWR from "swr";
-import { Customer, getCustomer } from "../services/customers";
-import { ErrorCode, extractErrorCode } from "../services/error";
+import { Customer, getCustomer } from "../../services/customers";
+import { ErrorCode, extractErrorCode } from "../../services/error";
 
 type CustomerHookReturn = {
   customer: Customer | undefined;

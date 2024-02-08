@@ -6,8 +6,8 @@ import {
   CustomerForm,
   CustomerFormValues,
 } from "../../components/CustomerForm/CustomerForm";
-import { useCustomer } from "../../hooks/useCustomer";
-import { useEditCustomer } from "../../hooks/useEditCustomer";
+import { useCustomer } from "../../hooks/customers/useCustomer";
+import { useEditCustomer } from "../../hooks/customers/useEditCustomer";
 
 type EditCustomerParams = {
   id: string;

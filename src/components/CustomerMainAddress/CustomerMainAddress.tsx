@@ -1,13 +1,12 @@
-import { FC, useEffect, useState } from "react";
-import { CustomerAddress as CustomerAddressType } from "../../services/customers";
+import { FC } from "react";
 import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { Error } from "../Error/Error";
 import { CustomerAddress } from "../CustomerAddress/CustomerAddress";
 import { ErrorCode } from "../../services/error";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
-import { useCustomers } from "../../context/CustomersContext";
 import { DeleteCustomerMainAddressButton } from "../DeleteCustomerMainAddressButton.tsx/DeleteCustomerMainAddressButton";
+import { useCustomerMainAddress } from "../../hooks/customers/main-address/useCustomerMainAddress";
 
 type CustomerMainAddressProps = {
   customerId: string;
@@ -16,32 +15,20 @@ type CustomerMainAddressProps = {
 export const CustomerMainAddress: FC<CustomerMainAddressProps> = ({
   customerId,
 }) => {
-  const [address, setAddress] = useState<CustomerAddressType | null>(null);
-  const [error, setError] = useState<ErrorCode | null>(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { getMainAddress } = useCustomers();
-
-  useEffect(() => {
-    if (loading) {
-      getMainAddress(customerId)
-        .then((address) => {
-          setAddress(address);
-          setLoading(false);
-        })
-        .catch((error) => {
-          setError(error);
-          setLoading(false);
-        });
-    }
-  }, [loading, customerId, getMainAddress]);
+  const { customerMainAddress, loading, error } =
+    useCustomerMainAddress(customerId);
 
   const addMainAddressHandler = () =>
     navigate(`/customers/${customerId}/main-address/add`);
 
-  const deleteErrorHandler = (error: ErrorCode) => setError(error);
+  const deleteErrorHandler = (error: ErrorCode) => {
+    // setError(error)
+  };
 
-  const deleteHandler = () => setAddress(null);
+  const deleteHandler = () => {
+    // setAddress(null)
+  };
 
   if (loading) {
     return (
@@ -56,7 +43,7 @@ export const CustomerMainAddress: FC<CustomerMainAddressProps> = ({
   if (error) {
     return <Error code={error} />;
   }
-  if (!address) {
+  if (!customerMainAddress) {
     return (
       <>
         <Typography variant="h3" gutterBottom>
@@ -86,7 +73,7 @@ export const CustomerMainAddress: FC<CustomerMainAddressProps> = ({
           onDelete={deleteHandler}
         />
       </Stack>
-      <CustomerAddress address={address} />
+      <CustomerAddress address={customerMainAddress} />
     </>
   );
 };

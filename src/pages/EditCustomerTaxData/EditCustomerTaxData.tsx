@@ -6,8 +6,8 @@ import {
 } from "../../components/TaxDataForm/TaxDataForm";
 import { Error } from "../../components/Error/Error";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCustomer } from "../../hooks/useCustomer";
-import { useEditCustomerTaxData } from "../../hooks/useEditCustomerTaxData";
+import { useCustomer } from "../../hooks/customers/useCustomer";
+import { useEditCustomerTaxData } from "../../hooks/customers/tax-data/useEditCustomerTaxData";
 
 type EditCustomerTaxDataParams = {
   id: string;

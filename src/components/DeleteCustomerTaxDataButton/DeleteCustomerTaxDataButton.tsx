@@ -1,7 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { FC } from "react";
 import { ErrorCode } from "../../services/error";
-import { useDeleteCustomerTaxData } from "../../hooks/useDeleteCustomerTaxData";
+import { useDeleteCustomerTaxData } from "../../hooks/customers/tax-data/useDeleteCustomerTaxData";
 
 type DeleteCustomerTaxDataButtonProps = {
   customerId: string;

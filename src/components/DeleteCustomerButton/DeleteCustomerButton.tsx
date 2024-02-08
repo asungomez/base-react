@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { LoadingButton } from "@mui/lab";
 import { ErrorCode } from "../../services/error";
-import { useDeleteCustomer } from "../../hooks/useDeleteCustomer";
+import { useDeleteCustomer } from "../../hooks/customers/useDeleteCustomer";
 
 type DeleteCustomerButtonProps = {
   customerId: string;
