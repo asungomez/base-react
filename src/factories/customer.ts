@@ -7,4 +7,5 @@ export const customerFactory = Factory.define<Customer>(({ sequence }) => ({
   name: faker.person.fullName(),
   email: faker.internet.email(),
   type: "individual",
+  externalLinks: [],
 }));

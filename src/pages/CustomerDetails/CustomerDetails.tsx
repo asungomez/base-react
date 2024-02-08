@@ -109,7 +109,7 @@ export const CustomerDetailsPage: FC = () => {
         </CustomerSectionTab>
         <CustomerSectionTab value="externalLinks">
           <CustomerExternalLinks
-            links={["http://www.some-link.com"]}
+            links={customer.externalLinks}
             customerId={customer.id}
           />
         </CustomerSectionTab>

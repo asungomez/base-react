@@ -37,7 +37,7 @@ export type Customer = {
   type: CustomerType;
   taxData?: TaxData;
   mainAddress?: CustomerAddress;
-  externalLinks?: string[];
+  externalLinks: string[];
 };
 
 export type TaxData = {
@@ -66,8 +66,7 @@ const isCustomer = (value: unknown): value is Customer => {
     CUSTOMER_TYPES.includes(customer.type) &&
     ((typeof customer.taxData === "object" && isTaxData(customer.taxData)) ||
       customer.taxData === undefined) &&
-    (customer.externalLinks === undefined ||
-      Array.isArray(customer.externalLinks))
+    Array.isArray(customer.externalLinks)
   );
 };
 

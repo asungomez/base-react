@@ -255,6 +255,9 @@ const mapCustomerFromDB = (customer) => ({
   email: customer.email.S,
   type: customer.type.S,
   taxData: customer.taxData ? mapTaxDataFromDB(customer.taxData.M) : undefined,
+  externalLinks: customer.externalLinks
+    ? customer.externalLinks.L.map((link) => link.S)
+    : [],
 });
 
 const mapMainAddressFromDB = (mainAddress) => ({
