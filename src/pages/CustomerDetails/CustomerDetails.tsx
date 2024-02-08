@@ -14,13 +14,20 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { CustomerMainAddress } from "../../components/CustomerMainAddress/CustomerMainAddress";
 import AddIcon from "@mui/icons-material/Add";
 import { useCustomer } from "../../hooks/customers/useCustomer";
+import { CustomerExternalLinks } from "../../components/CustomerExternalLinks/CustomerExternalLinks";
 
-const tabNames = ["information", "taxData", "mainAddress"] as const;
+const tabNames = [
+  "information",
+  "taxData",
+  "mainAddress",
+  "externalLinks",
+] as const;
 type TabName = typeof tabNames[number];
 const tabLabels: Record<TabName, string> = {
   information: "Information",
   taxData: "Tax data",
   mainAddress: "Main address",
+  externalLinks: "External links",
 };
 
 type CustomerDetailsParams = {
@@ -46,15 +53,6 @@ export const CustomerDetailsPage: FC = () => {
   const { loading, customer, error } = useCustomer(id);
 
   const addTaxDataHandler = () => navigate(`/customers/${id}/tax-data/add`);
-
-  const deleteTaxDataHandler = () => {
-    // setCustomer((customer) => {
-    //   if (customer) {
-    //     return { ...customer, taxData: undefined };
-    //   }
-    //   return null;
-    // });
-  };
 
   const changeTabHandler = (_: React.SyntheticEvent, newValue: TabName) => {
     setCurrentTab(newValue);
@@ -95,7 +93,6 @@ export const CustomerDetailsPage: FC = () => {
             <CustomerTaxData
               taxData={customer.taxData}
               customerId={customer.id}
-              onDelete={deleteTaxDataHandler}
             />
           ) : (
             <Button
@@ -109,6 +106,12 @@ export const CustomerDetailsPage: FC = () => {
         </CustomerSectionTab>
         <CustomerSectionTab value="mainAddress">
           <CustomerMainAddress customerId={customer.id} />
+        </CustomerSectionTab>
+        <CustomerSectionTab value="externalLinks">
+          <CustomerExternalLinks
+            links={["http://www.some-link.com"]}
+            customerId={customer.id}
+          />
         </CustomerSectionTab>
       </Stack>
     </TabContext>

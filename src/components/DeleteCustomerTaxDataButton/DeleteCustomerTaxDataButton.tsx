@@ -5,24 +5,19 @@ import { useDeleteCustomerTaxData } from "../../hooks/customers/tax-data/useDele
 
 type DeleteCustomerTaxDataButtonProps = {
   customerId: string;
-  onDelete: () => void;
   onError: (code: ErrorCode) => void;
 };
 
 export const DeleteCustomerTaxDataButton: FC<
   DeleteCustomerTaxDataButtonProps
-> = ({ customerId, onDelete, onError }) => {
+> = ({ customerId, onError }) => {
   const { deleteCustomerTaxData, loading } =
     useDeleteCustomerTaxData(customerId);
 
   const clickHander = () => {
-    deleteCustomerTaxData()
-      .then(() => {
-        onDelete();
-      })
-      .catch((error) => {
-        onError(error);
-      });
+    deleteCustomerTaxData().catch((error) => {
+      onError(error);
+    });
   };
   return (
     <LoadingButton

@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
 const {
+  addExternalLinkToCustomer,
   createCustomer,
   createCustomerMainAddress,
   deleteCustomer,
@@ -75,6 +76,21 @@ app.post("/customers", async function (req, res) {
     }
     if (e.message === "Email is required") {
       res.status(400).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
+app.post("/customers/:id/external-link", async function (req, res) {
+  try {
+    const customerId = req.params.id;
+    const { url } = req.body;
+    const insertedUrl = await addExternalLinkToCustomer(customerId, url);
+    res.json({ url: insertedUrl });
+  } catch (e) {
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
       return;
     }
     throw e;

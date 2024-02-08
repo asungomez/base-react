@@ -7,6 +7,34 @@ const TABLE_NAME = "exercises-dev";
 AWS.config.update({ region: "eu-west-1" });
 const ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
+const addExternalLinkToCustomer = async (customerId, url) => {
+  if (!(await getCustomer(customerId))) {
+    throw new Error("Customer not found");
+  }
+  const params = {
+    ExpressionAttributeNames: {
+      "#EL": "externalLinks",
+    },
+    ExpressionAttributeValues: {
+      ":url": { L: [{ S: url }] },
+      ":empty_list": { L: [] },
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression:
+      "SET #EL = list_append(if_not_exists(#EL, :empty_list), :url)",
+  };
+  await ddb.updateItem(params).promise();
+  return url;
+};
+
 const createCustomer = async (customer) => {
   const customersWithSameEmail = await queryCustomerByEmail(customer.email);
   if (customersWithSameEmail.length > 0) {
@@ -346,6 +374,7 @@ const updateCustomer = async (id, customer) => {
 };
 
 module.exports = {
+  addExternalLinkToCustomer,
   createCustomer,
   createCustomerMainAddress,
   deleteCustomer,

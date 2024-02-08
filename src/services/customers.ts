@@ -37,6 +37,7 @@ export type Customer = {
   type: CustomerType;
   taxData?: TaxData;
   mainAddress?: CustomerAddress;
+  externalLinks?: string[];
 };
 
 export type TaxData = {
@@ -64,7 +65,9 @@ const isCustomer = (value: unknown): value is Customer => {
     typeof customer.type === "string" &&
     CUSTOMER_TYPES.includes(customer.type) &&
     ((typeof customer.taxData === "object" && isTaxData(customer.taxData)) ||
-      customer.taxData === undefined)
+      customer.taxData === undefined) &&
+    (customer.externalLinks === undefined ||
+      Array.isArray(customer.externalLinks))
   );
 };
 
@@ -113,6 +116,29 @@ const isResponseError = (value: unknown): value is ResponseError => {
     responseError.response.data !== null &&
     typeof responseError.response.data.error === "string"
   );
+};
+
+export const addExternalLink = async (
+  customerId: string,
+  url: string
+): Promise<string> => {
+  try {
+    const response = await post(`/customers/${customerId}/external-link`, {
+      url,
+    });
+    if (!response || !response.url || typeof url !== "string") {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.url;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
 };
 
 export const addTaxData = async (
