@@ -106,6 +106,28 @@ const deleteCustomer = async (id) => {
   await ddb.deleteItem(params).promise();
 };
 
+const deleteExternalLinkFromCustomer = async (customerId, index) => {
+  if (!(await getCustomer(customerId))) {
+    throw new Error("Customer not found");
+  }
+  const params = {
+    ExpressionAttributeNames: {
+      "#EL": "externalLinks",
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression: `REMOVE #EL[${index}]`,
+  };
+  await ddb.updateItem(params).promise();
+};
+
 const deleteMainAddressFromCustomer = async (customerId) => {
   const params = {
     TableName: TABLE_NAME,
@@ -381,6 +403,7 @@ module.exports = {
   createCustomer,
   createCustomerMainAddress,
   deleteCustomer,
+  deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,

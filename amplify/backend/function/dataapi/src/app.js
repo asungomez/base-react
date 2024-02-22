@@ -6,6 +6,7 @@ const {
   createCustomer,
   createCustomerMainAddress,
   deleteCustomer,
+  deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   getCustomer,
@@ -212,6 +213,13 @@ app.delete("/customers/:id", async function (req, res) {
   const id = req.params.id;
   await deleteCustomer(id);
   res.json({ message: "Customer deleted" });
+});
+
+app.delete("/customers/:id/external-link/:index", async function (req, res) {
+  const id = req.params.id;
+  const index = req.params.index;
+  await deleteExternalLinkFromCustomer(id, index);
+  res.json({ message: "External link deleted" });
 });
 
 app.delete("/customers/:id/tax-data", async function (req, res) {
