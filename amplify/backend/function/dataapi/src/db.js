@@ -158,6 +158,32 @@ const deleteTaxDataFromCustomer = async (customerId) => {
   await ddb.updateItem(params).promise();
 };
 
+const editExternalLinkFromCustomer = async (customerId, index, url) => {
+  if (!(await getCustomer(customerId))) {
+    throw new Error("Customer not found");
+  }
+  const params = {
+    ExpressionAttributeNames: {
+      "#EL": "externalLinks",
+    },
+    ExpressionAttributeValues: {
+      ":url": { S: url },
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression: `SET #EL[${index}] = :url`,
+  };
+  await ddb.updateItem(params).promise();
+  return url;
+};
+
 const encodeToken = (token) => {
   if (!token) return;
   return Buffer.from(JSON.stringify(token)).toString("base64");
@@ -406,6 +432,7 @@ module.exports = {
   deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
+  editExternalLinkFromCustomer,
   getCustomer,
   getCustomerMainAddress,
   getCustomers,

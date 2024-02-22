@@ -9,6 +9,7 @@ const {
   deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
+  editExternalLinkFromCustomer,
   getCustomer,
   getCustomers,
   setCustomerTaxData,
@@ -207,6 +208,14 @@ app.put("/customers/:id", async function (req, res) {
     }
     throw e;
   }
+});
+
+app.put("/customers/:id/external-link/:index", async function (req, res) {
+  const id = req.params.id;
+  const index = req.params.index;
+  const url = req.body.url;
+  const newUrl = await editExternalLinkFromCustomer(id, index, url);
+  res.json({ url: newUrl });
 });
 
 app.delete("/customers/:id", async function (req, res) {

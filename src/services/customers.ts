@@ -284,6 +284,15 @@ export const editCustomer = async (
   }
 };
 
+export const editExternalLink = async (
+  customerId: string,
+  index: number,
+  url: string
+): Promise<{ url: string; index: number }> => {
+  await put(`/customers/${customerId}/external-link/${index}`, { url });
+  return { url, index };
+};
+
 export const editTaxData = async (
   customerId: string,
   formValues: TaxDataFormValues
