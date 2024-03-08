@@ -5,12 +5,15 @@ const {
   addExternalLinkToCustomer,
   createCustomer,
   createCustomerMainAddress,
+  createCustomerSecondaryAddress,
   deleteCustomer,
   deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
+  deleteSecondaryAddressFromCustomer,
   editExternalLinkFromCustomer,
   getCustomer,
+  getCustomerSecondaryAddresses,
   getCustomers,
   setCustomerTaxData,
   updateCustomer,
@@ -56,6 +59,20 @@ app.get("/customers/:id/main-address", async function (req, res) {
     const id = req.params.id;
     const mainAddress = await getCustomerMainAddress(id);
     res.json({ mainAddress });
+  } catch (e) {
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
+app.get("/customers/:id/secondary-addresses", async function (req, res) {
+  try {
+    const id = req.params.id;
+    const secondaryAddresses = await getCustomerSecondaryAddresses(id);
+    res.json({ secondaryAddresses });
   } catch (e) {
     if (e.message === "Customer not found") {
       res.status(404).json({ error: e.message });
@@ -162,6 +179,41 @@ app.post("/customers/:id/tax-data", async function (req, res) {
   }
 });
 
+app.post("/customers/:id/secondary-address", async function (req, res) {
+  try {
+    const customerId = req.params.id;
+    const secondaryAddress = req.body;
+    validateCustomerAddress(secondaryAddress);
+    const insertedSecondaryAddress = await createCustomerSecondaryAddress(
+      customerId,
+      secondaryAddress
+    );
+    res.json({ secondaryAddress: insertedSecondaryAddress });
+  } catch (e) {
+    if (e.message === "Street is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "City is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "State is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Postcode is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
 app.put("/customers/:id/tax-data", async function (req, res) {
   try {
     const customerId = req.params.id;
@@ -242,6 +294,18 @@ app.delete("/customers/:id/main-address", async function (req, res) {
   await deleteMainAddressFromCustomer(customerId);
   res.json({ message: `Main address for customer ${customerId} deleted` });
 });
+
+app.delete(
+  "/customers/:customer_id/secondary-address/:address_id",
+  async function (req, res) {
+    const customerId = req.params.customer_id;
+    const addressId = req.params.address_id;
+    await deleteSecondaryAddressFromCustomer(customerId, addressId);
+    res.json({
+      message: `Secondary address ${addressId} for customer ${customerId} deleted`,
+    });
+  }
+);
 
 app.listen(3000, function () {
   console.log("App started");

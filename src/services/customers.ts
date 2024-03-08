@@ -53,6 +53,10 @@ export type CustomerAddress = {
   postcode: string;
 };
 
+export type CustomerSecondaryAddress = CustomerAddress & {
+  id: string;
+};
+
 const isCustomer = (value: unknown): value is Customer => {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -213,6 +217,44 @@ export const addMainAddress = async (
   }
 };
 
+export const addSecondaryAddress = async (
+  customerId: string,
+  formValues: CustomerAddressFormValues
+): Promise<CustomerSecondaryAddress> => {
+  try {
+    const response = await post(
+      `/customers/${customerId}/secondary-address`,
+      formValues
+    );
+    if (!isCustomerAddress(response.secondaryAddress)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.secondaryAddress;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "Street is required") {
+          throw new Error("REQUIRED_STREET");
+        }
+        if (error.response.data.error === "Number is required") {
+          throw new Error("REQUIRED_NUMBER");
+        }
+        if (error.response.data.error === "City is required") {
+          throw new Error("REQUIRED_CITY");
+        }
+        if (error.response.data.error === "Postcode is required") {
+          throw new Error("REQUIRED_POSTCODE");
+        }
+      }
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
 export const createCustomer = async (
   formValues: CustomerFormValues
 ): Promise<Customer> => {
@@ -252,6 +294,13 @@ export const deleteExternalLink = async (
 
 export const deleteMainAddress = async (customerId: string): Promise<void> => {
   await del(`/customers/${customerId}/main-address`);
+};
+
+export const deleteSecondaryAddress = async (
+  customerId: string,
+  addressId: string
+): Promise<void> => {
+  await del(`/customers/${customerId}/secondary-address/${addressId}`);
 };
 
 export const deleteTaxData = async (customerId: string): Promise<void> => {
@@ -389,6 +438,32 @@ export const getCustomers = async (
     const responseToken = response.nextToken as string | undefined;
     return { customers, nextToken: responseToken };
   } catch (error) {
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
+export const getSecondaryAddresses = async (
+  customerId: string
+): Promise<CustomerSecondaryAddress[]> => {
+  try {
+    const response = await get(`/customers/${customerId}/secondary-addresses`);
+    if (
+      !response.secondaryAddresses ||
+      !Array.isArray(response.secondaryAddresses) ||
+      response.secondaryAddresses.some(
+        (element: unknown) => !isCustomerAddress(element)
+      )
+    ) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.secondaryAddresses;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
     throw new Error("INTERNAL_ERROR");
   }
 };

@@ -2,7 +2,6 @@ const AWS = require("aws-sdk");
 const uuid = require("node-uuid");
 
 const TABLE_NAME = "exercises-dev";
-
 // set DynamoDb client
 AWS.config.update({ region: "eu-west-1" });
 const ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
@@ -90,6 +89,26 @@ const createCustomerMainAddress = async (customerId, address) => {
   return address;
 };
 
+const createCustomerSecondaryAddress = async (customerId, address) => {
+  if (!(await getCustomer(customerId))) {
+    throw new Error("Customer not found");
+  }
+  const addressId = uuid.v1();
+  const params = {
+    TableName: TABLE_NAME,
+    Item: {
+      PK: { S: `customer_${customerId}` },
+      SK: { S: `address_secondary_${addressId}` },
+      street: { S: address.street },
+      city: { S: address.city },
+      number: { S: address.number },
+      postcode: { S: address.postcode },
+    },
+  };
+  await ddb.putItem(params).promise();
+  return { ...address, id: addressId };
+};
+
 const decodeToken = (token) => {
   if (!token) return;
   return JSON.parse(Buffer.from(token, "base64").toString("utf8"));
@@ -156,6 +175,17 @@ const deleteTaxDataFromCustomer = async (customerId) => {
     UpdateExpression: "REMOVE #TD",
   };
   await ddb.updateItem(params).promise();
+};
+
+const deleteSecondaryAddressFromCustomer = async (customerId, addressId) => {
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      PK: { S: `customer_${customerId}` },
+      SK: { S: `address_secondary_${addressId}` },
+    },
+  };
+  await ddb.deleteItem(params).promise();
 };
 
 const editExternalLinkFromCustomer = async (customerId, index, url) => {
@@ -231,6 +261,24 @@ const getCustomerMainAddress = async (customerId) => {
   const result = await ddb.getItem(params).promise();
   if (!result.Item) return null;
   return mapMainAddressFromDB(result.Item);
+};
+
+const getCustomerSecondaryAddresses = async (customerId) => {
+  const params = {
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "PK = :pk",
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: `customer_${customerId}` },
+      ":sk": { S: "address_secondary_" },
+    },
+    KeyConditionExpression: "#PK = :pk AND begins_with(#SK, :sk)",
+  };
+  const result = await ddb.query(params).promise();
+  return result.Items.map(mapSecondaryAddressFromDB);
 };
 
 const getCustomers = async (nextTokenParam, searchInput) => {
@@ -313,6 +361,14 @@ const mapMainAddressFromDB = (mainAddress) => ({
   number: mainAddress.number.S,
   city: mainAddress.city.S,
   postcode: mainAddress.postcode.S,
+});
+
+const mapSecondaryAddressFromDB = (secondaryAddress) => ({
+  id: secondaryAddress.SK.S.replace("address_secondary_", ""),
+  street: secondaryAddress.street.S,
+  number: secondaryAddress.number.S,
+  city: secondaryAddress.city.S,
+  postcode: secondaryAddress.postcode.S,
 });
 
 const mapTaxDataFromDB = (taxData) => ({
@@ -428,13 +484,16 @@ module.exports = {
   addExternalLinkToCustomer,
   createCustomer,
   createCustomerMainAddress,
+  createCustomerSecondaryAddress,
   deleteCustomer,
   deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
+  deleteSecondaryAddressFromCustomer,
   editExternalLinkFromCustomer,
   getCustomer,
   getCustomerMainAddress,
+  getCustomerSecondaryAddresses,
   getCustomers,
   setCustomerTaxData,
   updateCustomer,

@@ -15,12 +15,14 @@ import { CustomerMainAddress } from "../../components/CustomerMainAddress/Custom
 import AddIcon from "@mui/icons-material/Add";
 import { useCustomer } from "../../hooks/customers/useCustomer";
 import { CustomerExternalLinks } from "../../components/CustomerExternalLinks/CustomerExternalLinks";
+import { CustomerSecondaryAddresses } from "../../components/CustomerSecondaryAddresses/CustomerSecondaryAddresses";
 
 const tabNames = [
   "information",
   "taxData",
   "mainAddress",
   "externalLinks",
+  "secondaryAddresses",
 ] as const;
 type TabName = typeof tabNames[number];
 const tabLabels: Record<TabName, string> = {
@@ -28,6 +30,7 @@ const tabLabels: Record<TabName, string> = {
   taxData: "Tax data",
   mainAddress: "Main address",
   externalLinks: "External links",
+  secondaryAddresses: "Secondary addresses",
 };
 
 type CustomerDetailsParams = {
@@ -112,6 +115,9 @@ export const CustomerDetailsPage: FC = () => {
             links={customer.externalLinks}
             customerId={customer.id}
           />
+        </CustomerSectionTab>
+        <CustomerSectionTab value="secondaryAddresses">
+          <CustomerSecondaryAddresses customerId={customer.id} />
         </CustomerSectionTab>
       </Stack>
     </TabContext>
