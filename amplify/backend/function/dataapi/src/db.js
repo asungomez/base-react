@@ -219,21 +219,24 @@ const encodeToken = (token) => {
   return Buffer.from(JSON.stringify(token)).toString("base64");
 };
 
-const findNextCustomer = async (startKey) => {
+const findNextValue = async (startKey, filter) => {
   const params = {
     TableName: TABLE_NAME,
     Limit: 1,
     ExclusiveStartKey: startKey,
+    FilterExpression: filter.filterExpression,
+    ExpressionAttributeNames: filter.expressionAttributeNames,
+    ExpressionAttributeValues: filter.expressionAttributeValues,
   };
   const result = await ddb.scan(params).promise();
   if (result.Items.length === 0) return;
   return result.Items[0];
 };
 
-const generateToken = async (scanOutput) => {
+const generateToken = async (scanOutput, filter) => {
   if (!scanOutput.LastEvaluatedKey) return;
-  const nextCustomer = await findNextCustomer(scanOutput.LastEvaluatedKey);
-  if (!nextCustomer) return;
+  const nextValue = await findNextValue(scanOutput.LastEvaluatedKey, filter);
+  if (!nextValue) return;
   return encodeToken(JSON.stringify(scanOutput.LastEvaluatedKey));
 };
 
@@ -263,10 +266,10 @@ const getCustomerMainAddress = async (customerId) => {
   return mapMainAddressFromDB(result.Item);
 };
 
-const getCustomerSecondaryAddresses = async (customerId) => {
-  const params = {
+const getCustomerSecondaryAddresses = async (customerId, nextTokenParam) => {
+  const PAGE_SIZE = 5;
+  let params = {
     TableName: TABLE_NAME,
-    KeyConditionExpression: "PK = :pk",
     ExpressionAttributeNames: {
       "#PK": "PK",
       "#SK": "SK",
@@ -276,9 +279,23 @@ const getCustomerSecondaryAddresses = async (customerId) => {
       ":sk": { S: "address_secondary_" },
     },
     KeyConditionExpression: "#PK = :pk AND begins_with(#SK, :sk)",
+    Limit: PAGE_SIZE,
   };
+  if (nextTokenParam) {
+    const nextToken = parseToken(nextTokenParam);
+    params = {
+      ...params,
+      ExclusiveStartKey: nextToken,
+    };
+  }
   const result = await ddb.query(params).promise();
-  return result.Items.map(mapSecondaryAddressFromDB);
+  const nextToken = await generateToken(result, {
+    filterExpression: params.KeyConditionExpression,
+    expressionAttributeNames: params.ExpressionAttributeNames,
+    expressionAttributeValues: params.ExpressionAttributeValues,
+  });
+  const items = result.Items.map(mapSecondaryAddressFromDB);
+  return { items, nextToken };
 };
 
 const getCustomers = async (nextTokenParam, searchInput) => {
@@ -341,7 +358,11 @@ const getCustomers = async (nextTokenParam, searchInput) => {
     items.push(...result.Items.map(mapCustomerFromDB));
   }
 
-  const nextToken = await generateToken(result);
+  const nextToken = await generateToken(result, {
+    filterExpression: params.FilterExpression,
+    expressionAttributeNames: params.ExpressionAttributeNames,
+    expressionAttributeValues: params.ExpressionAttributeValues,
+  });
   return { items, nextToken };
 };
 

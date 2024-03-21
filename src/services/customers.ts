@@ -443,20 +443,28 @@ export const getCustomers = async (
 };
 
 export const getSecondaryAddresses = async (
-  customerId: string
-): Promise<CustomerSecondaryAddress[]> => {
+  customerId: string,
+  nextToken?: string
+): Promise<{ items: CustomerSecondaryAddress[]; nextToken?: string }> => {
   try {
-    const response = await get(`/customers/${customerId}/secondary-addresses`);
+    const response = await get(`/customers/${customerId}/secondary-addresses`, {
+      nextToken,
+    });
     if (
       !response.secondaryAddresses ||
       !Array.isArray(response.secondaryAddresses) ||
       response.secondaryAddresses.some(
         (element: unknown) => !isCustomerAddress(element)
-      )
+      ) ||
+      (response.nextToken !== undefined &&
+        typeof response.nextToken !== "string")
     ) {
       throw new Error("INTERNAL_ERROR");
     }
-    return response.secondaryAddresses;
+    return {
+      items: response.secondaryAddresses,
+      nextToken: response.nextToken,
+    };
   } catch (error) {
     if (isResponseError(error)) {
       const status = error.response.status;

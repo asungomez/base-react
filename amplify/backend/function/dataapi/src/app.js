@@ -71,8 +71,10 @@ app.get("/customers/:id/main-address", async function (req, res) {
 app.get("/customers/:id/secondary-addresses", async function (req, res) {
   try {
     const id = req.params.id;
-    const secondaryAddresses = await getCustomerSecondaryAddresses(id);
-    res.json({ secondaryAddresses });
+    const nextTokenParam = req.query?.nextToken;
+    const { items: secondaryAddresses, nextToken } =
+      await getCustomerSecondaryAddresses(id, nextTokenParam);
+    res.json({ secondaryAddresses, nextToken });
   } catch (e) {
     if (e.message === "Customer not found") {
       res.status(404).json({ error: e.message });
