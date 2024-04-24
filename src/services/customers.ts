@@ -374,6 +374,44 @@ export const editTaxData = async (
   }
 };
 
+export const editMainAddress = async (
+  customerId: string,
+  formValues: CustomerAddressFormValues
+): Promise<CustomerAddress> => {
+  try {
+    const response = await put(
+      `/customers/${customerId}/main-address`,
+      formValues
+    );
+    if (!isCustomerAddress(response.mainAddress)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.mainAddress;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "Street is required") {
+          throw new Error("REQUIRED_STREET");
+        }
+        if (error.response.data.error === "Number is required") {
+          throw new Error("REQUIRED_NUMBER");
+        }
+        if (error.response.data.error === "City is required") {
+          throw new Error("REQUIRED_CITY");
+        }
+        if (error.response.data.error === "Postcode is required") {
+          throw new Error("REQUIRED_POSTCODE");
+        }
+      }
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
 export const editSecondaryAddress = async (
   customerId: string,
   addressId: string,
@@ -431,6 +469,40 @@ export const getCustomer = async (id: string): Promise<Customer> => {
   }
 };
 
+export const getAddresses = async (
+  customerId: string,
+  nextToken?: string
+): Promise<{ items: CustomerSecondaryAddress[]; nextToken?: string }> => {
+  try {
+    const response = await get(`/customers/${customerId}/addresses`, {
+      nextToken,
+    });
+    if (
+      !response.addresses ||
+      !Array.isArray(response.addresses) ||
+      response.addresses.some(
+        (element: unknown) => !isCustomerAddress(element)
+      ) ||
+      (response.nextToken !== undefined &&
+        typeof response.nextToken !== "string")
+    ) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return {
+      items: response.addresses,
+      nextToken: response.nextToken,
+    };
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
 export const getMainAddress = async (
   customerId: string
 ): Promise<CustomerAddress> => {
@@ -477,6 +549,32 @@ export const getCustomers = async (
     const responseToken = response.nextToken as string | undefined;
     return { customers, nextToken: responseToken };
   } catch (error) {
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
+export const getSecondaryAddress = async (
+  customerId: string,
+  addressId: string
+): Promise<CustomerSecondaryAddress> => {
+  try {
+    const response = await get(
+      `/customers/${customerId}/secondary-address/${addressId}`
+    );
+    if (
+      !response.secondaryAddress ||
+      !isCustomerAddress(response.secondaryAddress)
+    ) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.secondaryAddress;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
     throw new Error("INTERNAL_ERROR");
   }
 };

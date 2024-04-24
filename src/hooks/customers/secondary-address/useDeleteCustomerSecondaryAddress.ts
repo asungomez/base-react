@@ -6,7 +6,7 @@ import {
 import { extractErrorCode } from "../../../services/error";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
-import { keyFunctionGenerator } from "./useCustomerSecondaryAddresses";
+import { keyFunctionGenerator } from "../address/useCustomerAddresses";
 
 export const useDeleteCustomerSecondaryAddress = (
   customerId: string,
@@ -16,12 +16,12 @@ export const useDeleteCustomerSecondaryAddress = (
   const { trigger, isMutating, error } = useSWRMutation<
     void,
     Error,
-    readonly [string, string] | null,
+    readonly [string, string, string] | null,
     never,
-    CustomerSecondaryAddress[]
+    CustomerSecondaryAddress | null
   >(
-    ["delete-customer-secondary-address", customerId],
-    async ([_operation, customerId]) => {
+    ["customer-secondary-address", customerId, addressId],
+    async ([_operation, customerId, addressId]) => {
       await deleteSecondaryAddress(customerId, addressId);
       await mutate<
         readonly [string, string, string | undefined],
@@ -41,7 +41,7 @@ export const useDeleteCustomerSecondaryAddress = (
     },
     {
       revalidate: false,
-      populateCache: false,
+      populateCache: () => null,
     }
   );
 

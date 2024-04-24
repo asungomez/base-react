@@ -4,22 +4,22 @@ import {
   TaxDataForm,
   TaxDataFormValues,
 } from "../../components/TaxDataForm/TaxDataForm";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAddCustomerTaxData } from "../../hooks/customers/tax-data/useAddCustomerTaxData";
 
 type AddCustomerTaxDataParams = {
-  id: string;
+  customerId: string;
 };
 
 export const AddCustomerTaxDataPage: FC = () => {
-  const { id: customerId } = useParams<AddCustomerTaxDataParams>();
+  const { customerId } = useParams<AddCustomerTaxDataParams>();
   const navigate = useNavigate();
   const { addCustomerTaxData, loading, error } =
     useAddCustomerTaxData(customerId);
 
   if (!customerId) {
-    return <Error code="INTERNAL_ERROR" />;
+    return <ErrorMessage code="INTERNAL_ERROR" />;
   }
 
   const submitHandler = (formValues: TaxDataFormValues) => {
@@ -33,7 +33,7 @@ export const AddCustomerTaxDataPage: FC = () => {
       <Typography variant="h3" gutterBottom align="center">
         Add tax information
       </Typography>
-      {error && <Error code={error} />}
+      {error && <ErrorMessage code={error} />}
       <TaxDataForm loading={loading} onSubmit={submitHandler} />
     </>
   );

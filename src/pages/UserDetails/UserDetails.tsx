@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useParams } from "react-router-dom";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 
 type UserDetailsParams = {
   id: string;
@@ -9,7 +9,7 @@ type UserDetailsParams = {
 export const UserDetails: FC = () => {
   const { id } = useParams<UserDetailsParams>();
   if (!id) {
-    return <Error code="INTERNAL_ERROR" />;
+    return <ErrorMessage code="INTERNAL_ERROR" />;
   }
   return <>{id}</>;
 };

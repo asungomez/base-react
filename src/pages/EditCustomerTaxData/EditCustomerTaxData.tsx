@@ -4,17 +4,17 @@ import {
   TaxDataForm,
   TaxDataFormValues,
 } from "../../components/TaxDataForm/TaxDataForm";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCustomer } from "../../hooks/customers/useCustomer";
 import { useEditCustomerTaxData } from "../../hooks/customers/tax-data/useEditCustomerTaxData";
 
 type EditCustomerTaxDataParams = {
-  id: string;
+  customerId: string;
 };
 
 export const EditCustomerTaxDataPage: FC = () => {
-  const { id: customerId } = useParams<EditCustomerTaxDataParams>();
+  const { customerId } = useParams<EditCustomerTaxDataParams>();
   const {
     editCustomerTaxData,
     loading: submitting,
@@ -39,7 +39,7 @@ export const EditCustomerTaxDataPage: FC = () => {
   }
 
   if (!customerId) {
-    return <Error code="INTERNAL_ERROR" />;
+    return <ErrorMessage code="INTERNAL_ERROR" />;
   }
 
   const backClickHandler = () => navigate(`/customers/${customerId}`);
@@ -47,7 +47,7 @@ export const EditCustomerTaxDataPage: FC = () => {
   if (errorInitialLoad) {
     return (
       <>
-        <Error code={errorInitialLoad} />
+        <ErrorMessage code={errorInitialLoad} />
         <Button variant="contained" color="primary" onClick={backClickHandler}>
           Back
         </Button>
@@ -66,7 +66,7 @@ export const EditCustomerTaxDataPage: FC = () => {
       <Typography variant="h3" gutterBottom align="center">
         Edit tax information
       </Typography>
-      {errorAfterEdit && <Error code={errorAfterEdit} />}
+      {errorAfterEdit && <ErrorMessage code={errorAfterEdit} />}
       {customer?.taxData && (
         <TaxDataForm
           loading={submitting}

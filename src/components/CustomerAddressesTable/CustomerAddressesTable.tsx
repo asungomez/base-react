@@ -12,21 +12,25 @@ import {
 } from "@mui/material";
 import { DeleteCustomerSecondaryAddress } from "../DeleteCustomerSecondaryAddress/DeleteCustomerSecondaryAddress";
 import EditIcon from "@mui/icons-material/Edit";
+import { Link } from "react-router-dom";
 
-type CustomerSecondaryAddressesTableProps = {
+type CustomerAddressesTableProps = {
   addresses: CustomerSecondaryAddress[];
   customerId: string;
   onEditClick: (addressId: string) => void;
 };
 
-export const CustomerSecondaryAddressesTable: FC<
-  CustomerSecondaryAddressesTableProps
-> = ({ addresses, customerId, onEditClick }) => {
+export const CustomerAddressesTable: FC<CustomerAddressesTableProps> = ({
+  addresses,
+  customerId,
+  onEditClick,
+}) => {
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>Type</TableCell>
             <TableCell>Street</TableCell>
             <TableCell>Number</TableCell>
             <TableCell>Postal code</TableCell>
@@ -38,6 +42,11 @@ export const CustomerSecondaryAddressesTable: FC<
         <TableBody>
           {addresses.map((address) => (
             <TableRow key={address.id}>
+              <TableCell>
+                <Link to={`/customers/${customerId}/address/${address.id}`}>
+                  {address.id === "main" ? "Main address" : "Secondary address"}
+                </Link>
+              </TableCell>
               <TableCell>{address.street}</TableCell>
               <TableCell>{address.number}</TableCell>
               <TableCell>{address.postcode}</TableCell>
@@ -51,10 +60,12 @@ export const CustomerSecondaryAddressesTable: FC<
                 </Button>
               </TableCell>
               <TableCell>
-                <DeleteCustomerSecondaryAddress
-                  customerId={customerId}
-                  addressId={address.id}
-                />
+                {address.id !== "main" && (
+                  <DeleteCustomerSecondaryAddress
+                    customerId={customerId}
+                    addressId={address.id}
+                  />
+                )}
               </TableCell>
             </TableRow>
           ))}

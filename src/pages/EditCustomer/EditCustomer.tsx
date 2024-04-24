@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import { Button, CircularProgress, Typography } from "@mui/material";
 import {
   CustomerForm,
@@ -10,20 +10,24 @@ import { useCustomer } from "../../hooks/customers/useCustomer";
 import { useEditCustomer } from "../../hooks/customers/useEditCustomer";
 
 type EditCustomerParams = {
-  id: string;
+  customerId: string;
 };
 
 export const EditCustomerPage: FC = () => {
-  const { id } = useParams<EditCustomerParams>();
+  const { customerId } = useParams<EditCustomerParams>();
   const navigate = useNavigate();
-  const { customer, loading, error: errorInitialLoad } = useCustomer(id);
+  const {
+    customer,
+    loading,
+    error: errorInitialLoad,
+  } = useCustomer(customerId);
   const {
     editCustomer,
     loading: editing,
     error: errorAfterEdit,
-  } = useEditCustomer(id);
+  } = useEditCustomer(customerId);
 
-  const backClickHandler = () => navigate(`/customers/${id}`);
+  const backClickHandler = () => navigate(`/customers/${customerId}`);
 
   if (loading) {
     return (
@@ -38,17 +42,17 @@ export const EditCustomerPage: FC = () => {
   if (errorInitialLoad) {
     return (
       <>
-        <Error code={errorInitialLoad} />
+        <ErrorMessage code={errorInitialLoad} />
         <Button variant="contained" color="primary" onClick={backClickHandler}>
           Back
         </Button>
       </>
     );
   }
-  if (!customer || !id) {
+  if (!customer || !customerId) {
     return (
       <>
-        <Error code="INTERNAL_ERROR" />
+        <ErrorMessage code="INTERNAL_ERROR" />
         <Button variant="contained" color="primary" onClick={backClickHandler}>
           Back
         </Button>
@@ -58,7 +62,7 @@ export const EditCustomerPage: FC = () => {
 
   const submitHandler = (formValues: CustomerFormValues) => {
     editCustomer(formValues).then(() => {
-      navigate(`/customers/${id}`);
+      navigate(`/customers/${customerId}`);
     });
   };
 
@@ -67,7 +71,7 @@ export const EditCustomerPage: FC = () => {
       <Typography variant="h3" gutterBottom>
         Edit customer
       </Typography>
-      {errorAfterEdit && <Error code={errorAfterEdit} />}
+      {errorAfterEdit && <ErrorMessage code={errorAfterEdit} />}
       <CustomerForm
         defaultValues={customer}
         onSubmit={submitHandler}

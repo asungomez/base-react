@@ -1,25 +1,26 @@
 import useSWRMutation from "swr/mutation";
 import { CustomerAddressFormValues } from "../../../components/CustomerAddressForm/CustomerAddressForm";
 import {
+  CustomerAddress,
   CustomerSecondaryAddress,
-  addSecondaryAddress,
+  editMainAddress,
 } from "../../../services/customers";
 import { extractErrorCode } from "../../../services/error";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { keyFunctionGenerator } from "../address/useCustomerAddresses";
 
-export const useCustomerAddSecondaryAddress = (customerId?: string) => {
+export const useEditCustomerMainAddress = (customerId: string) => {
   const { mutate } = useSWRConfig();
   const { trigger, isMutating, error } = useSWRMutation<
-    CustomerSecondaryAddress,
+    CustomerAddress | null,
     Error,
     readonly [string, string] | null,
     CustomerAddressFormValues
   >(
-    customerId ? ["add-customer-secondary-address", customerId] : null,
-    async ([_operation, customerId], { arg: formValues }) => {
-      const address = addSecondaryAddress(customerId, formValues);
+    customerId ? ["customer-main-address", customerId] : null,
+    async ([_operation, id], { arg: formValues }) => {
+      const address = await editMainAddress(id, formValues);
       await mutate<
         readonly [string, string, string | undefined],
         {
@@ -37,14 +38,11 @@ export const useCustomerAddSecondaryAddress = (customerId?: string) => {
       );
       return address;
     },
-    {
-      revalidate: false,
-      populateCache: false,
-    }
+    { populateCache: false, revalidate: true }
   );
 
   return {
-    addCustomerSecondaryAddress: trigger,
+    editCustomerMainAddress: trigger,
     loading: isMutating,
     error: extractErrorCode(error),
   };

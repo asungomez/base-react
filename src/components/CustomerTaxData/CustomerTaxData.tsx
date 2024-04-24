@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { DeleteCustomerTaxDataButton } from "../DeleteCustomerTaxDataButton/DeleteCustomerTaxDataButton";
-import { Error } from "../Error/Error";
+import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 import { ErrorCode } from "../../services/error";
 import { useNavigate } from "react-router-dom";
 
@@ -34,7 +34,7 @@ export const CustomerTaxData: FC<CustomerTaxDataProps> = ({
       <Typography variant="h3" gutterBottom>
         Tax data
       </Typography>
-      {error && <Error code={error} />}
+      {error && <ErrorMessage code={error} />}
       <Stack direction="row" spacing={2}>
         <Button variant="contained" onClick={editHandler}>
           Edit

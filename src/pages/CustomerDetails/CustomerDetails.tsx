@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import {
   Button,
   CircularProgress,
@@ -11,18 +11,16 @@ import {
 import { CustomerTaxData } from "../../components/CustomerTaxData/CustomerTaxData";
 import { CustomerInformation } from "../../components/CustomerInformation/CustomerInformation";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { CustomerMainAddress } from "../../components/CustomerMainAddress/CustomerMainAddress";
 import AddIcon from "@mui/icons-material/Add";
 import { useCustomer } from "../../hooks/customers/useCustomer";
 import { CustomerExternalLinks } from "../../components/CustomerExternalLinks/CustomerExternalLinks";
-import { CustomerSecondaryAddresses } from "../../components/CustomerSecondaryAddresses/CustomerSecondaryAddresses";
+import { CustomerAddresses } from "../../components/CustomerAddresses/CustomerAddresses";
 
 const tabNames = [
   "information",
   "taxData",
-  "mainAddress",
+  "addresses",
   "externalLinks",
-  "secondaryAddresses",
 ] as const;
 type TabName = typeof tabNames[number];
 const isTabName = (value: unknown): value is TabName =>
@@ -30,13 +28,12 @@ const isTabName = (value: unknown): value is TabName =>
 const tabLabels: Record<TabName, string> = {
   information: "Information",
   taxData: "Tax data",
-  mainAddress: "Main address",
+  addresses: "Addresses",
   externalLinks: "External links",
-  secondaryAddresses: "Secondary addresses",
 };
 
 type CustomerDetailsParams = {
-  id: string;
+  customerId: string;
 };
 
 type CustomerSectionTabProps = {
@@ -57,19 +54,20 @@ export const CustomerDetailsPage: FC = () => {
   const [currentTab, setCurrentTab] = useState<TabName>(
     isTabName(tab) ? tab : "information"
   );
-  const { id } = useParams<CustomerDetailsParams>();
+  const { customerId } = useParams<CustomerDetailsParams>();
   const navigate = useNavigate();
-  const { loading, customer, error } = useCustomer(id);
+  const { loading, customer, error } = useCustomer(customerId);
 
-  const addTaxDataHandler = () => navigate(`/customers/${id}/tax-data/add`);
+  const addTaxDataHandler = () =>
+    navigate(`/customers/${customerId}/tax-data/add`);
 
   const changeTabHandler = (_: React.SyntheticEvent, newValue: TabName) => {
     setCurrentTab(newValue);
     setSearchParams({ tab: newValue });
   };
 
-  if (!id) {
-    return <Error code="INTERNAL_ERROR" />;
+  if (!customerId) {
+    return <ErrorMessage code="INTERNAL_ERROR" />;
   }
   if (loading) {
     return (
@@ -82,10 +80,10 @@ export const CustomerDetailsPage: FC = () => {
     );
   }
   if (error) {
-    return <Error code={error} />;
+    return <ErrorMessage code={error} />;
   }
   if (!customer) {
-    return <Error code="INTERNAL_ERROR" />;
+    return <ErrorMessage code="INTERNAL_ERROR" />;
   }
   return (
     <TabContext value={currentTab}>
@@ -114,17 +112,14 @@ export const CustomerDetailsPage: FC = () => {
             </Button>
           )}
         </CustomerSectionTab>
-        <CustomerSectionTab value="mainAddress">
-          <CustomerMainAddress customerId={customer.id} />
+        <CustomerSectionTab value="addresses">
+          <CustomerAddresses customerId={customer.id} />
         </CustomerSectionTab>
         <CustomerSectionTab value="externalLinks">
           <CustomerExternalLinks
             links={customer.externalLinks}
             customerId={customer.id}
           />
-        </CustomerSectionTab>
-        <CustomerSectionTab value="secondaryAddresses">
-          <CustomerSecondaryAddresses customerId={customer.id} />
         </CustomerSectionTab>
       </Stack>
     </TabContext>

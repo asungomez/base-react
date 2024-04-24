@@ -10,7 +10,7 @@ import { CustomersList } from "./Customers.style";
 import { Customer } from "../../services/customers";
 import { useNavigate } from "react-router-dom";
 import { useCustomers } from "../../hooks/customers/useCustomers";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import { LoadingButton } from "@mui/lab";
 import { SearchBar } from "../../components/SearchBar/SearchBar";
 
@@ -50,7 +50,7 @@ export const CustomersPage: FC = () => {
         <Typography variant="h3" gutterBottom>
           Customers
         </Typography>
-        <Error code={error} />
+        <ErrorMessage code={error} />
       </>
     );
   }

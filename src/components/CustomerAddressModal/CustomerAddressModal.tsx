@@ -11,43 +11,76 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-
+import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 import { useCustomerAddSecondaryAddress } from "../../hooks/customers/secondary-address/useAddCustomerSecondaryAddress";
-import { Error } from "../Error/Error";
 import { useCustomerEditSecondaryAddress } from "../../hooks/customers/secondary-address/useEditCustomerSecondaryAddress";
+import { useAddCustomerMainAddress } from "../../hooks/customers/main-address/useAddCustomerMainAddress";
+import { useEditCustomerMainAddress } from "../../hooks/customers/main-address/useEditCustomerMainAddress";
 
-type CustomerSecondaryAddressModalProps = {
+type CustomerAddressModalProps = {
   customerId: string;
   onClose: () => void;
   open: boolean;
   initialValues?: CustomerAddressFormValues;
   addressId?: string;
+  addressType: "main" | "secondary";
 };
 
-export const CustomerSecondaryAddressModal: FC<
-  CustomerSecondaryAddressModalProps
-> = ({ customerId, onClose, open, initialValues, addressId }) => {
+export const CustomerAddressModal: FC<CustomerAddressModalProps> = ({
+  customerId,
+  onClose,
+  open,
+  initialValues,
+  addressId,
+  addressType,
+}) => {
   const {
     addCustomerSecondaryAddress,
-    loading: creating,
-    error: creationError,
+    loading: creatingSecondary,
+    error: secondaryCreationError,
   } = useCustomerAddSecondaryAddress(customerId);
   const {
     editCustomerSecondaryAddress,
-    loading: editing,
-    error: editionError,
+    loading: editingSecondary,
+    error: secondaryEditionError,
   } = useCustomerEditSecondaryAddress(customerId, addressId);
+  const {
+    addCustomerMainAddress,
+    loading: creatingMain,
+    error: mainCreationError,
+  } = useAddCustomerMainAddress(customerId);
+  const {
+    editCustomerMainAddress,
+    loading: editingMain,
+    error: mainEditionError,
+  } = useEditCustomerMainAddress(customerId);
 
   const submitHandler = (address: CustomerAddressFormValues) => {
+    // If the address ID is specified, this is an edit
     if (addressId) {
-      // If the address ID is specified, this is an edit
-      editCustomerSecondaryAddress(address)
+      if (addressType === "main") {
+        editCustomerMainAddress(address)
+          .then(onClose)
+          .catch(() => {
+            // Do nothing, error is handled by the hook
+          });
+      } else {
+        editCustomerSecondaryAddress(address)
+          .then(onClose)
+          .catch(() => {
+            // Do nothing, error is handled by the hook
+          });
+      }
+    }
+    // If not, this is a new address
+    else if (addressType === "main") {
+      addCustomerMainAddress(address)
         .then(onClose)
         .catch(() => {
           // Do nothing, error is handled by the hook
         });
+      return;
     } else {
-      // If not, this is a new address
       addCustomerSecondaryAddress(address)
         .then(onClose)
         .catch(() => {
@@ -56,13 +89,18 @@ export const CustomerSecondaryAddressModal: FC<
     }
   };
 
-  const error = creationError ?? editionError;
-  const loading = editing || creating;
+  const error =
+    secondaryCreationError ??
+    secondaryEditionError ??
+    mainCreationError ??
+    mainEditionError;
+  const loading =
+    editingSecondary || creatingSecondary || creatingMain || editingMain;
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        Modal title
+        {addressId ? "Edit address" : "Add address"}
       </DialogTitle>
       <IconButton
         aria-label="close"
@@ -77,7 +115,7 @@ export const CustomerSecondaryAddressModal: FC<
         <CloseIcon />
       </IconButton>
       <DialogContent>
-        {error && <Error code={error} />}
+        {error && <ErrorMessage code={error} />}
         <CustomerAddressForm
           onSubmit={submitHandler}
           loading={loading}

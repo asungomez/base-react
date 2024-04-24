@@ -11,9 +11,12 @@ const {
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
+  editCustomerMainAddress,
   editExternalLinkFromCustomer,
   editSecondaryAddressFromCustomer,
+  getAddresses,
   getCustomer,
+  getCustomerSecondaryAddress,
   getCustomerSecondaryAddresses,
   getCustomers,
   setCustomerTaxData,
@@ -45,6 +48,24 @@ app.get("/customers", async function (req, res) {
   res.json({ customers: items, nextToken });
 });
 
+app.get("/customers/:id/addresses", async function (req, res) {
+  try {
+    const id = req.params.id;
+    const nextTokenParam = req.query?.nextToken;
+    const { items: addresses, nextToken } = await getAddresses(
+      id,
+      nextTokenParam
+    );
+    res.json({ addresses, nextToken });
+  } catch (e) {
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
 app.get("/customers/:id", async function (req, res) {
   const id = req.params.id;
   const customer = await getCustomer(id);
@@ -68,6 +89,27 @@ app.get("/customers/:id/main-address", async function (req, res) {
     throw e;
   }
 });
+
+app.get(
+  "/customers/:id/secondary-address/:addressId",
+  async function (req, res) {
+    try {
+      const customerId = req.params.id;
+      const addressId = req.params.addressId;
+      const secondaryAddress = await getCustomerSecondaryAddress(
+        customerId,
+        addressId
+      );
+      res.json({ secondaryAddress });
+    } catch (e) {
+      if (e.message === "Customer not found") {
+        res.status(404).json({ error: e.message });
+        return;
+      }
+      throw e;
+    }
+  }
+);
 
 app.get("/customers/:id/secondary-addresses", async function (req, res) {
   try {
@@ -273,6 +315,25 @@ app.put("/customers/:id/external-link/:index", async function (req, res) {
   res.json({ url: newUrl });
 });
 
+app.put("/customers/:id/main-address", async function (req, res) {
+  try {
+    const id = req.params.id;
+    const address = req.body;
+    const updatedAddress = await editCustomerMainAddress(id, address);
+    res.json({ mainAddress: updatedAddress });
+  } catch (e) {
+    if (e.message === "Email is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "This email already exists") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
 app.put(
   "/customers/:id/secondary-addresses/:address_id",
   async function (req, res) {
@@ -284,7 +345,7 @@ app.put(
       addressId,
       updatedAddress
     );
-    res.json({ address: newAddress });
+    res.json({ secondaryAddress: newAddress });
   }
 );
 

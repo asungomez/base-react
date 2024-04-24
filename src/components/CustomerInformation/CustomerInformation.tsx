@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ErrorCode } from "../../services/error";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 import { DeleteCustomerButton } from "../DeleteCustomerButton/DeleteCustomerButton";
 import { CustomerIcon } from "../CustomerIcon/CustomerIcon";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
@@ -33,7 +33,7 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
       <Typography variant="h3" gutterBottom>
         {customer.name}
       </Typography>
-      {error && <Error code={error} />}
+      {error && <ErrorMessage code={error} />}
       <Stack direction="row" spacing={2}>
         <Button variant="contained" onClick={editClickHandler}>
           Edit

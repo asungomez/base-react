@@ -6,7 +6,7 @@ import {
   CustomerExternalLinkFormValues,
 } from "../CustomerExternalLinkForm/CustomerExternalLinkForm";
 import { useAddCustomerExternalLink } from "../../hooks/customers/external-links/useAddCustomerExternalLink";
-import { Error } from "../Error/Error";
+import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 
 type CustomerAddExternalLinkProps = {
   customerId: string;
@@ -27,7 +27,7 @@ export const CustomerAddExternalLink: FC<CustomerAddExternalLinkProps> = ({
   };
   return showForm ? (
     <>
-      {error && <Error code={error} />}
+      {error && <ErrorMessage code={error} />}
       <CustomerExternalLinkForm
         onSubmit={submitHandler}
         onCancel={closeForm}

@@ -214,6 +214,44 @@ const editExternalLinkFromCustomer = async (customerId, index, url) => {
   return url;
 };
 
+const editCustomerMainAddress = async (customerId, updatedAddress) => {
+  const params = {
+    ExpressionAttributeNames: {
+      "#S": "street",
+      "#C": "city",
+      "#N": "number",
+      "#P": "postcode",
+    },
+    ExpressionAttributeValues: {
+      ":street": {
+        S: updatedAddress.street,
+      },
+      ":city": {
+        S: updatedAddress.city,
+      },
+      ":number": {
+        S: updatedAddress.number,
+      },
+      ":postcode": {
+        S: updatedAddress.postcode,
+      },
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "address_main",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression:
+      "SET #S = :street, #C = :city, #N = :number, #P = :postcode",
+  };
+  await ddb.updateItem(params).promise();
+  return updatedAddress;
+};
+
 const editSecondaryAddressFromCustomer = async (
   customerId,
   addressId,
@@ -253,10 +291,7 @@ const editSecondaryAddressFromCustomer = async (
       "SET #S = :street, #C = :city, #N = :number, #P = :postcode",
   };
   await ddb.updateItem(params).promise();
-  return {
-    id,
-    ...updatedAddress,
-  };
+  return { id: addressId, ...updatedAddress };
 };
 
 const encodeToken = (token) => {
@@ -285,6 +320,22 @@ const generateToken = async (scanOutput, filter) => {
   return encodeToken(JSON.stringify(scanOutput.LastEvaluatedKey));
 };
 
+const getAddresses = async (customerId, nextTokenParam) => {
+  const items = [];
+  let pageSize = 5;
+  if (!nextTokenParam) {
+    const mainAddress = await getCustomerMainAddress(customerId);
+    if (mainAddress) {
+      items.push({ ...mainAddress, id: "main" });
+      pageSize = 4;
+    }
+  }
+  const { items: secondaryAddresses, nextToken } =
+    await getCustomerSecondaryAddresses(customerId, nextTokenParam, pageSize);
+  items.push(...secondaryAddresses);
+  return { items, nextToken };
+};
+
 const getCustomer = async (id) => {
   const params = {
     TableName: TABLE_NAME,
@@ -311,8 +362,24 @@ const getCustomerMainAddress = async (customerId) => {
   return mapMainAddressFromDB(result.Item);
 };
 
-const getCustomerSecondaryAddresses = async (customerId, nextTokenParam) => {
-  const PAGE_SIZE = 5;
+const getCustomerSecondaryAddress = async (customerId, addressId) => {
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      PK: { S: `customer_${customerId}` },
+      SK: { S: `address_secondary_${addressId}` },
+    },
+  };
+  const result = await ddb.getItem(params).promise();
+  if (!result.Item) return null;
+  return mapSecondaryAddressFromDB(result.Item);
+};
+
+const getCustomerSecondaryAddresses = async (
+  customerId,
+  nextTokenParam,
+  pageSize = 5
+) => {
   let params = {
     TableName: TABLE_NAME,
     ExpressionAttributeNames: {
@@ -324,7 +391,7 @@ const getCustomerSecondaryAddresses = async (customerId, nextTokenParam) => {
       ":sk": { S: "address_secondary_" },
     },
     KeyConditionExpression: "#PK = :pk AND begins_with(#SK, :sk)",
-    Limit: PAGE_SIZE,
+    Limit: pageSize,
   };
   if (nextTokenParam) {
     const nextToken = parseToken(nextTokenParam);
@@ -557,9 +624,12 @@ module.exports = {
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
   editExternalLinkFromCustomer,
+  editCustomerMainAddress,
   editSecondaryAddressFromCustomer,
+  getAddresses,
   getCustomer,
   getCustomerMainAddress,
+  getCustomerSecondaryAddress,
   getCustomerSecondaryAddresses,
   getCustomers,
   setCustomerTaxData,

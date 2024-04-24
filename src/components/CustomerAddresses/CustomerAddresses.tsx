@@ -1,30 +1,24 @@
 import { FC, useState } from "react";
 
-import { CustomerSecondaryAddressesTable } from "../CustomerSecondaryAddressesTable/CustomerSecondaryAddressesTable";
 import { Button, CircularProgress, Typography } from "@mui/material";
-import { useCustomerSecondaryAddresses } from "../../hooks/customers/secondary-address/useCustomerSecondaryAddresses";
-import { Error } from "../Error/Error";
-import { CustomerSecondaryAddressModal } from "../CustomerSecondaryAddressModal/CustomerSecondaryAddressModal";
+import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 import AddIcon from "@mui/icons-material/Add";
 import { LoadingButton } from "@mui/lab";
+import { useCustomerAddresses } from "../../hooks/customers/address/useCustomerAddresses";
+import { CustomerAddressesTable } from "../CustomerAddressesTable/CustomerAddressesTable";
+import { CustomerAddressModal } from "../CustomerAddressModal/CustomerAddressModal";
 
-type CustomerSecondaryAddressesProps = {
+type CustomerAddressesProps = {
   customerId: string;
 };
 
-export const CustomerSecondaryAddresses: FC<
-  CustomerSecondaryAddressesProps
-> = ({ customerId }) => {
+export const CustomerAddresses: FC<CustomerAddressesProps> = ({
+  customerId,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
-  const {
-    customerSecondaryAddresses,
-    loading,
-    error,
-    moreToLoad,
-    loadMore,
-    loadingMore,
-  } = useCustomerSecondaryAddresses(customerId);
+  const { addresses, loading, error, moreToLoad, loadMore, loadingMore } =
+    useCustomerAddresses(customerId);
 
   const openModal = (id?: string) => {
     if (id) {
@@ -32,32 +26,37 @@ export const CustomerSecondaryAddresses: FC<
     }
     setModalOpen(true);
   };
+
   const closeModal = () => {
     setModalOpen(false);
     setEditingAddressId(null);
   };
+
   if (loading) {
     return (
       <>
         <Typography variant="h3" gutterBottom>
-          Secondary addresses
+          Addresses
         </Typography>
         <CircularProgress />
       </>
     );
   }
-  if (error || !customerSecondaryAddresses) {
-    return <Error code={error ?? "INTERNAL_ERROR"} />;
+
+  if (error || !addresses) {
+    return <ErrorMessage code={error ?? "INTERNAL_ERROR"} />;
   }
   const editingAddress = editingAddressId
-    ? customerSecondaryAddresses.find(
-        (address) => address.id === editingAddressId
-      )
+    ? addresses.find((address) => address.id === editingAddressId)
     : undefined;
+
+  const addressType =
+    !addresses.length || editingAddressId === "main" ? "main" : "secondary";
+
   return (
     <>
       <Typography variant="h3" gutterBottom>
-        Secondary addresses
+        Addresses
       </Typography>
       <Button
         variant="outlined"
@@ -66,8 +65,8 @@ export const CustomerSecondaryAddresses: FC<
       >
         Add new
       </Button>
-      <CustomerSecondaryAddressesTable
-        addresses={customerSecondaryAddresses}
+      <CustomerAddressesTable
+        addresses={addresses}
         customerId={customerId}
         onEditClick={openModal}
       />
@@ -76,12 +75,13 @@ export const CustomerSecondaryAddresses: FC<
           Load more
         </LoadingButton>
       )}
-      <CustomerSecondaryAddressModal
+      <CustomerAddressModal
         customerId={customerId}
         onClose={closeModal}
         open={modalOpen}
         initialValues={editingAddress}
         addressId={editingAddressId ?? undefined}
+        addressType={addressType}
       />
     </>
   );

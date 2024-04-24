@@ -5,7 +5,7 @@ import { getUsers, User } from "../../services/authentication";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { ErrorCode } from "../../services/error";
-import { Error } from "../../components/Error/Error";
+import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 
 export const UsersPage: FC = () => {
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ export const UsersPage: FC = () => {
   }, [loading, setUsers, setLoading]);
 
   if (error) {
-    return <Error code={error} />;
+    return <ErrorMessage code={error} />;
   }
   return (
     <>

@@ -7,7 +7,7 @@ import {
 import { extractErrorCode } from "../../../services/error";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
-import { keyFunctionGenerator } from "./useCustomerSecondaryAddresses";
+import { keyFunctionGenerator } from "../address/useCustomerAddresses";
 
 export const useCustomerEditSecondaryAddress = (
   customerId?: string,
@@ -18,11 +18,10 @@ export const useCustomerEditSecondaryAddress = (
     CustomerSecondaryAddress,
     Error,
     readonly [string, string, string] | null,
-    CustomerAddressFormValues,
-    CustomerSecondaryAddress[]
+    CustomerAddressFormValues
   >(
     customerId && addressId
-      ? ["edit-customer-secondary-address", customerId, addressId]
+      ? ["customer-secondary-address", customerId, addressId]
       : null,
     async ([_operation, customerId, addressId], { arg: formValues }) => {
       const address = editSecondaryAddress(customerId, addressId, formValues);
@@ -45,7 +44,7 @@ export const useCustomerEditSecondaryAddress = (
     },
     {
       revalidate: false,
-      populateCache: false,
+      populateCache: true,
     }
   );
 
