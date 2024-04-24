@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Error } from "../../components/Error/Error";
 import {
   Button,
@@ -25,6 +25,8 @@ const tabNames = [
   "secondaryAddresses",
 ] as const;
 type TabName = typeof tabNames[number];
+const isTabName = (value: unknown): value is TabName =>
+  tabNames.includes(value as TabName);
 const tabLabels: Record<TabName, string> = {
   information: "Information",
   taxData: "Tax data",
@@ -50,7 +52,11 @@ const CustomerSectionTab: FC<CustomerSectionTabProps> = ({
 };
 
 export const CustomerDetailsPage: FC = () => {
-  const [currentTab, setCurrentTab] = useState<TabName>("information");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab");
+  const [currentTab, setCurrentTab] = useState<TabName>(
+    isTabName(tab) ? tab : "information"
+  );
   const { id } = useParams<CustomerDetailsParams>();
   const navigate = useNavigate();
   const { loading, customer, error } = useCustomer(id);
@@ -59,6 +65,7 @@ export const CustomerDetailsPage: FC = () => {
 
   const changeTabHandler = (_: React.SyntheticEvent, newValue: TabName) => {
     setCurrentTab(newValue);
+    setSearchParams({ tab: newValue });
   };
 
   if (!id) {
