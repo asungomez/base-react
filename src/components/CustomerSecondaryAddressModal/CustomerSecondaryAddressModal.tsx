@@ -14,26 +14,50 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { useCustomerAddSecondaryAddress } from "../../hooks/customers/secondary-address/useAddCustomerSecondaryAddress";
 import { Error } from "../Error/Error";
+import { useCustomerEditSecondaryAddress } from "../../hooks/customers/secondary-address/useEditCustomerSecondaryAddress";
 
 type CustomerSecondaryAddressModalProps = {
   customerId: string;
   onClose: () => void;
   open: boolean;
+  initialValues?: CustomerAddressFormValues;
+  addressId?: string;
 };
 
 export const CustomerSecondaryAddressModal: FC<
   CustomerSecondaryAddressModalProps
-> = ({ customerId, onClose, open }) => {
-  const { addCustomerSecondaryAddress, loading, error } =
-    useCustomerAddSecondaryAddress(customerId);
+> = ({ customerId, onClose, open, initialValues, addressId }) => {
+  const {
+    addCustomerSecondaryAddress,
+    loading: creating,
+    error: creationError,
+  } = useCustomerAddSecondaryAddress(customerId);
+  const {
+    editCustomerSecondaryAddress,
+    loading: editing,
+    error: editionError,
+  } = useCustomerEditSecondaryAddress(customerId, addressId);
 
   const submitHandler = (address: CustomerAddressFormValues) => {
-    addCustomerSecondaryAddress(address)
-      .then(onClose)
-      .catch(() => {
-        // Do nothing, error is handled by the hook
-      });
+    if (addressId) {
+      // If the address ID is specified, this is an edit
+      editCustomerSecondaryAddress(address)
+        .then(onClose)
+        .catch(() => {
+          // Do nothing, error is handled by the hook
+        });
+    } else {
+      // If not, this is a new address
+      addCustomerSecondaryAddress(address)
+        .then(onClose)
+        .catch(() => {
+          // Do nothing, error is handled by the hook
+        });
+    }
   };
+
+  const error = creationError ?? editionError;
+  const loading = editing || creating;
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -54,7 +78,11 @@ export const CustomerSecondaryAddressModal: FC<
       </IconButton>
       <DialogContent>
         {error && <Error code={error} />}
-        <CustomerAddressForm onSubmit={submitHandler} loading={loading} />
+        <CustomerAddressForm
+          onSubmit={submitHandler}
+          loading={loading}
+          defaultValues={initialValues}
+        />
         <Button size="small" color="error" onClick={onClose}>
           Cancel
         </Button>

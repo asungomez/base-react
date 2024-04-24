@@ -214,6 +214,51 @@ const editExternalLinkFromCustomer = async (customerId, index, url) => {
   return url;
 };
 
+const editSecondaryAddressFromCustomer = async (
+  customerId,
+  addressId,
+  updatedAddress
+) => {
+  const params = {
+    ExpressionAttributeNames: {
+      "#S": "street",
+      "#C": "city",
+      "#N": "number",
+      "#P": "postcode",
+    },
+    ExpressionAttributeValues: {
+      ":street": {
+        S: updatedAddress.street,
+      },
+      ":city": {
+        S: updatedAddress.city,
+      },
+      ":number": {
+        S: updatedAddress.number,
+      },
+      ":postcode": {
+        S: updatedAddress.postcode,
+      },
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: `address_secondary_${addressId}`,
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression:
+      "SET #S = :street, #C = :city, #N = :number, #P = :postcode",
+  };
+  await ddb.updateItem(params).promise();
+  return {
+    id,
+    ...updatedAddress,
+  };
+};
+
 const encodeToken = (token) => {
   if (!token) return;
   return Buffer.from(JSON.stringify(token)).toString("base64");
@@ -512,6 +557,7 @@ module.exports = {
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
   editExternalLinkFromCustomer,
+  editSecondaryAddressFromCustomer,
   getCustomer,
   getCustomerMainAddress,
   getCustomerSecondaryAddresses,

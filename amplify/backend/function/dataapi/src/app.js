@@ -12,6 +12,7 @@ const {
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
   editExternalLinkFromCustomer,
+  editSecondaryAddressFromCustomer,
   getCustomer,
   getCustomerSecondaryAddresses,
   getCustomers,
@@ -271,6 +272,21 @@ app.put("/customers/:id/external-link/:index", async function (req, res) {
   const newUrl = await editExternalLinkFromCustomer(id, index, url);
   res.json({ url: newUrl });
 });
+
+app.put(
+  "/customers/:id/secondary-addresses/:address_id",
+  async function (req, res) {
+    const customerId = req.params.id;
+    const addressId = req.params.address_id;
+    const updatedAddress = req.body;
+    const newAddress = await editSecondaryAddressFromCustomer(
+      customerId,
+      addressId,
+      updatedAddress
+    );
+    res.json({ address: newAddress });
+  }
+);
 
 app.delete("/customers/:id", async function (req, res) {
   const id = req.params.id;

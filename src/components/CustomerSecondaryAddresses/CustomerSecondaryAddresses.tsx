@@ -16,6 +16,7 @@ export const CustomerSecondaryAddresses: FC<
   CustomerSecondaryAddressesProps
 > = ({ customerId }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const {
     customerSecondaryAddresses,
     loading,
@@ -25,8 +26,16 @@ export const CustomerSecondaryAddresses: FC<
     loadingMore,
   } = useCustomerSecondaryAddresses(customerId);
 
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
+  const openModal = (id?: string) => {
+    if (id) {
+      setEditingAddressId(id);
+    }
+    setModalOpen(true);
+  };
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingAddressId(null);
+  };
   if (loading) {
     return (
       <>
@@ -40,17 +49,27 @@ export const CustomerSecondaryAddresses: FC<
   if (error || !customerSecondaryAddresses) {
     return <Error code={error ?? "INTERNAL_ERROR"} />;
   }
+  const editingAddress = editingAddressId
+    ? customerSecondaryAddresses.find(
+        (address) => address.id === editingAddressId
+      )
+    : undefined;
   return (
     <>
       <Typography variant="h3" gutterBottom>
         Secondary addresses
       </Typography>
-      <Button variant="outlined" startIcon={<AddIcon />} onClick={openModal}>
+      <Button
+        variant="outlined"
+        startIcon={<AddIcon />}
+        onClick={() => openModal()}
+      >
         Add new
       </Button>
       <CustomerSecondaryAddressesTable
         addresses={customerSecondaryAddresses}
         customerId={customerId}
+        onEditClick={openModal}
       />
       {moreToLoad && (
         <LoadingButton variant="text" onClick={loadMore} loading={loadingMore}>
@@ -61,6 +80,8 @@ export const CustomerSecondaryAddresses: FC<
         customerId={customerId}
         onClose={closeModal}
         open={modalOpen}
+        initialValues={editingAddress}
+        addressId={editingAddressId ?? undefined}
       />
     </>
   );

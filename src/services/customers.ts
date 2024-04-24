@@ -374,6 +374,45 @@ export const editTaxData = async (
   }
 };
 
+export const editSecondaryAddress = async (
+  customerId: string,
+  addressId: string,
+  formValues: CustomerAddressFormValues
+): Promise<CustomerSecondaryAddress> => {
+  try {
+    const response = await put(
+      `/customers/${customerId}/secondary-addresses/${addressId}`,
+      formValues
+    );
+    if (!isCustomerAddress(response.secondaryAddress)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.secondaryAddress;
+  } catch (error) {
+    if (isResponseError(error)) {
+      const status = error.response.status;
+      if (status === 400) {
+        if (error.response.data.error === "Street is required") {
+          throw new Error("REQUIRED_STREET");
+        }
+        if (error.response.data.error === "Number is required") {
+          throw new Error("REQUIRED_NUMBER");
+        }
+        if (error.response.data.error === "City is required") {
+          throw new Error("REQUIRED_CITY");
+        }
+        if (error.response.data.error === "Postcode is required") {
+          throw new Error("REQUIRED_POSTCODE");
+        }
+      }
+      if (status === 404) {
+        throw new Error("CUSTOMER_NOT_FOUND");
+      }
+    }
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
 export const getCustomer = async (id: string): Promise<Customer> => {
   try {
     const response = await get(`/customers/${id}`);
