@@ -76,20 +76,6 @@ app.get("/customers/:id", async function (req, res) {
   res.json({ customer });
 });
 
-app.get("/customers/:id/main-address", async function (req, res) {
-  try {
-    const id = req.params.id;
-    const mainAddress = await getCustomerMainAddress(id);
-    res.json({ mainAddress });
-  } catch (e) {
-    if (e.message === "Customer not found") {
-      res.status(404).json({ error: e.message });
-      return;
-    }
-    throw e;
-  }
-});
-
 app.get(
   "/customers/:id/secondary-address/:addressId",
   async function (req, res) {
@@ -110,22 +96,6 @@ app.get(
     }
   }
 );
-
-app.get("/customers/:id/secondary-addresses", async function (req, res) {
-  try {
-    const id = req.params.id;
-    const nextTokenParam = req.query?.nextToken;
-    const { items: secondaryAddresses, nextToken } =
-      await getCustomerSecondaryAddresses(id, nextTokenParam);
-    res.json({ secondaryAddresses, nextToken });
-  } catch (e) {
-    if (e.message === "Customer not found") {
-      res.status(404).json({ error: e.message });
-      return;
-    }
-    throw e;
-  }
-});
 
 app.post("/customers", async function (req, res) {
   try {
