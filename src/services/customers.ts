@@ -1,32 +1,7 @@
-import { API } from "aws-amplify";
 import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
 import { TaxDataFormValues } from "../components/TaxDataForm/TaxDataForm";
 import { CustomerAddressFormValues } from "../components/CustomerAddressForm/CustomerAddressForm";
-
-const del = async (path: string) => {
-  return API.del("dataapi", path, {});
-};
-
-const get = async (
-  path: string,
-  queryParams: { [param: string]: string | undefined } = {}
-) => {
-  return API.get("dataapi", path, {
-    queryStringParameters: queryParams,
-  });
-};
-
-const post = async (path: string, body: { [param: string]: string } = {}) => {
-  return API.post("dataapi", path, {
-    body,
-  });
-};
-
-const put = async (path: string, body: { [param: string]: string } = {}) => {
-  return API.put("dataapi", path, {
-    body,
-  });
-};
+import { del, get, post, put } from "./api";
 
 export const CUSTOMER_TYPES = ["individual", "company", "other"] as const;
 export type CustomerType = typeof CUSTOMER_TYPES[number];
