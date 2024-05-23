@@ -1,6 +1,6 @@
 import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { FC, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useJob } from "../../hooks/jobs/useJob";
 import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import { JobAddresses } from "../../components/JobAddresses/JobAddresses";
@@ -55,7 +55,9 @@ export const JobDetailsPage: FC = () => {
       </Typography>
       {operationError && <ErrorMessage code={operationError} />}
       <Stack direction="row" spacing={2}>
-        <Button variant="contained">Edit</Button>
+        <Link to={`/jobs/${jobId}/edit`}>
+          <Button variant="contained">Edit</Button>
+        </Link>
         <DeleteJobButton
           jobId={jobId}
           onError={errorHandler}

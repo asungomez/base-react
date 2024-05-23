@@ -15,7 +15,7 @@ export const keyFunctionGenerator: (jobId?: string) => KeyFunction =
   (jobId?: string) => (_index, previousRequest) =>
     jobId ? ["jobAddresses", jobId, previousRequest?.nextToken] : null;
 
-export const useJobAddresses = (jobId: string) => {
+export const useJobAddresses = (jobId?: string) => {
   const {
     data,
     error,
