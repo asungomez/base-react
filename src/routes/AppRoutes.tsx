@@ -21,6 +21,7 @@ import { AddCustomerTaxDataPage } from "../pages/AddCustomerTaxData/AddCustomerT
 import { EditCustomerTaxDataPage } from "../pages/EditCustomerTaxData/EditCustomerTaxData";
 import { CustomerAddressPage } from "../pages/CustomerAddress/CustomerAddress";
 import { CreateJobPage } from "../pages/CreateJob/CreateJob";
+import { JobDetailsPage } from "../pages/JobDetails/JobDetails";
 
 export const AppRoutes: FC = () => (
   <Routes>
@@ -85,6 +86,9 @@ export const AppRoutes: FC = () => (
       }
     >
       <Route path="create" element={<CreateJobPage />} />
+      <Route path=":jobId">
+        <Route index element={<JobDetailsPage />} />
+      </Route>
     </Route>
   </Routes>
 );

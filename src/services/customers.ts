@@ -62,7 +62,7 @@ const isTaxData = (value: unknown): value is TaxData => {
   );
 };
 
-const isCustomerAddress = (value: unknown): value is CustomerAddress => {
+export const isCustomerAddress = (value: unknown): value is CustomerAddress => {
   if (typeof value !== "object" || value === null) {
     return false;
   }

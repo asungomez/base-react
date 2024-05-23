@@ -17,6 +17,7 @@ const ERROR_CODES = [
   "REQUIRED_CITY",
   "REQUIRED_NUMBER",
   "REQUIRED_POSTCODE",
+  "JOB_NOT_EXISTS",
 ] as const;
 
 export type ErrorCode = typeof ERROR_CODES[number];
