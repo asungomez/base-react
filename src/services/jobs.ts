@@ -36,6 +36,14 @@ export const createJob = async (formValues: JobFormValues): Promise<Job> => {
   }
 };
 
+export const deleteJob = async (jobId: string): Promise<void> => {
+  try {
+    await post(`/jobs/${jobId}/delete`);
+  } catch (error) {
+    throw new Error("INTERNAL_ERROR");
+  }
+};
+
 export const getJob = async (jobId: string): Promise<Job> => {
   return { id: jobId, name: "Job 1" };
 };
