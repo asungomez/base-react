@@ -15,7 +15,7 @@ export const get = async (
 
 export const post = async (
   path: string,
-  body: { [param: string]: string } = {}
+  body: { [param: string]: unknown } = {}
 ) => {
   return API.post("dataapi", path, {
     body,

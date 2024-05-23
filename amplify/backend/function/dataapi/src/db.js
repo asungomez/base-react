@@ -1,5 +1,11 @@
 const AWS = require("aws-sdk");
 const uuid = require("node-uuid");
+const {
+  mapAddressFromDB,
+  mapCustomerFromDB,
+  mapMainAddressFromDB,
+  mapSecondaryAddressFromDB,
+} = require("./mapper");
 
 const TABLE_NAME = "exercises-dev";
 // set DynamoDb client
@@ -320,7 +326,125 @@ const generateToken = async (scanOutput, filter) => {
   return encodeToken(JSON.stringify(scanOutput.LastEvaluatedKey));
 };
 
-const getAddresses = async (customerId, nextTokenParam) => {
+const getAddresses = async (
+  nextTokenParam,
+  searchInput,
+  excludedAddresses,
+  includedAddresses
+) => {
+  const PAGE_SIZE = 5;
+  let params = {
+    TableName: TABLE_NAME,
+    Limit: PAGE_SIZE,
+  };
+
+  if (nextTokenParam) {
+    const nextToken = parseToken(nextTokenParam);
+    params = {
+      ...params,
+      ExclusiveStartKey: nextToken,
+    };
+  }
+
+  let searchParams = {
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: "customer_" },
+      ":sk": { S: "address_" },
+    },
+    FilterExpression: "begins_with(#PK, :pk) AND begins_with(#SK, :sk)",
+  };
+
+  if (searchInput) {
+    searchParams = {
+      ExpressionAttributeNames: {
+        ...searchParams.ExpressionAttributeNames,
+        "#S": "street",
+      },
+      ExpressionAttributeValues: {
+        ...searchParams.ExpressionAttributeValues,
+        ":street": { S: searchInput },
+      },
+      FilterExpression:
+        searchParams.FilterExpression + " AND contains(#S, :street)",
+    };
+  }
+
+  if (includedAddresses?.length) {
+    const filterExpressions = [];
+    for (let i = 0; i < includedAddresses.length; i++) {
+      const includedAddress = includedAddresses[i];
+      searchParams = {
+        ...searchParams,
+        ExpressionAttributeValues: {
+          ...searchParams.ExpressionAttributeValues,
+          [`:includedAddressId${i}`]: { S: includedAddress.addressId },
+          [`:includedCustomerId${i}`]: {
+            S: includedAddress.customerId,
+          },
+        },
+      };
+      filterExpressions.push(
+        `(contains(#SK, :includedAddressId${i}) AND contains(#PK, :includedCustomerId${i}))`
+      );
+    }
+    searchParams = {
+      ...searchParams,
+      FilterExpression: `${searchParams.FilterExpression} AND ${
+        filterExpressions.length > 1 ? "(" : ""
+      }${filterExpressions.join(" OR ")}${
+        filterExpressions.length > 1 ? ")" : ""
+      }`,
+    };
+  } else if (excludedAddresses) {
+    for (let i = 0; i < excludedAddresses.length; i++) {
+      const excludedAddress = excludedAddresses[i];
+      searchParams = {
+        ...searchParams,
+        ExpressionAttributeValues: {
+          ...searchParams.ExpressionAttributeValues,
+          [`:excludedAddressId${i}`]: { S: excludedAddress.addressId },
+          [`:excludedCustomerId${i}`]: {
+            S: excludedAddress.customerId,
+          },
+        },
+        FilterExpression: `${searchParams.FilterExpression} AND (NOT contains(#SK, :excludedAddressId${i}) OR NOT contains(#PK, :excludedCustomerId${i}))`,
+      };
+    }
+  }
+
+  params = {
+    ...params,
+    ...searchParams,
+  };
+
+  console.log(JSON.stringify(params, null, 2));
+
+  let result = await ddb.scan(params).promise();
+  const items = result.Items.map(mapAddressFromDB);
+  while (result.LastEvaluatedKey && items.length < PAGE_SIZE) {
+    const exclusiveStartKey = result.LastEvaluatedKey;
+    params = {
+      ...params,
+      ExclusiveStartKey: exclusiveStartKey,
+      Limit: PAGE_SIZE - items.length,
+    };
+    result = await ddb.scan(params).promise();
+    items.push(...result.Items.map(mapAddressFromDB));
+  }
+
+  const nextToken = await generateToken(result, {
+    filterExpression: params.FilterExpression,
+    expressionAttributeNames: params.ExpressionAttributeNames,
+    expressionAttributeValues: params.ExpressionAttributeValues,
+  });
+  return { items, nextToken };
+};
+
+const getCustomerAddresses = async (customerId, nextTokenParam) => {
   const items = [];
   let pageSize = 5;
   if (!nextTokenParam) {
@@ -478,38 +602,6 @@ const getCustomers = async (nextTokenParam, searchInput) => {
   return { items, nextToken };
 };
 
-const mapCustomerFromDB = (customer) => ({
-  id: customer.PK.S.replace("customer_", ""),
-  name: customer.name.S,
-  email: customer.email.S,
-  type: customer.type.S,
-  taxData: customer.taxData ? mapTaxDataFromDB(customer.taxData.M) : undefined,
-  externalLinks: customer.externalLinks
-    ? customer.externalLinks.L.map((link) => link.S)
-    : [],
-});
-
-const mapMainAddressFromDB = (mainAddress) => ({
-  street: mainAddress.street.S,
-  number: mainAddress.number.S,
-  city: mainAddress.city.S,
-  postcode: mainAddress.postcode.S,
-});
-
-const mapSecondaryAddressFromDB = (secondaryAddress) => ({
-  id: secondaryAddress.SK.S.replace("address_secondary_", ""),
-  street: secondaryAddress.street.S,
-  number: secondaryAddress.number.S,
-  city: secondaryAddress.city.S,
-  postcode: secondaryAddress.postcode.S,
-});
-
-const mapTaxDataFromDB = (taxData) => ({
-  taxId: taxData.taxId.S,
-  companyName: taxData.companyName.S,
-  companyAddress: taxData.companyAddress.S,
-});
-
 const parseToken = (token) => {
   if (!token) return;
   return JSON.parse(decodeToken(token));
@@ -628,6 +720,7 @@ module.exports = {
   editSecondaryAddressFromCustomer,
   getAddresses,
   getCustomer,
+  getCustomerAddresses,
   getCustomerMainAddress,
   getCustomerSecondaryAddress,
   getCustomerSecondaryAddresses,

@@ -20,6 +20,7 @@ import { EditCustomerPage } from "../pages/EditCustomer/EditCustomer";
 import { AddCustomerTaxDataPage } from "../pages/AddCustomerTaxData/AddCustomerTaxData";
 import { EditCustomerTaxDataPage } from "../pages/EditCustomerTaxData/EditCustomerTaxData";
 import { CustomerAddressPage } from "../pages/CustomerAddress/CustomerAddress";
+import { CreateJobPage } from "../pages/CreateJob/CreateJob";
 
 export const AppRoutes: FC = () => (
   <Routes>
@@ -74,6 +75,16 @@ export const AppRoutes: FC = () => (
         </Route>
       </Route>
       <Route path="create" element={<CreateCustomerPage />} />
+    </Route>
+    <Route
+      path="jobs"
+      element={
+        <AuthenticatedRoute>
+          <DashboardLayout />
+        </AuthenticatedRoute>
+      }
+    >
+      <Route path="create" element={<CreateJobPage />} />
     </Route>
   </Routes>
 );

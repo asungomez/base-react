@@ -1,4 +1,5 @@
-import { get } from "./api";
+import { JobFormValues } from "../components/JobForm/JobForm";
+import { get, post } from "./api";
 
 export type Job = {
   id: string;
@@ -20,6 +21,18 @@ const isJob = (value: unknown): value is Job => {
 
 export type JobFilters = {
   addressId?: string;
+};
+
+export const createJob = async (formValues: JobFormValues): Promise<Job> => {
+  try {
+    const response = await post("/jobs", formValues);
+    if (!isJob(response.job)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.job;
+  } catch (error) {
+    throw new Error("INTERNAL_ERROR");
+  }
 };
 
 export const getJobs = async (

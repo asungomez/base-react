@@ -16,18 +16,20 @@ const {
   editSecondaryAddressFromCustomer,
   getAddresses,
   getCustomer,
+  getCustomerAddresses,
+  getCustomerMainAddress,
   getCustomerSecondaryAddress,
-  getCustomerSecondaryAddresses,
   getCustomers,
   setCustomerTaxData,
   updateCustomer,
-  getCustomerMainAddress,
 } = require("./db");
 const {
   validateCustomer,
   validateTaxData,
   validateCustomerAddress,
 } = require("./validation");
+
+const { mapAddressIDsFromQuery } = require("./mapper");
 
 // declare a new express app
 const app = express();
@@ -41,6 +43,20 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.get("/addresses", async function (req, res) {
+  const nextTokenParam = req.query?.nextToken;
+  const searchInput = req.query?.search;
+  const excludedAddresses = mapAddressIDsFromQuery(req.query?.excludedIds);
+  const includedAddresses = mapAddressIDsFromQuery(req.query?.includedIds);
+  const { items, nextToken } = await getAddresses(
+    nextTokenParam,
+    searchInput,
+    excludedAddresses,
+    includedAddresses
+  );
+  res.json({ addresses: items, nextToken });
+});
+
 app.get("/customers", async function (req, res) {
   const nextTokenParam = req.query?.nextToken;
   const searchInput = req.query?.search;
@@ -48,11 +64,11 @@ app.get("/customers", async function (req, res) {
   res.json({ customers: items, nextToken });
 });
 
-app.get("/customers/:id/addresses", async function (req, res) {
+app.get("/customers/:customerId/addresses", async function (req, res) {
   try {
-    const id = req.params.id;
+    const id = req.params.customerId;
     const nextTokenParam = req.query?.nextToken;
-    const { items: addresses, nextToken } = await getAddresses(
+    const { items: addresses, nextToken } = await getCustomerAddresses(
       id,
       nextTokenParam
     );
@@ -66,8 +82,8 @@ app.get("/customers/:id/addresses", async function (req, res) {
   }
 });
 
-app.get("/customers/:id", async function (req, res) {
-  const id = req.params.id;
+app.get("/customers/:customerId", async function (req, res) {
+  const id = req.params.customerId;
   const customer = await getCustomer(id);
   if (!customer) {
     res.status(404).json({ error: "Customer not found" });
@@ -76,11 +92,25 @@ app.get("/customers/:id", async function (req, res) {
   res.json({ customer });
 });
 
+app.get("/customers/:customerId/main-address", async function (req, res) {
+  try {
+    const customerId = req.params.customerId;
+    const mainAddress = await getCustomerMainAddress(customerId);
+    res.json({ mainAddress });
+  } catch (e) {
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
 app.get(
-  "/customers/:id/secondary-address/:addressId",
+  "/customers/:customerId/secondary-address/:addressId",
   async function (req, res) {
     try {
-      const customerId = req.params.id;
+      const customerId = req.params.customerId;
       const addressId = req.params.addressId;
       const secondaryAddress = await getCustomerSecondaryAddress(
         customerId,
@@ -116,9 +146,9 @@ app.post("/customers", async function (req, res) {
   }
 });
 
-app.post("/customers/:id/external-link", async function (req, res) {
+app.post("/customers/:customerId/external-link", async function (req, res) {
   try {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     const { url } = req.body;
     const insertedUrl = await addExternalLinkToCustomer(customerId, url);
     res.json({ url: insertedUrl });
@@ -131,9 +161,9 @@ app.post("/customers/:id/external-link", async function (req, res) {
   }
 });
 
-app.post("/customers/:id/main-address", async function (req, res) {
+app.post("/customers/:customerId/main-address", async function (req, res) {
   try {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     const mainAddress = req.body;
     validateCustomerAddress(mainAddress);
     const insertedMainAddress = await createCustomerMainAddress(
@@ -166,9 +196,9 @@ app.post("/customers/:id/main-address", async function (req, res) {
   }
 });
 
-app.post("/customers/:id/tax-data", async function (req, res) {
+app.post("/customers/:customerId/tax-data", async function (req, res) {
   try {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     const taxData = req.body;
     validateTaxData(taxData);
     const insertedTaxData = await setCustomerTaxData(customerId, taxData);
@@ -194,9 +224,9 @@ app.post("/customers/:id/tax-data", async function (req, res) {
   }
 });
 
-app.post("/customers/:id/secondary-address", async function (req, res) {
+app.post("/customers/:customerId/secondary-address", async function (req, res) {
   try {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     const secondaryAddress = req.body;
     validateCustomerAddress(secondaryAddress);
     const insertedSecondaryAddress = await createCustomerSecondaryAddress(
@@ -229,9 +259,9 @@ app.post("/customers/:id/secondary-address", async function (req, res) {
   }
 });
 
-app.put("/customers/:id/tax-data", async function (req, res) {
+app.put("/customers/:customerId/tax-data", async function (req, res) {
   try {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     const taxData = req.body;
     validateTaxData(taxData);
     const updatedTaxData = await setCustomerTaxData(customerId, taxData);
@@ -257,9 +287,9 @@ app.put("/customers/:id/tax-data", async function (req, res) {
   }
 });
 
-app.put("/customers/:id", async function (req, res) {
+app.put("/customers/:customerId", async function (req, res) {
   try {
-    const id = req.params.id;
+    const id = req.params.customerId;
     const customer = req.body;
     validateCustomer(customer);
     const updatedCustomer = await updateCustomer(id, customer);
@@ -277,17 +307,20 @@ app.put("/customers/:id", async function (req, res) {
   }
 });
 
-app.put("/customers/:id/external-link/:index", async function (req, res) {
-  const id = req.params.id;
-  const index = req.params.index;
-  const url = req.body.url;
-  const newUrl = await editExternalLinkFromCustomer(id, index, url);
-  res.json({ url: newUrl });
-});
+app.put(
+  "/customers/:customerId/external-link/:index",
+  async function (req, res) {
+    const id = req.params.customerId;
+    const index = req.params.index;
+    const url = req.body.url;
+    const newUrl = await editExternalLinkFromCustomer(id, index, url);
+    res.json({ url: newUrl });
+  }
+);
 
-app.put("/customers/:id/main-address", async function (req, res) {
+app.put("/customers/:customerId/main-address", async function (req, res) {
   try {
-    const id = req.params.id;
+    const id = req.params.customerId;
     const address = req.body;
     const updatedAddress = await editCustomerMainAddress(id, address);
     res.json({ mainAddress: updatedAddress });
@@ -305,9 +338,9 @@ app.put("/customers/:id/main-address", async function (req, res) {
 });
 
 app.put(
-  "/customers/:id/secondary-addresses/:address_id",
+  "/customers/:customerId/secondary-addresses/:address_id",
   async function (req, res) {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     const addressId = req.params.address_id;
     const updatedAddress = req.body;
     const newAddress = await editSecondaryAddressFromCustomer(
@@ -319,27 +352,30 @@ app.put(
   }
 );
 
-app.delete("/customers/:id", async function (req, res) {
-  const id = req.params.id;
+app.delete("/customers/:customerId", async function (req, res) {
+  const id = req.params.customerId;
   await deleteCustomer(id);
   res.json({ message: "Customer deleted" });
 });
 
-app.delete("/customers/:id/external-link/:index", async function (req, res) {
-  const id = req.params.id;
-  const index = req.params.index;
-  await deleteExternalLinkFromCustomer(id, index);
-  res.json({ message: "External link deleted" });
-});
+app.delete(
+  "/customers/:customerId/external-link/:index",
+  async function (req, res) {
+    const id = req.params.customerId;
+    const index = req.params.index;
+    await deleteExternalLinkFromCustomer(id, index);
+    res.json({ message: "External link deleted" });
+  }
+);
 
-app.delete("/customers/:id/tax-data", async function (req, res) {
-  const customerId = req.params.id;
+app.delete("/customers/:customerId/tax-data", async function (req, res) {
+  const customerId = req.params.customerId;
   await deleteTaxDataFromCustomer(customerId);
   res.json({ message: `Tax data for customer ${customerId} deleted` });
 });
 
-app.delete("/customers/:id/main-address", async function (req, res) {
-  const customerId = req.params.id;
+app.delete("/customers/:customerId/main-address", async function (req, res) {
+  const customerId = req.params.customerId;
   await deleteMainAddressFromCustomer(customerId);
   res.json({ message: `Main address for customer ${customerId} deleted` });
 });

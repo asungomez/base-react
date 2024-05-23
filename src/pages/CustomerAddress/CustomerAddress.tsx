@@ -34,7 +34,7 @@ export const CustomerAddressPage: FC = () => {
         <Typography color="textPrimary">Address</Typography>
       </Breadcrumbs>
       {addressComponent}
-      <AddressJobs addressId={addressId} />
+      <AddressJobs addressId={addressId} customerId={customerId} />
     </>
   );
 };
