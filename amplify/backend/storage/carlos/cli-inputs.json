@@ -16,6 +16,17 @@
         "fieldName": "email",
         "fieldType": "string"
       }
+    },
+    {
+      "name": "address_jobs",
+      "partitionKey": {
+        "fieldName": "customer_id",
+        "fieldType": "string"
+      },
+      "sortKey": {
+        "fieldName": "address_id",
+        "fieldType": "string"
+      }
     }
   ],
   "triggerFunctions": []

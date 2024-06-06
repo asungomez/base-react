@@ -36,6 +36,21 @@
         },
         "setting": "private"
       }
+    },
+    "/jobs": {
+      "name": "/jobs",
+      "lambdaFunction": "dataapi",
+      "permissions": {
+        "groups": {
+          "Admin": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ]
+        },
+        "setting": "private"
+      }
     }
   }
 }

@@ -6,6 +6,7 @@ const {
   createCustomer,
   createCustomerMainAddress,
   createCustomerSecondaryAddress,
+  createJob,
   deleteCustomer,
   deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
@@ -20,6 +21,7 @@ const {
   getCustomerMainAddress,
   getCustomerSecondaryAddress,
   getCustomers,
+  getJobAddresses,
   setCustomerTaxData,
   updateCustomer,
 } = require("./db");
@@ -126,6 +128,13 @@ app.get(
     }
   }
 );
+
+app.get("/jobs/:jobId/addresses", async function (req, res) {
+  const jobId = req.params.jobId;
+  const nextTokenParam = req.query?.nextToken;
+  const { addresses, nextToken } = await getJobAddresses(jobId, nextTokenParam);
+  res.json({ addresses, nextToken });
+});
 
 app.post("/customers", async function (req, res) {
   try {
@@ -253,6 +262,20 @@ app.post("/customers/:customerId/secondary-address", async function (req, res) {
     }
     if (e.message === "Customer not found") {
       res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
+app.post("/jobs", async function (req, res) {
+  try {
+    const job = req.body;
+    const createdJob = await createJob(job);
+    res.json({ job: createdJob });
+  } catch (e) {
+    if (e.message === "Address does not exist") {
+      res.status(400).json({ error: e.message });
       return;
     }
     throw e;

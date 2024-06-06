@@ -115,6 +115,36 @@ const createCustomerSecondaryAddress = async (customerId, address) => {
   return { ...address, id: addressId };
 };
 
+const createJob = async (job) => {
+  const id = uuid.v1();
+  const params = {
+    TableName: TABLE_NAME,
+    Item: {
+      PK: { S: `job_${id}` },
+      SK: { S: "description" },
+      name: { S: job.name },
+    },
+  };
+  await ddb.putItem(params).promise();
+  for (let i = 0; i < job.addresses.length; i++) {
+    const address = job.addresses[i];
+    const params = {
+      TableName: TABLE_NAME,
+      Item: {
+        PK: { S: `job_${id}` },
+        SK: { S: `address_assignation_${i}` },
+        address_id: { S: address.addressId },
+        customer_id: { S: address.customerId },
+      },
+    };
+    await ddb.putItem(params).promise();
+  }
+  return {
+    ...job,
+    id,
+  };
+};
+
 const decodeToken = (token) => {
   if (!token) return;
   return JSON.parse(Buffer.from(token, "base64").toString("utf8"));
@@ -602,6 +632,69 @@ const getCustomers = async (nextTokenParam, searchInput) => {
   return { items, nextToken };
 };
 
+const getJobAddresses = async (jobId, nextTokenParam) => {
+  const PAGE_SIZE = 5;
+  let params = {
+    TableName: TABLE_NAME,
+    Limit: PAGE_SIZE,
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: `job_${jobId}` },
+      ":sk": { S: "address_assignation" },
+    },
+    FilterExpression: "#PK = :pk AND begins_with(#SK, :sk)",
+  };
+
+  if (nextTokenParam) {
+    const nextToken = parseToken(nextTokenParam);
+    params = {
+      ...params,
+      ExclusiveStartKey: nextToken,
+    };
+  }
+
+  let result = await ddb.scan(params).promise();
+  const items = result.Items;
+
+  while (result.LastEvaluatedKey && items.length < PAGE_SIZE) {
+    const exclusiveStartKey = result.LastEvaluatedKey;
+    params = {
+      ...params,
+      ExclusiveStartKey: exclusiveStartKey,
+      Limit: PAGE_SIZE - items.length,
+    };
+    result = await ddb.scan(params).promise();
+    items.push(...result.Items);
+  }
+
+  const addresses = [];
+  for (const item of items) {
+    const addressId = item.address_id.S;
+    const customerId = item.customer_id.S;
+
+    if (addressId === "main") {
+      const mainAddress = await getCustomerMainAddress(customerId);
+      addresses.push({ ...mainAddress, id: "main" });
+    } else {
+      const secondaryAddress = await getCustomerSecondaryAddress(
+        customerId,
+        addressId
+      );
+      addresses.push(secondaryAddress);
+    }
+  }
+
+  const nextToken = await generateToken(result, {
+    filterExpression: params.FilterExpression,
+    expressionAttributeNames: params.ExpressionAttributeNames,
+    expressionAttributeValues: params.ExpressionAttributeValues,
+  });
+  return { addresses, nextToken };
+};
+
 const parseToken = (token) => {
   if (!token) return;
   return JSON.parse(decodeToken(token));
@@ -710,6 +803,7 @@ module.exports = {
   createCustomer,
   createCustomerMainAddress,
   createCustomerSecondaryAddress,
+  createJob,
   deleteCustomer,
   deleteExternalLinkFromCustomer,
   deleteMainAddressFromCustomer,
@@ -725,6 +819,7 @@ module.exports = {
   getCustomerSecondaryAddress,
   getCustomerSecondaryAddresses,
   getCustomers,
+  getJobAddresses,
   setCustomerTaxData,
   updateCustomer,
 };
