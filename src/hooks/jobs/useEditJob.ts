@@ -17,7 +17,7 @@ export const useEditJob = (jobId?: string) => {
   >(
     jobId ? ["job", jobId] : null,
     async ([_operation, jobId], { arg: formValues }) => {
-      const job = editJob(jobId, formValues);
+      const job = await editJob(jobId, formValues);
       await mutate<
         readonly [string, JobFilters, string | undefined],
         {

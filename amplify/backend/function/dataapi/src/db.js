@@ -301,30 +301,51 @@ const deleteSecondaryAddressFromCustomer = async (customerId, addressId) => {
   }
 };
 
-const editExternalLinkFromCustomer = async (customerId, index, url) => {
-  if (!(await getCustomer(customerId))) {
-    throw new Error("Customer not found");
+const editCustomer = async (id, customer) => {
+  const customersWithSameEmail = (
+    await queryCustomerByEmail(customer.email)
+  ).filter((customer) => customer.id !== id);
+  if (customersWithSameEmail.length > 0) {
+    throw new Error("This email already exists");
   }
   const params = {
     ExpressionAttributeNames: {
-      "#EL": "externalLinks",
+      "#N": "name",
+      "#NL": "name_lowercase",
+      "#E": "email",
+      "#T": "type",
     },
     ExpressionAttributeValues: {
-      ":url": { S: url },
+      ":name": {
+        S: customer.name,
+      },
+      ":name_lowercase": {
+        S: customer.name?.toLowerCase(),
+      },
+      ":email": {
+        S: customer.email.toLowerCase(),
+      },
+      ":type": {
+        S: customer.type,
+      },
     },
     Key: {
       PK: {
-        S: `customer_${customerId}`,
+        S: `customer_${id}`,
       },
       SK: {
         S: "profile",
       },
     },
     TableName: TABLE_NAME,
-    UpdateExpression: `SET #EL[${index}] = :url`,
+    UpdateExpression:
+      "SET #N = :name, #E = :email, #T = :type, #NL = :name_lowercase",
   };
   await ddb.updateItem(params).promise();
-  return url;
+  return {
+    id,
+    ...customer,
+  };
 };
 
 const editCustomerMainAddress = async (customerId, updatedAddress) => {
@@ -363,6 +384,98 @@ const editCustomerMainAddress = async (customerId, updatedAddress) => {
   };
   await ddb.updateItem(params).promise();
   return updatedAddress;
+};
+
+const editExternalLinkFromCustomer = async (customerId, index, url) => {
+  if (!(await getCustomer(customerId))) {
+    throw new Error("Customer not found");
+  }
+  const params = {
+    ExpressionAttributeNames: {
+      "#EL": "externalLinks",
+    },
+    ExpressionAttributeValues: {
+      ":url": { S: url },
+    },
+    Key: {
+      PK: {
+        S: `customer_${customerId}`,
+      },
+      SK: {
+        S: "profile",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression: `SET #EL[${index}] = :url`,
+  };
+  await ddb.updateItem(params).promise();
+  return url;
+};
+
+const editJob = async (jobId, job) => {
+  const params = {
+    ExpressionAttributeNames: {
+      "#N": "name",
+    },
+    ExpressionAttributeValues: {
+      ":name": {
+        S: job.name,
+      },
+    },
+    Key: {
+      PK: {
+        S: `job_${jobId}`,
+      },
+      SK: {
+        S: "description",
+      },
+    },
+    TableName: TABLE_NAME,
+    UpdateExpression: "SET #N = :name",
+  };
+  await ddb.updateItem(params).promise();
+
+  const searchAssignationsParams = {
+    TableName: TABLE_NAME,
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: `job_${jobId}` },
+      ":sk": { S: "address_assignation" },
+    },
+    FilterExpression: "#PK = :pk AND begins_with(#SK, :sk)",
+  };
+  const existingAssignations = await getAllRows(searchAssignationsParams);
+
+  for (const assignation of existingAssignations) {
+    const deleteParams = {
+      TableName: TABLE_NAME,
+      Key: {
+        PK: assignation.PK,
+        SK: assignation.SK,
+      },
+    };
+    await ddb.deleteItem(deleteParams).promise();
+  }
+
+  const newAssignations = job.addresses.map((address, index) => ({
+    PK: { S: `job_${jobId}` },
+    SK: { S: `address_assignation_${index}` },
+    address_id: { S: address.addressId },
+    customer_id: { S: address.customerId },
+  }));
+
+  for (const assignation of newAssignations) {
+    const params = {
+      TableName: TABLE_NAME,
+      Item: assignation,
+    };
+    await ddb.putItem(params).promise();
+  }
+
+  return job;
 };
 
 const editSecondaryAddressFromCustomer = async (
@@ -898,53 +1011,6 @@ const setCustomerTaxData = async (customerId, taxData) => {
   return taxData;
 };
 
-const updateCustomer = async (id, customer) => {
-  const customersWithSameEmail = (
-    await queryCustomerByEmail(customer.email)
-  ).filter((customer) => customer.id !== id);
-  if (customersWithSameEmail.length > 0) {
-    throw new Error("This email already exists");
-  }
-  const params = {
-    ExpressionAttributeNames: {
-      "#N": "name",
-      "#NL": "name_lowercase",
-      "#E": "email",
-      "#T": "type",
-    },
-    ExpressionAttributeValues: {
-      ":name": {
-        S: customer.name,
-      },
-      ":name_lowercase": {
-        S: customer.name?.toLowerCase(),
-      },
-      ":email": {
-        S: customer.email.toLowerCase(),
-      },
-      ":type": {
-        S: customer.type,
-      },
-    },
-    Key: {
-      PK: {
-        S: `customer_${id}`,
-      },
-      SK: {
-        S: "profile",
-      },
-    },
-    TableName: TABLE_NAME,
-    UpdateExpression:
-      "SET #N = :name, #E = :email, #T = :type, #NL = :name_lowercase",
-  };
-  await ddb.updateItem(params).promise();
-  return {
-    id,
-    ...customer,
-  };
-};
-
 module.exports = {
   addExternalLinkToCustomer,
   createCustomer,
@@ -957,8 +1023,10 @@ module.exports = {
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
-  editExternalLinkFromCustomer,
+  editCustomer,
   editCustomerMainAddress,
+  editExternalLinkFromCustomer,
+  editJob,
   editSecondaryAddressFromCustomer,
   getAddresses,
   getCustomer,
@@ -971,5 +1039,4 @@ module.exports = {
   getJobAddresses,
   getJobs,
   setCustomerTaxData,
-  updateCustomer,
 };

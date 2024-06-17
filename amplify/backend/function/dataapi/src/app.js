@@ -13,8 +13,10 @@ const {
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
+  editCustomer,
   editCustomerMainAddress,
   editExternalLinkFromCustomer,
+  editJob,
   editSecondaryAddressFromCustomer,
   getAddresses,
   getCustomer,
@@ -26,7 +28,6 @@ const {
   getJobAddresses,
   getJobs,
   setCustomerTaxData,
-  updateCustomer,
 } = require("./db");
 const {
   validateCustomer,
@@ -335,7 +336,7 @@ app.put("/customers/:customerId", async function (req, res) {
     const id = req.params.customerId;
     const customer = req.body;
     validateCustomer(customer);
-    const updatedCustomer = await updateCustomer(id, customer);
+    const updatedCustomer = await editCustomer(id, customer);
     res.json({ customer: updatedCustomer });
   } catch (e) {
     if (e.message === "Email is required") {
@@ -394,6 +395,13 @@ app.put(
     res.json({ secondaryAddress: newAddress });
   }
 );
+
+app.put("/jobs/:jobId", async function (req, res) {
+  const jobId = req.params.jobId;
+  const job = req.body;
+  const updatedJob = await editJob(jobId, job);
+  res.json({ job: updatedJob });
+});
 
 app.delete("/customers/:customerId", async function (req, res) {
   const id = req.params.customerId;

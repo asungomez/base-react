@@ -102,44 +102,42 @@ export const JobAddressesInput: FC<JobAddressesInputProps> = ({
   };
 
   return (
-    <>
-      <Card sx={{ marginTop: "20px" }}>
-        <CardHeader title={label} />
-        <CardContent>
-          <AddressesSearchBar
-            onSelected={addAddressHandler}
-            excludedIds={selectedAddresses.map(
-              (address) => `${address.customerId}_${address.id}`
-            )}
-            error={error}
-            helperText={helperText}
-          />
-          <List>
-            {selectedAddresses.length ? (
-              selectedAddresses.map((address) => (
-                <ListItem
-                  key={`${address.customerId}_${address.id}`}
-                  secondaryAction={
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => deleteAddressHandler(address)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  }
-                >
-                  <ListItemText
-                    primary={`${address.street}, ${address.number} - ${address.city} (${address.postcode})`}
-                  />
-                </ListItem>
-              ))
-            ) : (
-              <Typography>No addresses selected</Typography>
-            )}
-          </List>
-        </CardContent>
-      </Card>
-    </>
+    <Card sx={{ marginTop: "20px" }}>
+      <CardHeader title={label} />
+      <CardContent>
+        <AddressesSearchBar
+          onSelected={addAddressHandler}
+          excludedIds={selectedAddresses.map(
+            (address) => `${address.customerId}_${address.id}`
+          )}
+          error={error}
+          helperText={helperText}
+        />
+        <List>
+          {selectedAddresses.length ? (
+            selectedAddresses.map((address) => (
+              <ListItem
+                key={`${address.customerId}_${address.id}`}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => deleteAddressHandler(address)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemText
+                  primary={`${address.street}, ${address.number} - ${address.city} (${address.postcode})`}
+                />
+              </ListItem>
+            ))
+          ) : (
+            <Typography>No addresses selected</Typography>
+          )}
+        </List>
+      </CardContent>
+    </Card>
   );
 };

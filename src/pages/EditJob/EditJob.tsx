@@ -23,7 +23,11 @@ export const EditJobPage: FC = () => {
     error: errorLoadingAddresses,
     loading: loadingAddresses,
   } = useJobAddresses(jobId);
-  const { editJob, loading: editingJob, error: errorEditingJob } = useEditJob();
+  const {
+    editJob,
+    loading: editingJob,
+    error: errorEditingJob,
+  } = useEditJob(jobId);
   const navigate = useNavigate();
 
   if (!jobId) {

@@ -45,7 +45,7 @@ export const JobAddresses: FC<JobAddressesProps> = ({ jobId }) => {
           </TableHead>
           <TableBody>
             {addresses.map((address) => (
-              <TableRow key={address.id}>
+              <TableRow key={`${address.customerId}_${address.id}`}>
                 <TableCell>
                   <Link
                     to={`/customers/${address.customerId}/address/${address.id}`}
