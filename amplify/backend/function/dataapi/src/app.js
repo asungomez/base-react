@@ -9,6 +9,7 @@ const {
   createJob,
   deleteCustomer,
   deleteExternalLinkFromCustomer,
+  deleteJob,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
@@ -21,7 +22,9 @@ const {
   getCustomerMainAddress,
   getCustomerSecondaryAddress,
   getCustomers,
+  getJob,
   getJobAddresses,
+  getJobs,
   setCustomerTaxData,
   updateCustomer,
 } = require("./db");
@@ -128,6 +131,23 @@ app.get(
     }
   }
 );
+
+app.get("/jobs", async function (req, res) {
+  const addressId = req.query?.addressId;
+  const customerId = req.query?.customerId;
+  const jobs = await getJobs({ addressId, customerId });
+  res.json({ jobs });
+});
+
+app.get("/jobs/:jobId", async function (req, res) {
+  const jobId = req.params.jobId;
+  const job = await getJob(jobId);
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+  res.json({ job });
+});
 
 app.get("/jobs/:jobId/addresses", async function (req, res) {
   const jobId = req.params.jobId;
@@ -414,6 +434,12 @@ app.delete(
     });
   }
 );
+
+app.delete("/jobs/:jobId", async function (req, res) {
+  const jobId = req.params.jobId;
+  await deleteJob(jobId);
+  res.json({ message: "Job deleted" });
+});
 
 app.listen(3000, function () {
   console.log("App started");

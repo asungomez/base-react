@@ -5,6 +5,7 @@ const {
   mapCustomerFromDB,
   mapMainAddressFromDB,
   mapSecondaryAddressFromDB,
+  mapJobFromDB,
 } = require("./mapper");
 
 const TABLE_NAME = "exercises-dev";
@@ -183,6 +184,30 @@ const deleteExternalLinkFromCustomer = async (customerId, index) => {
   await ddb.updateItem(params).promise();
 };
 
+const deleteJob = async (jobId) => {
+  const searchParams = {
+    TableName: TABLE_NAME,
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: `job_${jobId}` },
+    },
+    FilterExpression: "#PK = :pk",
+  };
+  const rowsToDelete = await getAllRows(searchParams);
+  for (const row of rowsToDelete) {
+    const deleteParams = {
+      TableName: TABLE_NAME,
+      Key: {
+        PK: row.PK,
+        SK: row.SK,
+      },
+    };
+    await ddb.deleteItem(deleteParams).promise();
+  }
+};
+
 const deleteMainAddressFromCustomer = async (customerId) => {
   const params = {
     TableName: TABLE_NAME,
@@ -192,6 +217,32 @@ const deleteMainAddressFromCustomer = async (customerId) => {
     },
   };
   await ddb.deleteItem(params).promise();
+  const searchAssignationParams = {
+    TableName: TABLE_NAME,
+    ExpressionAttributeNames: {
+      "#CID": "customer_id",
+      "#AID": "address_id",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":customer_id": { S: customerId },
+      ":sk": { S: "address_assignation" },
+      ":address_id": { S: "main" },
+    },
+    FilterExpression:
+      "begins_with(#SK, :sk) AND #CID = :customer_id AND #AID = :address_id",
+  };
+  const assignations = await getAllRows(searchAssignationParams);
+  for (const assignation of assignations) {
+    const deleteParams = {
+      TableName: TABLE_NAME,
+      Key: {
+        PK: assignation.PK,
+        SK: assignation.SK,
+      },
+    };
+    await ddb.deleteItem(deleteParams).promise();
+  }
 };
 
 const deleteTaxDataFromCustomer = async (customerId) => {
@@ -222,6 +273,32 @@ const deleteSecondaryAddressFromCustomer = async (customerId, addressId) => {
     },
   };
   await ddb.deleteItem(params).promise();
+  const searchAssignationParams = {
+    TableName: TABLE_NAME,
+    ExpressionAttributeNames: {
+      "#CID": "customer_id",
+      "#AID": "address_id",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":customer_id": { S: customerId },
+      ":address_id": { S: addressId },
+      ":sk": { S: "address_assignation" },
+    },
+    FilterExpression:
+      "begins_with(#SK, :sk) AND #CID = :customer_id AND #AID = :address_id",
+  };
+  const assignations = await getAllRows(searchAssignationParams);
+  for (const assignation of assignations) {
+    const deleteParams = {
+      TableName: TABLE_NAME,
+      Key: {
+        PK: assignation.PK,
+        SK: assignation.SK,
+      },
+    };
+    await ddb.deleteItem(deleteParams).promise();
+  }
 };
 
 const editExternalLinkFromCustomer = async (customerId, index, url) => {
@@ -356,6 +433,28 @@ const generateToken = async (scanOutput, filter) => {
   return encodeToken(JSON.stringify(scanOutput.LastEvaluatedKey));
 };
 
+const getAddressJobIDs = async (addressId, customerId) => {
+  const params = {
+    TableName: TABLE_NAME,
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+      "#SK": "SK",
+      "#AID": "address_id",
+      "#CID": "customer_id",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: "job_" },
+      ":sk": { S: "address_assignation" },
+      ":addressId": { S: addressId },
+      ":customerId": { S: customerId },
+    },
+    FilterExpression:
+      "begins_with(#PK, :pk) AND begins_with(#SK, :sk) AND #AID = :addressId AND #CID = :customerId",
+  };
+  const result = await ddb.scan(params).promise();
+  console.log(JSON.stringify(result, null, 2));
+};
+
 const getAddresses = async (
   nextTokenParam,
   searchInput,
@@ -472,6 +571,21 @@ const getAddresses = async (
     expressionAttributeValues: params.ExpressionAttributeValues,
   });
   return { items, nextToken };
+};
+
+const getAllRows = async (params) => {
+  let result = await ddb.scan(params).promise();
+  const items = result.Items;
+  while (result.LastEvaluatedKey) {
+    const exclusiveStartKey = result.LastEvaluatedKey;
+    params = {
+      ...params,
+      ExclusiveStartKey: exclusiveStartKey,
+    };
+    result = await ddb.scan(params).promise();
+    items.push(...result.Items);
+  }
+  return items;
 };
 
 const getCustomerAddresses = async (customerId, nextTokenParam) => {
@@ -630,6 +744,39 @@ const getCustomers = async (nextTokenParam, searchInput) => {
     expressionAttributeValues: params.ExpressionAttributeValues,
   });
   return { items, nextToken };
+};
+
+const getJob = async (jobId) => {
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      PK: { S: `job_${jobId}` },
+      SK: { S: "description" },
+    },
+  };
+  const result = await ddb.getItem(params).promise();
+  if (!result.Item) return null;
+  return mapJobFromDB(result.Item);
+};
+
+const getJobs = async (filters) => {
+  const params = {
+    TableName: TABLE_NAME,
+    ExpressionAttributeNames: {
+      "#PK": "PK",
+      "#SK": "SK",
+    },
+    ExpressionAttributeValues: {
+      ":pk": { S: "job_" },
+      ":sk": { S: "description" },
+    },
+    FilterExpression: "begins_with(#PK, :pk) AND #SK = :sk",
+  };
+  if (filters.addressId && filters.customerId) {
+    await getAddressJobIDs(filters.addressId, filters.customerId);
+  }
+  const result = await ddb.scan(params).promise();
+  return result.Items.map(mapJobFromDB);
 };
 
 const getJobAddresses = async (jobId, nextTokenParam) => {
@@ -806,6 +953,7 @@ module.exports = {
   createJob,
   deleteCustomer,
   deleteExternalLinkFromCustomer,
+  deleteJob,
   deleteMainAddressFromCustomer,
   deleteTaxDataFromCustomer,
   deleteSecondaryAddressFromCustomer,
@@ -819,7 +967,9 @@ module.exports = {
   getCustomerSecondaryAddress,
   getCustomerSecondaryAddresses,
   getCustomers,
+  getJob,
   getJobAddresses,
+  getJobs,
   setCustomerTaxData,
   updateCustomer,
 };

@@ -1,5 +1,5 @@
 import { JobFormValues } from "../components/JobForm/JobForm";
-import { get, post, put } from "./api";
+import { del, get, post, put } from "./api";
 import { CustomerSecondaryAddress, isCustomerAddress } from "./customers";
 
 export type Job = {
@@ -38,7 +38,7 @@ export const createJob = async (formValues: JobFormValues): Promise<Job> => {
 
 export const deleteJob = async (jobId: string): Promise<void> => {
   try {
-    await post(`/jobs/${jobId}/delete`);
+    await del(`/jobs/${jobId}`);
   } catch (error) {
     throw new Error("INTERNAL_ERROR");
   }
@@ -60,7 +60,15 @@ export const editJob = async (
 };
 
 export const getJob = async (jobId: string): Promise<Job> => {
-  return { id: jobId, name: "Job 1" };
+  try {
+    const response = await get(`/jobs/${jobId}`);
+    if (!isJob(response.job)) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response.job;
+  } catch (error) {
+    throw new Error("INTERNAL_ERROR");
+  }
 };
 
 export const getJobAddresses = async (
@@ -91,13 +99,17 @@ export const getJobs = async (
   nextToken?: string
 ): Promise<{ jobs: Job[]; nextToken?: string }> => {
   try {
-    return {
-      jobs: [
-        { id: "1", name: "Job 1" },
-        { id: "2", name: "Job 2" },
-      ],
-      nextToken: "nextToken",
-    };
+    const response = await get("/jobs", { ...filters, nextToken });
+    if (
+      !response.jobs ||
+      !Array.isArray(response.jobs) ||
+      response.jobs.some((element: unknown) => !isJob(element)) ||
+      (response.nextToken !== undefined &&
+        typeof response.nextToken !== "string")
+    ) {
+      throw new Error("INTERNAL_ERROR");
+    }
+    return response;
   } catch (error) {
     throw new Error("INTERNAL_ERROR");
   }

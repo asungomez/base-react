@@ -21,6 +21,11 @@ const mapCustomerFromDB = (customer) => ({
     : [],
 });
 
+const mapJobFromDB = (job) => ({
+  id: job.PK.S.replace("job_", ""),
+  name: job.name.S,
+});
+
 const mapAddressFromDB = (address) => {
   if (address.SK.S === "address_main") {
     return mapMainAddressFromDB(address);
@@ -59,4 +64,5 @@ module.exports = {
   mapMainAddressFromDB,
   mapSecondaryAddressFromDB,
   mapTaxDataFromDB,
+  mapJobFromDB,
 };
