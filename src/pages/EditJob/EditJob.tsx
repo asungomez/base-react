@@ -10,6 +10,7 @@ import {
   JobFormValues,
 } from "../../components/JobForm/JobForm";
 import { useEditJob } from "../../hooks/jobs/useEditJob";
+import dayjs from "dayjs";
 
 type EditJobParams = {
   jobId: string;
@@ -85,7 +86,14 @@ export const EditJobPage: FC = () => {
       <JobForm
         onSubmit={submitHandler}
         loading={editingJob}
-        initialValues={{ ...job, addresses: initialAddresses }}
+        initialValues={{
+          ...job,
+          addresses: initialAddresses,
+          // TODO Replace with the actual date and times from the job
+          date: dayjs(),
+          startTime: dayjs(),
+          endTime: dayjs().add(1, "hour"),
+        }}
       />
     </>
   );

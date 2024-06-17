@@ -26,6 +26,12 @@ const mapJobFromDB = (job) => ({
   name: job.name.S,
 });
 
+const mapJobFromRequestBody = (job) => ({
+  ...job,
+  start: +new Date(`${job.date} ${job.startTime}`),
+  end: +new Date(`${job.date} ${job.endTime}`),
+});
+
 const mapAddressFromDB = (address) => {
   if (address.SK.S === "address_main") {
     return mapMainAddressFromDB(address);
@@ -65,4 +71,5 @@ module.exports = {
   mapSecondaryAddressFromDB,
   mapTaxDataFromDB,
   mapJobFromDB,
+  mapJobFromRequestBody,
 };

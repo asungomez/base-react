@@ -8,6 +8,7 @@ import {
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
+import dayjs from "dayjs";
 
 export const CreateJobPage: FC = () => {
   const { createJob, loading, error } = useCreateJob();
@@ -40,7 +41,13 @@ export const CreateJobPage: FC = () => {
       <JobForm
         onSubmit={submitHandler}
         loading={loading}
-        initialValues={{ name: "", addresses: initialAddresses }}
+        initialValues={{
+          name: "",
+          addresses: initialAddresses,
+          date: dayjs(),
+          startTime: dayjs(),
+          endTime: dayjs().add(1, "hour"),
+        }}
       />
     </>
   );

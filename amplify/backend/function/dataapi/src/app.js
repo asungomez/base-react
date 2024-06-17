@@ -35,7 +35,7 @@ const {
   validateCustomerAddress,
 } = require("./validation");
 
-const { mapAddressIDsFromQuery } = require("./mapper");
+const { mapAddressIDsFromQuery, mapJobFromRequestBody } = require("./mapper");
 
 // declare a new express app
 const app = express();
@@ -292,7 +292,8 @@ app.post("/customers/:customerId/secondary-address", async function (req, res) {
 app.post("/jobs", async function (req, res) {
   try {
     const job = req.body;
-    const createdJob = await createJob(job);
+    const mappedJob = mapJobFromRequestBody(job);
+    const createdJob = await createJob(mappedJob);
     res.json({ job: createdJob });
   } catch (e) {
     if (e.message === "Address does not exist") {
@@ -399,7 +400,8 @@ app.put(
 app.put("/jobs/:jobId", async function (req, res) {
   const jobId = req.params.jobId;
   const job = req.body;
-  const updatedJob = await editJob(jobId, job);
+  const mappedJob = mapJobFromRequestBody(job);
+  const updatedJob = await editJob(jobId, mappedJob);
   res.json({ job: updatedJob });
 });
 

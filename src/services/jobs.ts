@@ -22,11 +22,21 @@ const isJob = (value: unknown): value is Job => {
 
 export type JobFilters = {
   addressId?: string;
+  customerId?: string;
+};
+
+const transformFormValues = (formValues: JobFormValues) => {
+  return {
+    ...formValues,
+    date: formValues.date.format("YYYY-MM-DD"),
+    startTime: formValues.startTime.format("HH:mm"),
+    endTime: formValues.endTime.format("HH:mm"),
+  };
 };
 
 export const createJob = async (formValues: JobFormValues): Promise<Job> => {
   try {
-    const response = await post("/jobs", formValues);
+    const response = await post("/jobs", transformFormValues(formValues));
     if (!isJob(response.job)) {
       throw new Error("INTERNAL_ERROR");
     }
@@ -49,7 +59,10 @@ export const editJob = async (
   formValues: JobFormValues
 ): Promise<Job> => {
   try {
-    const response = await put(`/jobs/${jobId}`, formValues);
+    const response = await put(
+      `/jobs/${jobId}`,
+      transformFormValues(formValues)
+    );
     if (!isJob(response.job)) {
       throw new Error("INTERNAL_ERROR");
     }
