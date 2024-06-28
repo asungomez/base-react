@@ -1,4 +1,13 @@
-import { Button, CircularProgress, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { FC, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useJob } from "../../hooks/jobs/useJob";
@@ -6,6 +15,8 @@ import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import { JobAddresses } from "../../components/JobAddresses/JobAddresses";
 import { DeleteJobButton } from "../../components/DeleteJobButton/DeleteJobButton";
 import { ErrorCode } from "../../services/error";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 type JobDetailsParams = {
   jobId: string;
@@ -64,6 +75,26 @@ export const JobDetailsPage: FC = () => {
           onDelete={deleteHandler}
         />
       </Stack>
+      <List>
+        <ListItem disablePadding>
+          <ListItemIcon>
+            <CalendarTodayIcon />
+          </ListItemIcon>
+          <ListItemText primary="Date" secondary={job.date} />
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemIcon>
+            <AccessTimeIcon />
+          </ListItemIcon>
+          <ListItemText primary="Start time" secondary={job.startTime} />
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemIcon>
+            <AccessTimeIcon />
+          </ListItemIcon>
+          <ListItemText primary="End time" secondary={job.endTime} />
+        </ListItem>
+      </List>
       <JobAddresses jobId={jobId} />
     </>
   );

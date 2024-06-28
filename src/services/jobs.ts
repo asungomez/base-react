@@ -5,6 +5,9 @@ import { CustomerSecondaryAddress, isCustomerAddress } from "./customers";
 export type Job = {
   id: string;
   name: string;
+  date: string;
+  startTime: string;
+  endTime: string;
 };
 
 const isJob = (value: unknown): value is Job => {
@@ -14,7 +17,13 @@ const isJob = (value: unknown): value is Job => {
     !job.id ||
     typeof job.id !== "string" ||
     !job.name ||
-    typeof job.name !== "string"
+    typeof job.name !== "string" ||
+    !job.date ||
+    typeof job.date !== "string" ||
+    !job.startTime ||
+    typeof job.startTime !== "string" ||
+    !job.endTime ||
+    typeof job.endTime !== "string"
   )
     return false;
   return true;

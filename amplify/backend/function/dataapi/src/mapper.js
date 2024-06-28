@@ -1,3 +1,5 @@
+const dayjs = require("dayjs");
+
 const mapAddressIDsFromQuery = (query) => {
   const excludedIds =
     query
@@ -21,10 +23,17 @@ const mapCustomerFromDB = (customer) => ({
     : [],
 });
 
-const mapJobFromDB = (job) => ({
-  id: job.PK.S.replace("job_", ""),
-  name: job.name.S,
-});
+const mapJobFromDB = (job) => {
+  const start = dayjs(+job.start.N);
+  const end = dayjs(+job.end.N);
+  return {
+    id: job.PK.S.replace("job_", ""),
+    name: job.name.S,
+    date: start.format("YYYY-MM-DD"),
+    startTime: start.format("HH:mm"),
+    endTime: end.format("HH:mm"),
+  };
+};
 
 const mapJobFromRequestBody = (job) => ({
   ...job,
