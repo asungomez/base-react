@@ -80,7 +80,7 @@ export const EditJobPage: FC = () => {
   return (
     <>
       <Typography variant="h3" gutterBottom>
-        Create new job
+        Edit job
       </Typography>
       {errorEditingJob && <ErrorMessage code={errorEditingJob} />}
       <JobForm
@@ -89,10 +89,9 @@ export const EditJobPage: FC = () => {
         initialValues={{
           ...job,
           addresses: initialAddresses,
-          // TODO Replace with the actual date and times from the job
-          date: dayjs(),
-          startTime: dayjs(),
-          endTime: dayjs().add(1, "hour"),
+          date: dayjs(job.date),
+          startTime: dayjs(`${job.date} ${job.startTime}`),
+          endTime: dayjs(`${job.date} ${job.endTime}`),
         }}
       />
     </>
