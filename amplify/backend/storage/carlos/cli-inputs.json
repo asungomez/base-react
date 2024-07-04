@@ -27,6 +27,17 @@
         "fieldName": "address_id",
         "fieldType": "string"
       }
+    },
+    {
+      "name": "job_start_time",
+      "partitionKey": {
+        "fieldName": "SK",
+        "fieldType": "string"
+      },
+      "sortKey": {
+        "fieldName": "start",
+        "fieldType": "number"
+      }
     }
   ],
   "triggerFunctions": []

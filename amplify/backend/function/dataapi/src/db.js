@@ -9,6 +9,8 @@ const {
 } = require("./mapper");
 
 const TABLE_NAME = "exercises-dev";
+const PAGE_SIZE = 5;
+
 // set DynamoDb client
 AWS.config.update({ region: "eu-west-1" });
 const ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
@@ -557,7 +559,7 @@ const generateToken = async (scanOutput, filter) => {
 };
 
 const getAddressJobIDs = async (addressId, customerId) => {
-  const params = {
+  let params = {
     TableName: TABLE_NAME,
     ExpressionAttributeNames: {
       "#PK": "PK",
@@ -574,8 +576,8 @@ const getAddressJobIDs = async (addressId, customerId) => {
     FilterExpression:
       "begins_with(#PK, :pk) AND begins_with(#SK, :sk) AND #AID = :addressId AND #CID = :customerId",
   };
-  const result = await ddb.scan(params).promise();
-  console.log(JSON.stringify(result, null, 2));
+  const result = await getAllRows(params);
+  return result.map((row) => row.PK.S.replace("job_", ""));
 };
 
 const getAddresses = async (
@@ -584,7 +586,6 @@ const getAddresses = async (
   excludedAddresses,
   includedAddresses
 ) => {
-  const PAGE_SIZE = 5;
   let params = {
     TableName: TABLE_NAME,
     Limit: PAGE_SIZE,
@@ -885,20 +886,36 @@ const getJob = async (jobId) => {
 const getJobs = async (filters) => {
   const params = {
     TableName: TABLE_NAME,
+    IndexName: "job_start_time",
+    ScanIndexForward: false,
     ExpressionAttributeNames: {
       "#PK": "PK",
       "#SK": "SK",
     },
     ExpressionAttributeValues: {
-      ":pk": { S: "job_" },
       ":sk": { S: "description" },
     },
-    FilterExpression: "begins_with(#PK, :pk) AND #SK = :sk",
+    KeyConditionExpression: "#SK = :sk",
   };
+
   if (filters.addressId && filters.customerId) {
-    await getAddressJobIDs(filters.addressId, filters.customerId);
+    const ids = await getAddressJobIDs(filters.addressId, filters.customerId);
+    if (ids.length === 0) {
+      return [];
+    }
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+      params.ExpressionAttributeValues[`:jobId${i}`] = { S: `job_${id}` };
+    }
+    params.FilterExpression = `#PK IN (${ids
+      .map((_id, index) => `:jobId${index}`)
+      .join(", ")})`;
+  } else {
+    params.ExpressionAttributeValues[":pk"] = { S: "job_" };
+    params.FilterExpression = "begins_with(#PK, :pk)";
   }
-  const result = await ddb.scan(params).promise();
+
+  const result = await ddb.query(params).promise();
   return result.Items.map(mapJobFromDB);
 };
 

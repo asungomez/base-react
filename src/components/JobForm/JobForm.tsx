@@ -89,14 +89,18 @@ export const JobForm: FC<JobFormProps> = ({
           label="Date"
           name="date"
           value={formik.values.date}
-          onChange={formik.handleChange}
+          onChange={(value) =>
+            formik.handleChange({ target: { name: "date", value } })
+          }
           sx={{ marginY: "10px" }}
         />
         <TimePicker
           label="Start time"
           name="startTime"
           value={formik.values.startTime}
-          onChange={formik.handleChange}
+          onChange={(value) =>
+            formik.handleChange({ target: { name: "startTime", value } })
+          }
           sx={{ marginY: "10px" }}
           views={["hours", "minutes"]}
           ampm={false}
@@ -105,7 +109,9 @@ export const JobForm: FC<JobFormProps> = ({
           label="End time"
           name="endTime"
           value={formik.values.endTime}
-          onChange={formik.handleChange}
+          onChange={(value) =>
+            formik.handleChange({ target: { name: "endTime", value } })
+          }
           minTime={formik.values.startTime}
           sx={{ marginY: "10px" }}
           views={["hours", "minutes"]}
