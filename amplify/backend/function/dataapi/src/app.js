@@ -136,7 +136,8 @@ app.get(
 app.get("/jobs", async function (req, res) {
   const addressId = req.query?.addressId;
   const customerId = req.query?.customerId;
-  const jobs = await getJobs({ addressId, customerId });
+  const order = req.query?.order;
+  const jobs = await getJobs({ addressId, customerId }, order);
   res.json({ jobs });
 });
 

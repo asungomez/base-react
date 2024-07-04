@@ -118,10 +118,11 @@ export const getJobAddresses = async (
 
 export const getJobs = async (
   filters: JobFilters,
+  order: "asc" | "desc" = "asc",
   nextToken?: string
 ): Promise<{ jobs: Job[]; nextToken?: string }> => {
   try {
-    const response = await get("/jobs", { ...filters, nextToken });
+    const response = await get("/jobs", { ...filters, nextToken, order });
     if (
       !response.jobs ||
       !Array.isArray(response.jobs) ||

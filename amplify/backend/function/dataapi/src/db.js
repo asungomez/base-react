@@ -883,11 +883,11 @@ const getJob = async (jobId) => {
   return mapJobFromDB(result.Item);
 };
 
-const getJobs = async (filters) => {
+const getJobs = async (filters, order) => {
   const params = {
     TableName: TABLE_NAME,
     IndexName: "job_start_time",
-    ScanIndexForward: false,
+    ScanIndexForward: order !== "desc",
     ExpressionAttributeNames: {
       "#PK": "PK",
       "#SK": "SK",
