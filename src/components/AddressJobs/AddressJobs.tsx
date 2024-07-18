@@ -1,17 +1,10 @@
-import {
-  Button,
-  CircularProgress,
-  List,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from "@mui/material";
-import { FC } from "react";
-import { useJobs } from "../../hooks/jobs/useJobs";
-import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
-import { LoadingButton } from "@mui/lab";
+import { Button, Tab, Typography } from "@mui/material";
+import { FC, useState } from "react";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 import AddIcon from "@mui/icons-material/Add";
 import { Link } from "react-router-dom";
+import { UpcomingAddressJobs } from "../UpcomingAddressJobs/UpcomingAddressJobs";
+import { PastAddressJobs } from "../PastAddressJobs/PastAddressJobs";
 
 type AddressJobsProps = {
   addressId: string;
@@ -22,29 +15,14 @@ export const AddressJobs: FC<AddressJobsProps> = ({
   addressId,
   customerId,
 }) => {
-  const { jobs, loading, loadMore, loadingMore, error, moreToLoad } = useJobs({
-    addressId,
-    customerId,
-  });
+  const [activeTab, setActiveTab] = useState("upcoming");
 
-  if (loading) {
-    return (
-      <>
-        <CircularProgress />
-      </>
-    );
-  }
-
-  if (error || !jobs) {
-    return (
-      <>
-        <Typography variant="h4" gutterBottom>
-          Jobs
-        </Typography>
-        <ErrorMessage code={error ?? "INTERNAL_ERROR"} />
-      </>
-    );
-  }
+  const tabChangeHandler = (
+    _event: React.ChangeEvent<unknown>,
+    newValue: string
+  ) => {
+    setActiveTab(newValue);
+  };
 
   return (
     <>
@@ -56,20 +34,18 @@ export const AddressJobs: FC<AddressJobsProps> = ({
           Add new
         </Button>
       </Link>
-      <List>
-        {jobs.map((job) => (
-          <Link to={`/jobs/${job.id}`} key={job.id}>
-            <ListItemButton>
-              <ListItemText primary={job.name} />
-            </ListItemButton>
-          </Link>
-        ))}
-      </List>
-      {moreToLoad && (
-        <LoadingButton loading={loadingMore} onClick={loadMore}>
-          Load more
-        </LoadingButton>
-      )}
+      <TabContext value={activeTab}>
+        <TabList onChange={tabChangeHandler} sx={{ mt: "20px" }}>
+          <Tab label="Upcoming" value="upcoming" />
+          <Tab label="Past" value="past" />
+        </TabList>
+        <TabPanel value="upcoming">
+          <UpcomingAddressJobs addressId={addressId} customerId={customerId} />
+        </TabPanel>
+        <TabPanel value="past">
+          <PastAddressJobs addressId={addressId} customerId={customerId} />
+        </TabPanel>
+      </TabContext>
     </>
   );
 };
