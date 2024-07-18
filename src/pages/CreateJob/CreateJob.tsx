@@ -16,6 +16,7 @@ export const CreateJobPage: FC = () => {
   const [searchParams] = useSearchParams();
   const addressId = searchParams.get("addressId");
   const customerId = searchParams.get("customerId");
+  const date = searchParams.get("date");
 
   const initialAddresses: JobFormAddress[] = [];
   if (addressId && customerId) {
@@ -44,7 +45,7 @@ export const CreateJobPage: FC = () => {
         initialValues={{
           name: "",
           addresses: initialAddresses,
-          date: dayjs(),
+          date: dayjs(date),
           startTime: dayjs(),
           endTime: dayjs().add(1, "hour"),
         }}
