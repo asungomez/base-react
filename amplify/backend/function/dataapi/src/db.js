@@ -895,8 +895,8 @@ const getJobs = async (filters, order) => {
     ExpressionAttributeValues: {
       ":sk": { S: "description" },
     },
-    KeyConditionExpression: "#SK = :sk",
   };
+  const keyConditionExpressions = ["#SK = :sk"];
 
   if (filters.addressId && filters.customerId) {
     const ids = await getAddressJobIDs(filters.addressId, filters.customerId);
@@ -913,6 +913,29 @@ const getJobs = async (filters, order) => {
   } else {
     params.ExpressionAttributeValues[":pk"] = { S: "job_" };
     params.FilterExpression = "begins_with(#PK, :pk)";
+  }
+
+  if (filters.from && filters.to) {
+    params.ExpressionAttributeNames["#S"] = "start";
+    params.ExpressionAttributeValues[":from"] = { N: filters.from.toString() };
+    params.ExpressionAttributeValues[":to"] = { N: filters.to.toString() };
+    keyConditionExpressions.push("#S BETWEEN :from AND :to");
+  } else if (filters.from) {
+    params.ExpressionAttributeNames["#S"] = "start";
+    params.ExpressionAttributeValues[":from"] = { N: filters.from.toString() };
+    keyConditionExpressions.push("#S >= :from");
+  } else if (filters.to) {
+    params.ExpressionAttributeNames["#S"] = "start";
+    params.ExpressionAttributeValues[":to"] = { N: filters.to.toString() };
+    keyConditionExpressions.push("#S <= :to");
+  }
+
+  if (keyConditionExpressions.length === 1) {
+    params.KeyConditionExpression = keyConditionExpressions[0];
+  } else {
+    params.KeyConditionExpression = keyConditionExpressions
+      .map((expression) => `(${expression})`)
+      .join(" AND ");
   }
 
   const result = await ddb.query(params).promise();

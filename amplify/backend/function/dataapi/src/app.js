@@ -35,7 +35,11 @@ const {
   validateCustomerAddress,
 } = require("./validation");
 
-const { mapAddressIDsFromQuery, mapJobFromRequestBody } = require("./mapper");
+const {
+  mapAddressIDsFromQuery,
+  mapJobFromRequestBody,
+  mapJobFilters,
+} = require("./mapper");
 
 // declare a new express app
 const app = express();
@@ -134,10 +138,9 @@ app.get(
 );
 
 app.get("/jobs", async function (req, res) {
-  const addressId = req.query?.addressId;
-  const customerId = req.query?.customerId;
+  const { addressId, customerId, from, to } = mapJobFilters(req.query);
   const order = req.query?.order;
-  const jobs = await getJobs({ addressId, customerId }, order);
+  const jobs = await getJobs({ addressId, customerId, from, to }, order);
   res.json({ jobs });
 });
 

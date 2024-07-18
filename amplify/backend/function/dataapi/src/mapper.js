@@ -23,6 +23,12 @@ const mapCustomerFromDB = (customer) => ({
     : [],
 });
 
+const mapJobFilters = (filters) => ({
+  ...filters,
+  from: +new Date(filters.from),
+  to: +new Date(filters.to),
+});
+
 const mapJobFromDB = (job) => {
   const start = dayjs(+job.start.N);
   const end = dayjs(+job.end.N);
@@ -81,4 +87,5 @@ module.exports = {
   mapTaxDataFromDB,
   mapJobFromDB,
   mapJobFromRequestBody,
+  mapJobFilters,
 };
