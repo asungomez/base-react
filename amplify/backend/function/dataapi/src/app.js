@@ -140,8 +140,15 @@ app.get(
 app.get("/jobs", async function (req, res) {
   const { addressId, customerId, from, to } = mapJobFilters(req.query);
   const order = req.query?.order;
-  const jobs = await getJobs({ addressId, customerId, from, to }, order);
-  res.json({ jobs });
+  const paginate = req.query?.paginate !== "false";
+  const nextTokenParam = req.query?.nextToken;
+  const { items: jobs, nextToken } = await getJobs(
+    { addressId, customerId, from, to },
+    order,
+    nextTokenParam,
+    paginate
+  );
+  res.json({ jobs, nextToken });
 });
 
 app.get("/jobs/:jobId", async function (req, res) {

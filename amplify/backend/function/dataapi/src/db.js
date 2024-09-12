@@ -674,8 +674,6 @@ const getAddresses = async (
     ...searchParams,
   };
 
-  console.log(JSON.stringify(params, null, 2));
-
   let result = await ddb.scan(params).promise();
   const items = result.Items.map(mapAddressFromDB);
   while (result.LastEvaluatedKey && items.length < PAGE_SIZE) {
@@ -883,7 +881,7 @@ const getJob = async (jobId) => {
   return mapJobFromDB(result.Item);
 };
 
-const getJobs = async (filters, order) => {
+const getJobs = async (filters, order, nextTokenParam, paginate) => {
   const params = {
     TableName: TABLE_NAME,
     IndexName: "job_start_time",
@@ -896,6 +894,16 @@ const getJobs = async (filters, order) => {
       ":sk": { S: "description" },
     },
   };
+
+  if (paginate) {
+    params.Limit = PAGE_SIZE;
+  }
+
+  if (nextTokenParam && paginate) {
+    const nextToken = parseToken(nextTokenParam);
+    params.ExclusiveStartKey = nextToken;
+  }
+
   const keyConditionExpressions = ["#SK = :sk"];
 
   if (filters.addressId && filters.customerId) {
@@ -938,8 +946,45 @@ const getJobs = async (filters, order) => {
       .join(" AND ");
   }
 
-  const result = await ddb.query(params).promise();
-  return result.Items.map(mapJobFromDB);
+  let result = await ddb.query(params).promise();
+  const items = result.Items.map(mapJobFromDB);
+  let nextToken;
+
+  if (paginate) {
+    // Fill a whole page
+    while (result.LastEvaluatedKey && items.length < PAGE_SIZE) {
+      params = {
+        ...params,
+        ExclusiveStartKey: result.LastEvaluatedKey,
+        Limit: PAGE_SIZE - items.length,
+      };
+      result = await ddb.scan(params).promise();
+      items.push(...result.Items.map(mapJobFromDB));
+    }
+    const nextResult = await ddb
+      .query({
+        ...params,
+        ExclusiveStartKey: result.LastEvaluatedKey,
+        Limit: 1,
+      })
+      .promise();
+
+    if (nextResult.Items.length > 0) {
+      nextToken = encodeToken(JSON.stringify(result.LastEvaluatedKey));
+    }
+  } else {
+    // Retrieve all results
+    while (result.LastEvaluatedKey && result.Items.length > 0) {
+      params = {
+        ...params,
+        ExclusiveStartKey: result.LastEvaluatedKey,
+      };
+      result = await ddb.scan(params).promise();
+      items.push(...result.Items.map(mapJobFromDB));
+    }
+  }
+
+  return { items, nextToken };
 };
 
 const getJobAddresses = async (jobId, nextTokenParam) => {

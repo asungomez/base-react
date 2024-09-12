@@ -36,6 +36,11 @@ export type JobFilters = {
   to?: string;
 };
 
+type JobsPaginationArguments = {
+  nextToken?: string;
+  paginate?: boolean;
+};
+
 const transformFormValues = (formValues: JobFormValues) => {
   return {
     ...formValues,
@@ -121,10 +126,15 @@ export const getJobAddresses = async (
 export const getJobs = async (
   filters: JobFilters,
   order: "asc" | "desc" = "asc",
-  nextToken?: string
+  { nextToken, paginate }: JobsPaginationArguments = { paginate: true }
 ): Promise<{ jobs: Job[]; nextToken?: string }> => {
   try {
-    const response = await get("/jobs", { ...filters, nextToken, order });
+    const response = await get("/jobs", {
+      ...filters,
+      nextToken,
+      order,
+      paginate: paginate === false ? "false" : "true",
+    });
     if (
       !response.jobs ||
       !Array.isArray(response.jobs) ||

@@ -27,7 +27,8 @@ export const JobsWeeklyView: FC = () => {
       from: dayjs().format(`${startDateString} 00:00`),
       to: dayjs().format(`${endDateString} 23:59`),
     },
-    "asc"
+    "asc",
+    false
   );
 
   if (loading) {
