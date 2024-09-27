@@ -34,12 +34,12 @@ const {
   validateTaxData,
   validateCustomerAddress,
 } = require("./validation");
-
 const {
   mapAddressIDsFromQuery,
   mapJobFromRequestBody,
   mapJobFilters,
 } = require("./mapper");
+const { extractAuthData } = require("./authentication");
 
 // declare a new express app
 const app = express();
@@ -50,6 +50,7 @@ app.use(awsServerlessExpressMiddleware.eventContext());
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");
+  req.authData = extractAuthData(req);
   next();
 });
 
@@ -142,8 +143,9 @@ app.get("/jobs", async function (req, res) {
   const order = req.query?.order;
   const paginate = req.query?.paginate !== "false";
   const nextTokenParam = req.query?.nextToken;
+  const userSub = req.authData?.userSub;
   const { items: jobs, nextToken } = await getJobs(
-    { addressId, customerId, from, to },
+    { addressId, customerId, from, to, assignedTo: userSub },
     order,
     nextTokenParam,
     paginate
@@ -303,7 +305,8 @@ app.post("/customers/:customerId/secondary-address", async function (req, res) {
 app.post("/jobs", async function (req, res) {
   try {
     const job = req.body;
-    const mappedJob = mapJobFromRequestBody(job);
+    const userSub = req.authData?.userSub;
+    const mappedJob = mapJobFromRequestBody(job, userSub);
     const createdJob = await createJob(mappedJob);
     res.json({ job: createdJob });
   } catch (e) {

@@ -128,6 +128,7 @@ const createJob = async (job) => {
       name: { S: job.name },
       start: { N: job.start.toString() },
       end: { N: job.end.toString() },
+      assigned_to: { S: job.assignedTo },
     },
   };
   await ddb.putItem(params).promise();
@@ -905,6 +906,7 @@ const getJobs = async (filters, order, nextTokenParam, paginate) => {
   }
 
   const keyConditionExpressions = ["#SK = :sk"];
+  const filterExpressions = [];
 
   if (filters.addressId && filters.customerId) {
     const ids = await getAddressJobIDs(filters.addressId, filters.customerId);
@@ -915,12 +917,18 @@ const getJobs = async (filters, order, nextTokenParam, paginate) => {
       const id = ids[i];
       params.ExpressionAttributeValues[`:jobId${i}`] = { S: `job_${id}` };
     }
-    params.FilterExpression = `#PK IN (${ids
-      .map((_id, index) => `:jobId${index}`)
-      .join(", ")})`;
+    filterExpressions.push(
+      `#PK IN (${ids.map((_id, index) => `:jobId${index}`).join(", ")})`
+    );
   } else {
     params.ExpressionAttributeValues[":pk"] = { S: "job_" };
-    params.FilterExpression = "begins_with(#PK, :pk)";
+    filterExpressions.push("begins_with(#PK, :pk)");
+  }
+
+  if (filters.assignedTo) {
+    params.ExpressionAttributeNames["#AT"] = "assigned_to";
+    params.ExpressionAttributeValues[":assignedTo"] = { S: filters.assignedTo };
+    filterExpressions.push("#AT = :assignedTo");
   }
 
   if (filters.from && filters.to) {
@@ -942,6 +950,14 @@ const getJobs = async (filters, order, nextTokenParam, paginate) => {
     params.KeyConditionExpression = keyConditionExpressions[0];
   } else {
     params.KeyConditionExpression = keyConditionExpressions
+      .map((expression) => `(${expression})`)
+      .join(" AND ");
+  }
+
+  if (filterExpressions.length === 1) {
+    params.FilterExpression = filterExpressions[0];
+  } else if (filterExpressions.length > 1) {
+    params.FilterExpression = filterExpressions
       .map((expression) => `(${expression})`)
       .join(" AND ");
   }

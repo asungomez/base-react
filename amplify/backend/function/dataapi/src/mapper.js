@@ -41,10 +41,11 @@ const mapJobFromDB = (job) => {
   };
 };
 
-const mapJobFromRequestBody = (job) => ({
+const mapJobFromRequestBody = (job, assignedTo) => ({
   ...job,
   start: +new Date(`${job.date} ${job.startTime}`),
   end: +new Date(`${job.date} ${job.endTime}`),
+  assignedTo,
 });
 
 const mapAddressFromDB = (address) => {

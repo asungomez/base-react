@@ -17,7 +17,7 @@ import { Bar, Logo, Navigation, NavigationItem } from "./TopBar.style";
 export const TopBar: FC = () => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
-  const { logOut, user } = useAuth();
+  const { logOut, user, isInGroup } = useAuth();
   const navigate = useNavigate();
 
   const openUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -54,7 +54,9 @@ export const TopBar: FC = () => {
             AUTH
           </Logo>
           <Navigation>
-            <NavigationItem onClick={toUsers}>Users</NavigationItem>
+            {isInGroup("Admin") && (
+              <NavigationItem onClick={toUsers}>Users</NavigationItem>
+            )}
             <NavigationItem onClick={toCustomers}>Customers</NavigationItem>
             <NavigationItem onClick={toJobs}>Jobs</NavigationItem>
           </Navigation>
