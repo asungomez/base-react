@@ -33,6 +33,7 @@ export const useJobs = (
     isLoading: loading,
     isValidating: loadingMore,
     setSize,
+    mutate: reload,
   } = useSWRInfinite<{ jobs: Job[]; nextToken?: string }, Error, KeyFunction>(
     keyFunctionGenerator(filters, order, paginate),
     async ([_operation, filters, order, nextToken, paginate]) =>
@@ -55,5 +56,6 @@ export const useJobs = (
     loading,
     loadMore,
     loadingMore,
+    reload,
   };
 };
