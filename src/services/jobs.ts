@@ -1,6 +1,7 @@
 import { JobFormValues } from "../components/JobForm/JobForm";
 import { del, get, post, put } from "./api";
 import { CustomerSecondaryAddress, isCustomerAddress } from "./customers";
+import { isResponseError } from "./error";
 
 export type Job = {
   id: string;
@@ -96,6 +97,11 @@ export const getJob = async (jobId: string): Promise<Job> => {
     }
     return response.job;
   } catch (error) {
+    if (isResponseError(error)) {
+      if (error.response.status === 403) {
+        throw new Error("UNAUTHORIZED");
+      }
+    }
     throw new Error("INTERNAL_ERROR");
   }
 };

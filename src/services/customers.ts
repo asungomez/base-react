@@ -2,6 +2,7 @@ import { CustomerFormValues } from "../components/CustomerForm/CustomerForm";
 import { TaxDataFormValues } from "../components/TaxDataForm/TaxDataForm";
 import { CustomerAddressFormValues } from "../components/CustomerAddressForm/CustomerAddressForm";
 import { del, get, post, put } from "./api";
+import { isResponseError } from "./error";
 
 export const CUSTOMER_TYPES = ["individual", "company", "other"] as const;
 export type CustomerType = typeof CUSTOMER_TYPES[number];
@@ -72,28 +73,6 @@ export const isCustomerAddress = (value: unknown): value is CustomerAddress => {
     typeof customerAddress.number === "string" &&
     typeof customerAddress.city === "string" &&
     typeof customerAddress.postcode === "string"
-  );
-};
-
-type ResponseError = {
-  response: {
-    status: number;
-    data: { error: string };
-  };
-};
-
-const isResponseError = (value: unknown): value is ResponseError => {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-  const responseError = value as ResponseError;
-  return (
-    typeof responseError.response === "object" &&
-    responseError.response !== null &&
-    typeof responseError.response.status === "number" &&
-    typeof responseError.response.data === "object" &&
-    responseError.response.data !== null &&
-    typeof responseError.response.data.error === "string"
   );
 };
 

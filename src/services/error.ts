@@ -34,3 +34,25 @@ export const extractErrorCode = (
   }
   return errorCode;
 };
+
+export type ResponseError = {
+  response: {
+    status: number;
+    data: { error: string };
+  };
+};
+
+export const isResponseError = (value: unknown): value is ResponseError => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const responseError = value as ResponseError;
+  return (
+    typeof responseError.response === "object" &&
+    responseError.response !== null &&
+    typeof responseError.response.status === "number" &&
+    typeof responseError.response.data === "object" &&
+    responseError.response.data !== null &&
+    typeof responseError.response.data.error === "string"
+  );
+};

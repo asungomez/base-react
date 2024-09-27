@@ -155,7 +155,12 @@ app.get("/jobs", async function (req, res) {
 
 app.get("/jobs/:jobId", async function (req, res) {
   const jobId = req.params.jobId;
-  const job = await getJob(jobId);
+  const userSub = req.authData?.userSub;
+  const { job, assignedTo } = await getJob(jobId);
+  if (assignedTo !== userSub) {
+    res.status(403).json({ error: "You are not allowed to access this job" });
+    return;
+  }
   if (!job) {
     res.status(404).json({ error: "Job not found" });
     return;

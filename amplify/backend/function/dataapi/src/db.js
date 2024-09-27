@@ -879,7 +879,10 @@ const getJob = async (jobId) => {
   };
   const result = await ddb.getItem(params).promise();
   if (!result.Item) return null;
-  return mapJobFromDB(result.Item);
+  return {
+    job: mapJobFromDB(result.Item),
+    assignedTo: result.Item.assigned_to.S,
+  };
 };
 
 const getJobs = async (filters, order, nextTokenParam, paginate) => {
