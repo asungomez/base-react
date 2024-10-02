@@ -38,6 +38,7 @@ const mapJobFromDB = (job) => {
     date: start.format("YYYY-MM-DD"),
     startTime: start.format("HH:mm"),
     endTime: end.format("HH:mm"),
+    assignedTo: job.assigned_to.S,
   };
 };
 

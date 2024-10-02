@@ -146,7 +146,7 @@ app.get("/jobs", async function (req, res) {
   const userSub = req.authData?.userSub;
   const groups = req.authData?.groups;
   const isAdmin = groups?.includes("Admin");
-  const { items: jobs, nextToken } = await getJobs(
+  let { items: jobs, nextToken } = await getJobs(
     {
       addressId,
       customerId,
@@ -159,16 +159,29 @@ app.get("/jobs", async function (req, res) {
     nextTokenParam,
     paginate
   );
+  if (isAdmin) {
+    jobs = await Promise.all(
+      jobs.map(async (job) => ({
+        ...job,
+        assignedTo: await getUserInfo(job.assignedTo),
+      }))
+    );
+  } else {
+    jobs = jobs.map((job) => ({
+      ...job,
+      assignedTo: undefined,
+    }));
+  }
   res.json({ jobs, nextToken });
 });
 
 app.get("/jobs/:jobId", async function (req, res) {
   const jobId = req.params.jobId;
   const userSub = req.authData?.userSub;
-  const { job, assignedTo } = await getJob(jobId);
+  const job = await getJob(jobId);
   const groups = req.authData?.groups;
   const isAdmin = groups?.includes("Admin");
-  if (assignedTo !== userSub && !isAdmin) {
+  if (job.assignedTo !== userSub && !isAdmin) {
     res.status(403).json({ error: "You are not allowed to access this job" });
     return;
   }
@@ -179,6 +192,8 @@ app.get("/jobs/:jobId", async function (req, res) {
   if (isAdmin) {
     const userInfo = await getUserInfo(assignedTo);
     job.assignedTo = userInfo;
+  } else {
+    job.assignedTo = undefined;
   }
   res.json({ job });
 });
