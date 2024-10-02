@@ -39,7 +39,7 @@ const {
   mapJobFromRequestBody,
   mapJobFilters,
 } = require("./mapper");
-const { extractAuthData } = require("./authentication");
+const { extractAuthData, getUserInfo } = require("./authentication");
 
 // declare a new express app
 const app = express();
@@ -175,6 +175,10 @@ app.get("/jobs/:jobId", async function (req, res) {
   if (!job) {
     res.status(404).json({ error: "Job not found" });
     return;
+  }
+  if (isAdmin) {
+    const userInfo = await getUserInfo(assignedTo);
+    job.assignedTo = userInfo;
   }
   res.json({ job });
 });
