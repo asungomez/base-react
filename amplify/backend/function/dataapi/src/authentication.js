@@ -32,6 +32,21 @@ const getGroups = async (userSub) => {
   }
 };
 
+const getJobUsers = async (jobs) => {
+  const uniqueUsersSet = new Set();
+  for (const job of jobs) {
+    uniqueUsersSet.add(job.assignedTo);
+  }
+  const uniqueUsersArray = Array.from(uniqueUsersSet);
+  const users = await Promise.all(
+    uniqueUsersArray.map((userSub) => getUserInfo(userSub))
+  );
+  return jobs.map((job) => ({
+    ...job,
+    assignedTo: users.find((user) => user.sub === job.assignedTo),
+  }));
+};
+
 const USER_ATTRIBUTES = ["sub", "name", "email"];
 const getUserInfo = async (userSub) => {
   const params = {
@@ -52,4 +67,5 @@ const getUserInfo = async (userSub) => {
 module.exports = {
   extractAuthData,
   getUserInfo,
+  getJobUsers,
 };

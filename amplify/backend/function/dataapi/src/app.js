@@ -39,7 +39,11 @@ const {
   mapJobFromRequestBody,
   mapJobFilters,
 } = require("./mapper");
-const { extractAuthData, getUserInfo } = require("./authentication");
+const {
+  extractAuthData,
+  getUserInfo,
+  getJobUsers,
+} = require("./authentication");
 
 // declare a new express app
 const app = express();
@@ -160,12 +164,7 @@ app.get("/jobs", async function (req, res) {
     paginate
   );
   if (isAdmin) {
-    jobs = await Promise.all(
-      jobs.map(async (job) => ({
-        ...job,
-        assignedTo: await getUserInfo(job.assignedTo),
-      }))
-    );
+    jobs = await getJobUsers(jobs);
   } else {
     jobs = jobs.map((job) => ({
       ...job,
