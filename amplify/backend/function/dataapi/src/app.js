@@ -47,10 +47,10 @@ app.use(bodyParser.json());
 app.use(awsServerlessExpressMiddleware.eventContext());
 
 // Enable CORS for all methods
-app.use(function (req, res, next) {
+app.use(async function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");
-  req.authData = extractAuthData(req);
+  req.authData = await extractAuthData(req);
   next();
 });
 
@@ -144,8 +144,17 @@ app.get("/jobs", async function (req, res) {
   const paginate = req.query?.paginate !== "false";
   const nextTokenParam = req.query?.nextToken;
   const userSub = req.authData?.userSub;
+  const groups = req.authData?.groups;
+  const isAdmin = groups?.includes("Admin");
   const { items: jobs, nextToken } = await getJobs(
-    { addressId, customerId, from, to, assignedTo: userSub },
+    {
+      addressId,
+      customerId,
+      from,
+      to,
+      // Filter only for non-admins
+      assignedTo: isAdmin ? undefined : userSub,
+    },
     order,
     nextTokenParam,
     paginate
@@ -157,7 +166,9 @@ app.get("/jobs/:jobId", async function (req, res) {
   const jobId = req.params.jobId;
   const userSub = req.authData?.userSub;
   const { job, assignedTo } = await getJob(jobId);
-  if (assignedTo !== userSub) {
+  const groups = req.authData?.groups;
+  const isAdmin = groups?.includes("Admin");
+  if (assignedTo !== userSub && !isAdmin) {
     res.status(403).json({ error: "You are not allowed to access this job" });
     return;
   }
