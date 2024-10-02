@@ -146,8 +146,11 @@ const createJob = async (job) => {
     await ddb.putItem(params).promise();
   }
   return {
-    ...job,
     id,
+    name: job.name,
+    startTime: job.startTime,
+    endTime: job.endTime,
+    date: job.date,
   };
 };
 
@@ -488,7 +491,13 @@ const editJob = async (jobId, job) => {
     await ddb.putItem(params).promise();
   }
 
-  return job;
+  return {
+    id: jobId,
+    name: job.name,
+    startTime: job.startTime,
+    endTime: job.endTime,
+    date: job.date,
+  };
 };
 
 const editSecondaryAddressFromCustomer = async (
@@ -886,7 +895,7 @@ const getJob = async (jobId) => {
 };
 
 const getJobs = async (filters, order, nextTokenParam, paginate) => {
-  const params = {
+  let params = {
     TableName: TABLE_NAME,
     IndexName: "job_start_time",
     ScanIndexForward: order !== "desc",
@@ -977,7 +986,7 @@ const getJobs = async (filters, order, nextTokenParam, paginate) => {
         ExclusiveStartKey: result.LastEvaluatedKey,
         Limit: PAGE_SIZE - items.length,
       };
-      result = await ddb.scan(params).promise();
+      result = await ddb.query(params).promise();
       items.push(...result.Items.map(mapJobFromDB));
     }
     const nextResult = await ddb
@@ -998,7 +1007,7 @@ const getJobs = async (filters, order, nextTokenParam, paginate) => {
         ...params,
         ExclusiveStartKey: result.LastEvaluatedKey,
       };
-      result = await ddb.scan(params).promise();
+      result = await ddb.query(params).promise();
       items.push(...result.Items.map(mapJobFromDB));
     }
   }
