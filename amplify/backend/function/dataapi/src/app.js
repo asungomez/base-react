@@ -189,7 +189,7 @@ app.get("/jobs/:jobId", async function (req, res) {
     return;
   }
   if (isAdmin) {
-    const userInfo = await getUserInfo(assignedTo);
+    const userInfo = await getUserInfo(job.assignedTo);
     job.assignedTo = userInfo;
   } else {
     job.assignedTo = undefined;

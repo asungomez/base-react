@@ -12,6 +12,7 @@ export type User = {
   id: string;
   email: string;
   name?: string;
+  color?: string;
 };
 
 export type CognitoUserWithAttributes = CognitoUser & {
@@ -84,10 +85,11 @@ export const getUsers = async () => {
       const id = user.Username;
       const email = findAttributeValue(user, "email");
       const name = findAttributeValue(user, "name");
+      const color = findAttributeValue(user, "custom:color");
       if (!id || !email) {
         return null;
       }
-      return { id, email, name };
+      return { id, email, name, color };
     }).filter(Boolean);
     return users;
   } catch (error) {
