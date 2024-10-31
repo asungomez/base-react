@@ -108,14 +108,20 @@ app.post("/removeUserFromGroup", async (req, res, next) => {
   }
 });
 app.post("/createUser", async (req, res, next) => {
-  if (!req.body.email || !req.body.password) {
+  if (!req.body.email) {
+    const err = new Error("email is required");
+    err.statusCode = 400;
+    return next(err);
+  }
+
+  if (!req.body.password) {
     const err = new Error("email is required");
     err.statusCode = 400;
     return next(err);
   }
 
   try {
-    const response = await createUser(req.body.email, req.body.password);
+    const response = await createUser(req.body);
     res.status(200).json(response);
   } catch (err) {
     next(err);

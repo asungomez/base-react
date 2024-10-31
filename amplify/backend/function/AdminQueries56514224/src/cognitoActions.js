@@ -85,17 +85,24 @@ async function listUsers(Limit, PaginationToken) {
   }
 }
 
-async function createUser(email, password) {
+async function createUser(user) {
   const params = {
     UserAttributes: [
-      { Name: "email", Value: email },
+      { Name: "email", Value: user.email },
       { Name: "email_verified", Value: "True" },
     ],
     UserPoolId: userPoolId,
-    Username: email,
-    TemporaryPassword: password,
+    Username: user.email,
+    TemporaryPassword: user.password,
   };
-  console.log(`Attempting to create user with email ${email}`);
+
+  if (user.color) {
+    params.UserAttributes.push({
+      Name: "custom:color",
+      Value: user.color,
+    });
+  }
+  console.log(`Attempting to create user with email ${user.email}`);
 
   try {
     const result = await cognitoIdentityServiceProvider
