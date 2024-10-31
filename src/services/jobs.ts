@@ -7,6 +7,7 @@ export type JobAssignation = {
   sub: string;
   name?: string;
   email: string;
+  color?: string;
 };
 
 export type Job = {

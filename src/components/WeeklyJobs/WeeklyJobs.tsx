@@ -39,7 +39,7 @@ export const WeeklyJobs: FC<WeeklyJobsProps> = ({
   };
 
   const eventClickHandler = (event: Event) => {
-    navigate(`/jobs/${event.resource as string}`);
+    navigate(`/jobs/${event.resource.id as string}`);
   };
 
   const calendarClickHander = (slotInfo: SlotInfo) => {
@@ -56,12 +56,24 @@ export const WeeklyJobs: FC<WeeklyJobsProps> = ({
   };
 
   const events: Event[] = jobs.map((job) => ({
-    resource: job.id,
+    resource: { id: job.id, color: job.assignedTo?.color },
     title: job.name,
     start: new Date(`${job.date} ${job.startTime}`),
     end: new Date(`${job.date} ${job.endTime}`),
   }));
   const endDate = dayjs(startDate).add(6, "day").format("YYYY-MM-DD");
+
+  const eventProps = (event: Event) => {
+    if (event.resource?.color) {
+      return {
+        style: {
+          backgroundColor: event.resource.color,
+        },
+      };
+    }
+    return {};
+  };
+
   return (
     <>
       <CalendarWrapper>
@@ -79,6 +91,7 @@ export const WeeklyJobs: FC<WeeklyJobsProps> = ({
           onSelectEvent={eventClickHandler}
           onSelectSlot={calendarClickHander}
           selectable
+          eventPropGetter={eventProps}
         />
       </CalendarWrapper>
       {jobCreationTime && (
