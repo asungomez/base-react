@@ -68,7 +68,7 @@ export const forgotPassword = async (email: string) => {
   }
 };
 
-export const getUsers = async () => {
+export const getUsers = async (): Promise<User[]> => {
   try {
     const response = await AdminQueries.get("/listUsers");
     if (

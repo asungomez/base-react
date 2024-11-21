@@ -9,8 +9,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
 import dayjs from "dayjs";
+import { useAuth } from "../../context/AuthContext";
 
 export const CreateJobPage: FC = () => {
+  const { user } = useAuth();
   const { createJob, loading, error } = useCreateJob();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -48,6 +50,7 @@ export const CreateJobPage: FC = () => {
           date: dayjs(date),
           startTime: dayjs(),
           endTime: dayjs().add(1, "hour"),
+          assignedTo: user?.attributes?.sub,
         }}
       />
     </>

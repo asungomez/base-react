@@ -340,7 +340,16 @@ app.post("/jobs", async function (req, res) {
   try {
     const job = req.body;
     const userSub = req.authData?.userSub;
-    const mappedJob = mapJobFromRequestBody(job, userSub);
+    const groups = req.authData?.groups;
+    const isAdmin = groups?.includes("Admin");
+    // The job is assigned to the user that is creating it by default
+    let assignedTo = userSub;
+    // If the user is an admin and the job has an assignedTo field, use that value
+    // instead of the user that is creating the job
+    if (isAdmin && job?.assignedTo) {
+      assignedTo = job.assignedTo;
+    }
+    const mappedJob = mapJobFromRequestBody(job, assignedTo);
     const createdJob = await createJob(mappedJob);
     res.json({ job: createdJob });
   } catch (e) {

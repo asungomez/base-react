@@ -8,6 +8,8 @@ import { JobAddressesInput } from "../JobAddressesInput/JobAddressesInput";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers";
+import { UserSelector } from "../UserSelector/UserSelector";
+import { useAuth } from "../../context/AuthContext";
 
 export type JobFormAddress = { addressId: string; customerId: string };
 export type JobFormValues = {
@@ -16,6 +18,7 @@ export type JobFormValues = {
   date: Dayjs;
   startTime: Dayjs;
   endTime: Dayjs;
+  assignedTo?: string;
 };
 
 const INITIAL_VALUES: JobFormValues = {
@@ -46,6 +49,7 @@ const validationSchema = yup.object<JobFormValues>({
   date: yup.date().required(),
   startTime: yup.date().required(),
   endTime: yup.date().required(),
+  assignedTo: yup.string(),
 });
 
 export const JobForm: FC<JobFormProps> = ({
@@ -58,6 +62,11 @@ export const JobForm: FC<JobFormProps> = ({
     onSubmit,
     validationSchema,
   });
+  const { isInGroup } = useAuth();
+
+  const changeUserHandler = (value: string | null) => {
+    formik.handleChange({ target: { name: "assignedTo", value } });
+  };
 
   return (
     <Container fixed maxWidth="sm">
@@ -117,7 +126,18 @@ export const JobForm: FC<JobFormProps> = ({
           views={["hours", "minutes"]}
           ampm={false}
         />
-        <LoadingButton loading={loading} variant="outlined" type="submit">
+        {isInGroup("Admin") && (
+          <UserSelector
+            value={formik.values.assignedTo}
+            onChange={changeUserHandler}
+          />
+        )}
+        <LoadingButton
+          loading={loading}
+          variant="outlined"
+          type="submit"
+          sx={{ marginY: "10px" }}
+        >
           Submit
         </LoadingButton>
       </Form>
