@@ -1,0 +1,20 @@
+{
+  "resourceName": "exercisesstorage",
+  "policyUUID": "2d77bc0e",
+  "bucketName": "exercisesstorage",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {
+    "Admin": [
+      "CREATE_AND_UPDATE",
+      "READ",
+      "DELETE"
+    ]
+  }
+}

@@ -33,6 +33,9 @@ const getGroups = async (userSub) => {
 };
 
 const getJobUsers = async (jobs) => {
+  if (!jobs?.length) {
+    return [];
+  }
   const uniqueUsersSet = new Set();
   for (const job of jobs) {
     uniqueUsersSet.add(job.assignedTo);

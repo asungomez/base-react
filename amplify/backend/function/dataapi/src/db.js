@@ -972,7 +972,7 @@ const getJobs = async (filters, order, nextTokenParam, paginate) => {
   }
 
   let result = await ddb.query(params).promise();
-  const items = result.Items.map(mapJobFromDB);
+  const items = result.Items?.map(mapJobFromDB) ?? [];
   let nextToken;
 
   if (paginate) {
