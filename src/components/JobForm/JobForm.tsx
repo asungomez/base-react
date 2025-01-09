@@ -10,6 +10,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers";
 import { UserSelector } from "../UserSelector/UserSelector";
 import { useAuth } from "../../context/AuthContext";
+import { ImagePicker } from "../ImagePicker/ImagePicker";
 
 export type JobFormAddress = { addressId: string; customerId: string };
 export type JobFormValues = {
@@ -19,6 +20,7 @@ export type JobFormValues = {
   startTime: Dayjs;
   endTime: Dayjs;
   assignedTo?: string;
+  imageUrl?: string;
 };
 
 const INITIAL_VALUES: JobFormValues = {
@@ -27,6 +29,7 @@ const INITIAL_VALUES: JobFormValues = {
   date: dayjs(),
   startTime: dayjs(),
   endTime: dayjs().add(1, "hour"),
+  imageUrl: "",
 };
 
 type JobFormProps = {
@@ -50,6 +53,7 @@ const validationSchema = yup.object<JobFormValues>({
   startTime: yup.date().required(),
   endTime: yup.date().required(),
   assignedTo: yup.string(),
+  imageUrl: yup.string(),
 });
 
 export const JobForm: FC<JobFormProps> = ({
@@ -132,6 +136,12 @@ export const JobForm: FC<JobFormProps> = ({
             onChange={changeUserHandler}
           />
         )}
+        <ImagePicker
+          onChange={(url) =>
+            formik.handleChange({ target: { name: "imageUrl", value: url } })
+          }
+          value={formik.values.imageUrl}
+        />
         <LoadingButton
           loading={loading}
           variant="outlined"
