@@ -2,7 +2,7 @@ import { JobFormValues } from "../components/JobForm/JobForm";
 import { del, get, post, put } from "./api";
 import { CustomerSecondaryAddress, isCustomerAddress } from "./customers";
 import { isResponseError } from "./error";
-import { jobImageUrl } from "./files";
+import { getFileUrl } from "./files";
 
 export type JobAssignation = {
   sub: string;
@@ -21,6 +21,10 @@ export type Job = {
   imageUrl?: string;
 };
 
+export type JobResponse = Omit<Job, "imageUrl"> & {
+  imageKey?: string;
+};
+
 const isJobAssignation = (value: unknown): value is JobAssignation => {
   if (!value || typeof value !== "object") return false;
   const jobAssignation = value as JobAssignation;
@@ -35,22 +39,22 @@ const isJobAssignation = (value: unknown): value is JobAssignation => {
   return true;
 };
 
-const isJob = (value: unknown): value is Job => {
+const isJobResponse = (value: unknown): value is JobResponse => {
   if (!value || typeof value !== "object") return false;
-  const job = value as Job;
+  const jobResponse = value as JobResponse;
+  if (!jobResponse.id || typeof jobResponse.id !== "string") return false;
+  if (!jobResponse.name || typeof jobResponse.name !== "string") return false;
+  if (!jobResponse.date || typeof jobResponse.date !== "string") return false;
+  if (!jobResponse.startTime || typeof jobResponse.startTime !== "string")
+    return false;
+  if (!jobResponse.endTime || typeof jobResponse.endTime !== "string")
+    return false;
+  if (jobResponse.assignedTo && !isJobAssignation(jobResponse.assignedTo))
+    return false;
   if (
-    !job.id ||
-    typeof job.id !== "string" ||
-    !job.name ||
-    typeof job.name !== "string" ||
-    !job.date ||
-    typeof job.date !== "string" ||
-    !job.startTime ||
-    typeof job.startTime !== "string" ||
-    !job.endTime ||
-    typeof job.endTime !== "string" ||
-    (job.assignedTo && !isJobAssignation(job.assignedTo)) ||
-    (job.imageUrl && typeof job.imageUrl !== "string")
+    jobResponse.imageKey &&
+    (typeof jobResponse.imageKey !== "string" ||
+      jobResponse.imageKey.length === 0)
   )
     return false;
   return true;
@@ -61,6 +65,10 @@ export type JobFilters = {
   customerId?: string;
   from?: string;
   to?: string;
+};
+
+type EditJobParameters = Omit<JobFormValues, "imageUrl"> & {
+  imageKey?: string;
 };
 
 type JobsPaginationArguments = {
@@ -80,7 +88,7 @@ const transformFormValues = (formValues: JobFormValues) => {
 export const createJob = async (formValues: JobFormValues): Promise<Job> => {
   try {
     const response = await post("/jobs", transformFormValues(formValues));
-    if (!isJob(response.job)) {
+    if (!isJobResponse(response.job)) {
       throw new Error("INTERNAL_ERROR");
     }
     return response.job;
@@ -99,15 +107,19 @@ export const deleteJob = async (jobId: string): Promise<void> => {
 
 export const editJob = async (
   jobId: string,
-  formValues: JobFormValues
+  formValues: EditJobParameters
 ): Promise<Job> => {
   try {
     const response = await put(
       `/jobs/${jobId}`,
       transformFormValues(formValues)
     );
-    if (!isJob(response.job)) {
+    if (!isJobResponse(response.job)) {
       throw new Error("INTERNAL_ERROR");
+    }
+    if (response.job.imageKey) {
+      const imageUrl = await getFileUrl(response.job.imageKey);
+      response.job.imageUrl = imageUrl;
     }
     return response.job;
   } catch (error) {
@@ -118,11 +130,14 @@ export const editJob = async (
 export const getJob = async (jobId: string): Promise<Job> => {
   try {
     const response = await get(`/jobs/${jobId}`);
-    if (!isJob(response.job)) {
+    if (!isJobResponse(response.job)) {
       throw new Error("INTERNAL_ERROR");
     }
-    const imageUrl = await jobImageUrl(jobId);
-    return { ...response.job, imageUrl };
+    if (response.job.imageKey) {
+      const imageUrl = await getFileUrl(response.job.imageKey);
+      response.job.imageUrl = imageUrl;
+    }
+    return response.job;
   } catch (error) {
     if (isResponseError(error)) {
       if (error.response.status === 403) {
@@ -171,7 +186,7 @@ export const getJobs = async (
     if (
       !response.jobs ||
       !Array.isArray(response.jobs) ||
-      response.jobs.some((element: unknown) => !isJob(element)) ||
+      response.jobs.some((element: unknown) => !isJobResponse(element)) ||
       (response.nextToken !== undefined &&
         typeof response.nextToken !== "string")
     ) {

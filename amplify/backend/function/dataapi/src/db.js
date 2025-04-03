@@ -131,9 +131,6 @@ const createJob = async (job) => {
       assigned_to: { S: job.assignedTo },
     },
   };
-  if (job.imageUrl) {
-    params.Item.image_url = { S: job.imageUrl };
-  }
   await ddb.putItem(params).promise();
   for (let i = 0; i < job.addresses.length; i++) {
     const address = job.addresses[i];
@@ -154,7 +151,6 @@ const createJob = async (job) => {
     startTime: job.startTime,
     endTime: job.endTime,
     date: job.date,
-    imageUrl: job.imageUrl,
   };
 };
 
@@ -453,6 +449,12 @@ const editJob = async (jobId, job) => {
     TableName: TABLE_NAME,
     UpdateExpression: "SET #N = :name, #S = :start, #E = :end",
   };
+
+  if (job.imageKey) {
+    params.ExpressionAttributeNames["#IK"] = "image_key";
+    params.ExpressionAttributeValues[":image_key"] = { S: job.imageKey };
+    params.UpdateExpression += ", #IK = :image_key";
+  }
   await ddb.updateItem(params).promise();
 
   const searchAssignationsParams = {
@@ -501,6 +503,7 @@ const editJob = async (jobId, job) => {
     startTime: job.startTime,
     endTime: job.endTime,
     date: job.date,
+    imageKey: job.imageKey,
   };
 };
 

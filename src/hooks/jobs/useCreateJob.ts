@@ -19,8 +19,9 @@ export const useCreateJob = () => {
     async ([_operation], { arg: { formValues, image } }) => {
       let job = await createJob(formValues);
       if (image) {
-        const imageUrl = await uploadFile(image, `jobs/${job.id}/image.jpg`);
-        job = await editJob(job.id, { ...formValues, imageUrl });
+        const imageKey = `jobs/${job.id}/image.jpg`;
+        await uploadFile(image, imageKey);
+        job = await editJob(job.id, { ...formValues, imageKey });
       }
       // Refresh all caches for job lists
       await mutate<
