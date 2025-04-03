@@ -33,7 +33,11 @@ const INITIAL_VALUES: JobFormValues = {
 };
 
 type JobFormProps = {
-  onSubmit: (values: JobFormValues, newFile: File | null) => void;
+  onSubmit: (
+    values: JobFormValues,
+    newFile: File | null,
+    deleteImage: boolean
+  ) => void;
   initialValues?: JobFormValues;
   loading?: boolean;
 };
@@ -62,9 +66,10 @@ export const JobForm: FC<JobFormProps> = ({
   loading,
 }) => {
   const [newFile, setNewFile] = useState<File | null>(null);
+  const [imageDeleted, setImageDeleted] = useState(false);
   const formik = useFormik<JobFormValues>({
     initialValues,
-    onSubmit: (values) => onSubmit(values, newFile),
+    onSubmit: (values) => onSubmit(values, newFile, imageDeleted),
     validationSchema,
   });
   const { isInGroup } = useAuth();
@@ -76,8 +81,12 @@ export const JobForm: FC<JobFormProps> = ({
   const changeImageHandler = (file: File | null) => {
     setNewFile(file);
     if (file) {
+      setImageDeleted(false);
       formik.setFieldValue("imageUrl", URL.createObjectURL(file));
     } else {
+      if (initialValues.imageUrl) {
+        setImageDeleted(true);
+      }
       formik.setFieldValue("imageUrl", "");
     }
   };

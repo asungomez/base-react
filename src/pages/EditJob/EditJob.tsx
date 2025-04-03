@@ -67,8 +67,12 @@ export const EditJobPage: FC = () => {
       } as JobFormAddress)
   );
 
-  const submitHandler = (formValues: JobFormValues, image: File | null) => {
-    editJob({ formValues, image })
+  const submitHandler = (
+    formValues: JobFormValues,
+    image: File | null,
+    deleteImage: boolean
+  ) => {
+    editJob({ formValues, image, deleteImage })
       .then(() => {
         navigate(`/jobs/${jobId}`);
       })

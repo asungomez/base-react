@@ -454,6 +454,23 @@ const editJob = async (jobId, job) => {
     params.ExpressionAttributeNames["#IK"] = "image_key";
     params.ExpressionAttributeValues[":image_key"] = { S: job.imageKey };
     params.UpdateExpression += ", #IK = :image_key";
+  } else {
+    const deleteImageParams = {
+      ExpressionAttributeNames: {
+        "#IK": "image_key",
+      },
+      Key: {
+        PK: {
+          S: `job_${jobId}`,
+        },
+        SK: {
+          S: "description",
+        },
+      },
+      TableName: TABLE_NAME,
+      UpdateExpression: "REMOVE #IK",
+    };
+    await ddb.updateItem(deleteImageParams).promise();
   }
   await ddb.updateItem(params).promise();
 

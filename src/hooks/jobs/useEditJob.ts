@@ -6,7 +6,7 @@ import { EditJobParameters, JobFilters, editJob } from "../../services/jobs";
 import { unstable_serialize } from "swr/infinite";
 import { keyFunctionGenerator } from "./useJobs";
 import { extractErrorCode } from "../../services/error";
-import { uploadFile } from "../../services/files";
+import { deleteFile, uploadFile } from "../../services/files";
 
 export const useEditJob = (jobId?: string) => {
   const { mutate } = useSWRConfig();
@@ -14,15 +14,21 @@ export const useEditJob = (jobId?: string) => {
     Job,
     Error,
     readonly [string, string] | null,
-    { formValues: JobFormValues; image: File | null }
+    { formValues: JobFormValues; image: File | null; deleteImage: boolean }
   >(
     jobId ? ["job", jobId] : null,
-    async ([_operation, jobId], { arg: { formValues, image } }) => {
+    async (
+      [_operation, jobId],
+      { arg: { formValues, image, deleteImage } }
+    ) => {
       const editParams: EditJobParameters = { ...formValues };
+      const imageKey = `jobs/${jobId}/image.jpg`;
       if (image) {
-        const imageKey = `jobs/${jobId}/image.jpg`;
         await uploadFile(image, imageKey);
         editParams.imageKey = imageKey;
+      } else if (deleteImage) {
+        await deleteFile(imageKey);
+        editParams.imageKey = undefined;
       }
       const job = await editJob(jobId, editParams);
       await mutate<
