@@ -2,10 +2,11 @@ import { Job } from "aws-sdk/clients/codepipeline";
 import { useSWRConfig } from "swr";
 import useSWRMutation from "swr/mutation";
 import { JobFormValues } from "../../components/JobForm/JobForm";
-import { JobFilters, editJob } from "../../services/jobs";
+import { EditJobParameters, JobFilters, editJob } from "../../services/jobs";
 import { unstable_serialize } from "swr/infinite";
 import { keyFunctionGenerator } from "./useJobs";
 import { extractErrorCode } from "../../services/error";
+import { uploadFile } from "../../services/files";
 
 export const useEditJob = (jobId?: string) => {
   const { mutate } = useSWRConfig();
@@ -13,11 +14,17 @@ export const useEditJob = (jobId?: string) => {
     Job,
     Error,
     readonly [string, string] | null,
-    JobFormValues
+    { formValues: JobFormValues; image: File | null }
   >(
     jobId ? ["job", jobId] : null,
-    async ([_operation, jobId], { arg: formValues }) => {
-      const job = await editJob(jobId, formValues);
+    async ([_operation, jobId], { arg: { formValues, image } }) => {
+      const editParams: EditJobParameters = { ...formValues };
+      if (image) {
+        const imageKey = `jobs/${jobId}/image.jpg`;
+        await uploadFile(image, imageKey);
+        editParams.imageKey = imageKey;
+      }
+      const job = await editJob(jobId, editParams);
       await mutate<
         readonly [string, JobFilters, string | undefined],
         {

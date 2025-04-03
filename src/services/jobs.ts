@@ -67,7 +67,7 @@ export type JobFilters = {
   to?: string;
 };
 
-type EditJobParameters = Omit<JobFormValues, "imageUrl"> & {
+export type EditJobParameters = Omit<JobFormValues, "imageUrl"> & {
   imageKey?: string;
 };
 
