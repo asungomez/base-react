@@ -5,6 +5,7 @@ import { extractErrorCode } from "../../services/error";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { keyFunctionGenerator } from "./useJobs";
+import { uploadFile } from "../../services/files";
 
 export const useCreateJob = () => {
   const { mutate } = useSWRConfig();
@@ -12,11 +13,15 @@ export const useCreateJob = () => {
     Job,
     Error,
     readonly [string],
-    JobFormValues
+    { formValues: JobFormValues; image: File | null }
   >(
     ["add-job"],
-    async ([_operation], { arg: formValues }) => {
-      const job = await createJob(formValues);
+    async ([_operation], { arg: { formValues, image } }) => {
+      let imageUrl: string | undefined;
+      if (image) {
+        imageUrl = await uploadFile(image);
+      }
+      const job = await createJob({ ...formValues, imageUrl });
       // Refresh all caches for job lists
       await mutate<
         readonly [string, JobFilters, string | undefined],

@@ -23,8 +23,8 @@ export const CreateJobModal: FC<CreateJobModalProps> = ({
 }) => {
   const { createJob, loading, error } = useCreateJob();
 
-  const submitHandler = (values: JobFormValues) => {
-    createJob(values)
+  const submitHandler = (values: JobFormValues, file: File | null) => {
+    createJob({ formValues: values, image: file })
       .then(() => {
         onClose();
       })

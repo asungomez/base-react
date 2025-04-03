@@ -25,8 +25,8 @@ export const CreateJobPage: FC = () => {
     initialAddresses.push({ addressId, customerId });
   }
 
-  const submitHandler = (formValues: JobFormValues) => {
-    createJob(formValues)
+  const submitHandler = (formValues: JobFormValues, file: File | null) => {
+    createJob({ formValues, image: file })
       .then((job) => {
         navigate(`/jobs/${job.id}`);
       })

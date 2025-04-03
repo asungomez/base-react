@@ -131,6 +131,9 @@ const createJob = async (job) => {
       assigned_to: { S: job.assignedTo },
     },
   };
+  if (job.imageUrl) {
+    params.Item.image_url = { S: job.imageUrl };
+  }
   await ddb.putItem(params).promise();
   for (let i = 0; i < job.addresses.length; i++) {
     const address = job.addresses[i];
@@ -151,6 +154,7 @@ const createJob = async (job) => {
     startTime: job.startTime,
     endTime: job.endTime,
     date: job.date,
+    imageUrl: job.imageUrl,
   };
 };
 

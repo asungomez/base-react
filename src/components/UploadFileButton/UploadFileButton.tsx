@@ -4,7 +4,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { VisuallyHiddenInput } from "./UploadFileButton.style";
 
 type UploadFileButtonProps = {
-  onChange: (fileUrl: string) => void;
+  onChange: (file: File) => void;
   label: string;
   style?: React.CSSProperties;
 };
@@ -17,11 +17,7 @@ export const UploadFileButton: FC<UploadFileButtonProps> = ({
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        onChange(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      onChange(file);
     }
   };
 

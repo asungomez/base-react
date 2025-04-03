@@ -6,14 +6,14 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 export type ImagePickerProps = {
   value?: string;
-  onChange: (value: string) => void;
+  onChange: (value: File | null) => void;
 };
 
 export const ImagePicker: FC<ImagePickerProps> = ({ value, onChange }) => {
   const [isHovered, setIsHovered] = useState(false);
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
-  const handleDelete = () => onChange("");
+  const handleDelete = () => onChange(null);
   if (value) {
     return (
       <ImageDisplay

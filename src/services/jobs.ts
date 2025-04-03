@@ -2,6 +2,7 @@ import { JobFormValues } from "../components/JobForm/JobForm";
 import { del, get, post, put } from "./api";
 import { CustomerSecondaryAddress, isCustomerAddress } from "./customers";
 import { isResponseError } from "./error";
+import { jobImageUrl } from "./files";
 
 export type JobAssignation = {
   sub: string;
@@ -17,6 +18,7 @@ export type Job = {
   startTime: string;
   endTime: string;
   assignedTo?: JobAssignation;
+  imageUrl?: string;
 };
 
 const isJobAssignation = (value: unknown): value is JobAssignation => {
@@ -47,7 +49,8 @@ const isJob = (value: unknown): value is Job => {
     typeof job.startTime !== "string" ||
     !job.endTime ||
     typeof job.endTime !== "string" ||
-    (job.assignedTo && !isJobAssignation(job.assignedTo))
+    (job.assignedTo && !isJobAssignation(job.assignedTo)) ||
+    (job.imageUrl && typeof job.imageUrl !== "string")
   )
     return false;
   return true;
@@ -118,7 +121,8 @@ export const getJob = async (jobId: string): Promise<Job> => {
     if (!isJob(response.job)) {
       throw new Error("INTERNAL_ERROR");
     }
-    return response.job;
+    const imageUrl = await jobImageUrl(jobId);
+    return { ...response.job, imageUrl };
   } catch (error) {
     if (isResponseError(error)) {
       if (error.response.status === 403) {
