@@ -1,5 +1,5 @@
 import useSWRMutation from "swr/mutation";
-import { Job, JobFilters, createJob } from "../../services/jobs";
+import { Job, JobFilters, createJob, editJob } from "../../services/jobs";
 import { JobFormValues } from "../../components/JobForm/JobForm";
 import { extractErrorCode } from "../../services/error";
 import { useSWRConfig } from "swr";
@@ -17,11 +17,11 @@ export const useCreateJob = () => {
   >(
     ["add-job"],
     async ([_operation], { arg: { formValues, image } }) => {
-      let imageUrl: string | undefined;
+      let job = await createJob(formValues);
       if (image) {
-        imageUrl = await uploadFile(image);
+        const imageUrl = await uploadFile(image, `jobs/${job.id}/image.jpg`);
+        job = await editJob(job.id, { ...formValues, imageUrl });
       }
-      const job = await createJob({ ...formValues, imageUrl });
       // Refresh all caches for job lists
       await mutate<
         readonly [string, JobFilters, string | undefined],
