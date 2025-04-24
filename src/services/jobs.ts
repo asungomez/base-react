@@ -19,6 +19,7 @@ export type Job = {
   endTime: string;
   assignedTo?: JobAssignation;
   imageUrl?: string;
+  price: number;
 };
 
 export type JobResponse = Omit<Job, "imageUrl"> & {
@@ -56,6 +57,8 @@ const isJobResponse = (value: unknown): value is JobResponse => {
     (typeof jobResponse.imageKey !== "string" ||
       jobResponse.imageKey.length === 0)
   )
+    return false;
+  if (jobResponse.price === undefined || typeof jobResponse.price !== "number")
     return false;
   return true;
 };

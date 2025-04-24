@@ -51,6 +51,7 @@ export const CreateJobPage: FC = () => {
           startTime: dayjs(),
           endTime: dayjs().add(1, "hour"),
           assignedTo: user?.attributes?.sub,
+          price: 0,
         }}
       />
     </>

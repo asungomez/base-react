@@ -129,6 +129,7 @@ const createJob = async (job) => {
       start: { N: job.start.toString() },
       end: { N: job.end.toString() },
       assigned_to: { S: job.assignedTo },
+      price: { N: job.price.toString() },
     },
   };
   await ddb.putItem(params).promise();
@@ -151,6 +152,7 @@ const createJob = async (job) => {
     startTime: job.startTime,
     endTime: job.endTime,
     date: job.date,
+    price: job.price,
   };
 };
 
@@ -426,6 +428,7 @@ const editJob = async (jobId, job) => {
       "#N": "name",
       "#S": "start",
       "#E": "end",
+      "#P": "price",
     },
     ExpressionAttributeValues: {
       ":name": {
@@ -437,6 +440,9 @@ const editJob = async (jobId, job) => {
       ":end": {
         N: job.end.toString(),
       },
+      ":price": {
+        N: job.price.toString(),
+      },
     },
     Key: {
       PK: {
@@ -447,7 +453,7 @@ const editJob = async (jobId, job) => {
       },
     },
     TableName: TABLE_NAME,
-    UpdateExpression: "SET #N = :name, #S = :start, #E = :end",
+    UpdateExpression: "SET #N = :name, #S = :start, #E = :end, #P = :price",
   };
 
   if (job.imageKey) {
@@ -521,6 +527,7 @@ const editJob = async (jobId, job) => {
     endTime: job.endTime,
     date: job.date,
     imageKey: job.imageKey,
+    price: job.price,
   };
 };
 

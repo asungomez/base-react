@@ -11,6 +11,7 @@ import { TimePicker } from "@mui/x-date-pickers";
 import { UserSelector } from "../UserSelector/UserSelector";
 import { useAuth } from "../../context/AuthContext";
 import { ImagePicker } from "../ImagePicker/ImagePicker";
+import { PriceInput } from "../PriceInput/PriceInput";
 
 export type JobFormAddress = { addressId: string; customerId: string };
 export type JobFormValues = {
@@ -21,6 +22,7 @@ export type JobFormValues = {
   endTime: Dayjs;
   assignedTo?: string;
   imageUrl?: string;
+  price: number;
 };
 
 const INITIAL_VALUES: JobFormValues = {
@@ -30,6 +32,7 @@ const INITIAL_VALUES: JobFormValues = {
   startTime: dayjs(),
   endTime: dayjs().add(1, "hour"),
   imageUrl: "",
+  price: 0,
 };
 
 type JobFormProps = {
@@ -58,6 +61,7 @@ const validationSchema = yup.object<JobFormValues>({
   endTime: yup.date().required(),
   assignedTo: yup.string(),
   imageUrl: yup.string(),
+  price: yup.number().required().positive(),
 });
 
 export const JobForm: FC<JobFormProps> = ({
@@ -116,6 +120,12 @@ export const JobForm: FC<JobFormProps> = ({
           error={!!(formik.touched.name && formik.errors.name)}
           helperText={formik.touched.name ? formik.errors.name : undefined}
           sx={{ marginY: "10px" }}
+        />
+        <PriceInput
+          name="price"
+          value={formik.values.price}
+          onChange={formik.handleChange}
+          errorMessage={formik.touched.price ? formik.errors.price : undefined}
         />
         <DatePicker
           label="Date"

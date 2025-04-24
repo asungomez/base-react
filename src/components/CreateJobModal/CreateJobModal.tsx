@@ -39,6 +39,7 @@ export const CreateJobModal: FC<CreateJobModalProps> = ({
     date: dayjs(),
     startTime: dayjs(),
     endTime: dayjs().add(1, "hour"),
+    price: 0,
     ...initialValuesProp,
   };
 

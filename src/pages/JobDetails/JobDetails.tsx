@@ -19,6 +19,7 @@ import { ErrorCode } from "../../services/error";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PersonIcon from "@mui/icons-material/Person";
+import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 import { JobImage, JobImageWrapper } from "./JobDetails.style";
 
 type JobDetailsParams = {
@@ -97,6 +98,12 @@ export const JobDetailsPage: FC = () => {
                 <CalendarTodayIcon />
               </ListItemIcon>
               <ListItemText primary="Date" secondary={job.date} />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemIcon>
+                <CurrencyPoundIcon />
+              </ListItemIcon>
+              <ListItemText primary="Price" secondary={job.price.toFixed(2)} />
             </ListItem>
             <ListItem disablePadding>
               <ListItemIcon>

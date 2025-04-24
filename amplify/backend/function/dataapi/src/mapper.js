@@ -40,6 +40,7 @@ const mapJobFromDB = (job) => {
     endTime: end.format("HH:mm"),
     assignedTo: job.assigned_to.S,
     imageKey: job.image_key?.S,
+    price: +job.price.N,
   };
 };
 
