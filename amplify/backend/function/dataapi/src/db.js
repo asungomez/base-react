@@ -11,7 +11,6 @@ const {
 const TABLE_NAME = "exercises-dev";
 const PAGE_SIZE = 5;
 
-// set DynamoDb client
 AWS.config.update({ region: "eu-west-1" });
 const ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 

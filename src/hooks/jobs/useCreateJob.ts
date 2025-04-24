@@ -6,6 +6,7 @@ import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { keyFunctionGenerator } from "./useJobs";
 import { uploadFile } from "../../services/files";
+import { generateJobInvoice } from "../../services/pdf";
 
 export const useCreateJob = () => {
   const { mutate } = useSWRConfig();
@@ -23,6 +24,8 @@ export const useCreateJob = () => {
         await uploadFile(image, imageKey);
         job = await editJob(job.id, { ...formValues, imageKey });
       }
+      const invoiceKey = `jobs/${job.id}/invoice.pdf`;
+      await generateJobInvoice(formValues, invoiceKey);
       // Refresh all caches for job lists
       await mutate<
         readonly [string, JobFilters, string | undefined],
