@@ -17,7 +17,9 @@ export const useDeleteJob = (jobId: string) => {
     jobId ? ["job", jobId] : null,
     async ([_operation, jobId]) => {
       const imageKey = `jobs/${jobId}/image.jpg`;
+      const invoiceKey = `jobs/${jobId}/invoice.pdf`;
       await deleteFile(imageKey);
+      await deleteFile(invoiceKey);
       await deleteJob(jobId);
       await mutate<
         readonly [string, string | undefined, string | undefined],
