@@ -1,6 +1,14 @@
 import { FC } from "react";
 import { Document, Page, StyleSheet, View, Text } from "@react-pdf/renderer";
 import { CustomerAddress } from "../../services/customers";
+import { Job } from "../../services/jobs";
+
+type JobInvoiceProps = {
+  job: Job;
+  addresses: CustomerAddress[];
+  taxRate?: number;
+  discount?: number;
+};
 
 const styles = StyleSheet.create({
   page: {
@@ -14,32 +22,22 @@ const styles = StyleSheet.create({
   },
 });
 
-export const JobInvoice: FC = () => (
+export const JobInvoice: FC<JobInvoiceProps> = ({
+  job,
+  addresses,
+  taxRate = 21,
+  discount = 0,
+}) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      <InvoiceTitle title="Job title" />
+      <InvoiceTitle title={job.name} />
       <InvoiceDate
-        date="March 23, 2025"
-        timeTo="03:00 PM"
-        timeFrom="10:00 AM"
+        date={job.date}
+        timeTo={job.endTime}
+        timeFrom={job.startTime}
       />
-      <BillTo
-        addresses={[
-          {
-            street: "Fake St",
-            number: "123",
-            city: "Luton",
-            postcode: "LU J56",
-          },
-          {
-            street: "Good St",
-            number: "345",
-            city: "London",
-            postcode: "NW 321",
-          },
-        ]}
-      />
-      <InvoiceTable price={100} taxRate={20} discount={10} />
+      <BillTo addresses={addresses} />
+      <InvoiceTable price={job.price} taxRate={taxRate} discount={discount} />
     </Page>
   </Document>
 );

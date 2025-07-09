@@ -5,6 +5,7 @@ import {
   JobFilters,
   createJob,
   editJob,
+  getJobAddresses,
 } from "../../services/jobs";
 import { JobFormValues } from "../../components/JobForm/JobForm";
 import { extractErrorCode } from "../../services/error";
@@ -31,8 +32,9 @@ export const useCreateJob = () => {
         await uploadFile(image, imageKey);
         editParameters.imageKey = imageKey;
       }
+      const { addresses } = await getJobAddresses(job.id);
       const invoiceKey = `jobs/${job.id}/invoice.pdf`;
-      await generateJobInvoice(formValues, invoiceKey);
+      await generateJobInvoice(formValues, invoiceKey, job, addresses);
       editParameters.invoiceKey = invoiceKey;
       job = await editJob(job.id, editParameters);
       // Refresh all caches for job lists
