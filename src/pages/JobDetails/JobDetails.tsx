@@ -6,6 +6,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
@@ -21,6 +22,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PersonIcon from "@mui/icons-material/Person";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 import { JobImage, JobImageWrapper } from "./JobDetails.style";
+import { S3DownloadButton } from "../../components/S3DownloadButton/S3DownloadButton";
 
 type JobDetailsParams = {
   jobId: string;
@@ -31,6 +33,11 @@ export const JobDetailsPage: FC = () => {
   const { job, loading, error } = useJob(jobId);
   const [operationError, setOperationError] = useState<ErrorCode | null>(null);
   const navigate = useNavigate();
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  const closeDownloadError = () => {
+    setDownloadError(null);
+  };
 
   const errorHandler = (code: ErrorCode) => {
     setOperationError(code);
@@ -78,6 +85,15 @@ export const JobDetailsPage: FC = () => {
           onError={errorHandler}
           onDelete={deleteHandler}
         />
+        {job.invoiceKey && (
+          <S3DownloadButton
+            s3Key={job.invoiceKey}
+            label="Download Invoice"
+            onDownloadError={(errorMessage) => {
+              setOperationError(errorMessage as ErrorCode);
+            }}
+          />
+        )}
       </Stack>
       <Grid
         container
@@ -134,6 +150,12 @@ export const JobDetailsPage: FC = () => {
         </Grid>
       </Grid>
       <JobAddresses jobId={jobId} />
+      <Snackbar
+        open={!!downloadError}
+        autoHideDuration={6000}
+        onClose={closeDownloadError}
+        message={downloadError}
+      />
     </>
   );
 };

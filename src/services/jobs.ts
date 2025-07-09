@@ -20,6 +20,7 @@ export type Job = {
   assignedTo?: JobAssignation;
   imageUrl?: string;
   price: number;
+  invoiceKey?: string;
 };
 
 export type JobResponse = Omit<Job, "imageUrl"> & {

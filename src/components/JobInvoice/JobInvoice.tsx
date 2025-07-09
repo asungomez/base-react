@@ -1,4 +1,4 @@
-import { FC, Fragment } from "react";
+import { FC } from "react";
 import { Document, Page, StyleSheet, View, Text } from "@react-pdf/renderer";
 import { CustomerAddress } from "../../services/customers";
 
