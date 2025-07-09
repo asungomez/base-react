@@ -35,7 +35,7 @@
         },
         "dataapi": {
           "deploymentBucketName": "amplify-auth-dev-110238-deployment",
-          "s3Key": "amplify-builds/dataapi-747352674d586a32494e-build.zip"
+          "s3Key": "amplify-builds/dataapi-42646934454136793634-build.zip"
         }
       },
       "api": {

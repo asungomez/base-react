@@ -477,6 +477,30 @@ const editJob = async (jobId, job) => {
     };
     await ddb.updateItem(deleteImageParams).promise();
   }
+
+  if (job.invoiceKey) {
+    params.ExpressionAttributeNames["#IK"] = "invoice_key";
+    params.ExpressionAttributeValues[":invoice_key"] = { S: job.invoiceKey };
+    params.UpdateExpression += ", #IK = :invoice_key";
+  } else {
+    const deleteInvoiceParams = {
+      ExpressionAttributeNames: {
+        "#IK": "invoice_key",
+      },
+      Key: {
+        PK: {
+          S: `job_${jobId}`,
+        },
+        SK: {
+          S: "description",
+        },
+      },
+      TableName: TABLE_NAME,
+      UpdateExpression: "REMOVE #IK",
+    };
+    await ddb.updateItem(deleteInvoiceParams).promise();
+  }
+
   await ddb.updateItem(params).promise();
 
   const searchAssignationsParams = {

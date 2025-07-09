@@ -72,6 +72,7 @@ export type JobFilters = {
 
 export type EditJobParameters = Omit<JobFormValues, "imageUrl"> & {
   imageKey?: string;
+  invoiceKey?: string;
 };
 
 type JobsPaginationArguments = {
