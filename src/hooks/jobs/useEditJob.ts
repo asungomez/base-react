@@ -2,11 +2,17 @@ import { Job } from "aws-sdk/clients/codepipeline";
 import { useSWRConfig } from "swr";
 import useSWRMutation from "swr/mutation";
 import { JobFormValues } from "../../components/JobForm/JobForm";
-import { EditJobParameters, JobFilters, editJob } from "../../services/jobs";
+import {
+  EditJobParameters,
+  JobFilters,
+  editJob,
+  getJobAddresses,
+} from "../../services/jobs";
 import { unstable_serialize } from "swr/infinite";
 import { keyFunctionGenerator } from "./useJobs";
 import { extractErrorCode } from "../../services/error";
 import { deleteFile, uploadFile } from "../../services/files";
+import { generateJobInvoice } from "../../services/pdf";
 
 export const useEditJob = (jobId?: string) => {
   const { mutate } = useSWRConfig();
@@ -30,6 +36,10 @@ export const useEditJob = (jobId?: string) => {
         await deleteFile(imageKey);
         editParams.imageKey = undefined;
       }
+      const { addresses } = await getJobAddresses(jobId);
+      const invoiceKey = `jobs/${jobId}/invoice.pdf`;
+      await generateJobInvoice(formValues, invoiceKey, addresses);
+      editParams.invoiceKey = invoiceKey;
       const job = await editJob(jobId, editParams);
       await mutate<
         readonly [string, JobFilters, string | undefined],

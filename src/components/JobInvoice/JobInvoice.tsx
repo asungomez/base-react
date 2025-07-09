@@ -1,10 +1,11 @@
 import { FC } from "react";
 import { Document, Page, StyleSheet, View, Text } from "@react-pdf/renderer";
 import { CustomerAddress } from "../../services/customers";
-import { Job } from "../../services/jobs";
+import { JobFormValues } from "../JobForm/JobForm";
+import { transformFormValues } from "../../services/jobs";
 
 type JobInvoiceProps = {
-  job: Job;
+  job: JobFormValues;
   addresses: CustomerAddress[];
   taxRate?: number;
   discount?: number;
@@ -27,20 +28,23 @@ export const JobInvoice: FC<JobInvoiceProps> = ({
   addresses,
   taxRate = 21,
   discount = 0,
-}) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <InvoiceTitle title={job.name} />
-      <InvoiceDate
-        date={job.date}
-        timeTo={job.endTime}
-        timeFrom={job.startTime}
-      />
-      <BillTo addresses={addresses} />
-      <InvoiceTable price={job.price} taxRate={taxRate} discount={discount} />
-    </Page>
-  </Document>
-);
+}) => {
+  const transformedJob = transformFormValues(job);
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <InvoiceTitle title={job.name} />
+        <InvoiceDate
+          date={transformedJob.date}
+          timeTo={transformedJob.endTime}
+          timeFrom={transformedJob.startTime}
+        />
+        <BillTo addresses={addresses} />
+        <InvoiceTable price={job.price} taxRate={taxRate} discount={discount} />
+      </Page>
+    </Document>
+  );
+};
 
 const titleStyles = StyleSheet.create({
   titleContainer: {

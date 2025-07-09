@@ -34,7 +34,7 @@ export const useCreateJob = () => {
       }
       const { addresses } = await getJobAddresses(job.id);
       const invoiceKey = `jobs/${job.id}/invoice.pdf`;
-      await generateJobInvoice(formValues, invoiceKey, job, addresses);
+      await generateJobInvoice(formValues, invoiceKey, addresses);
       editParameters.invoiceKey = invoiceKey;
       job = await editJob(job.id, editParameters);
       // Refresh all caches for job lists

@@ -81,7 +81,7 @@ type JobsPaginationArguments = {
   paginate?: boolean;
 };
 
-const transformFormValues = (formValues: JobFormValues) => {
+export const transformFormValues = (formValues: JobFormValues) => {
   return {
     ...formValues,
     date: formValues.date.format("YYYY-MM-DD"),
