@@ -945,6 +945,16 @@ const getJob = async (jobId) => {
   return mapJobFromDB(result.Item);
 };
 
+const getJobCustomers = async (jobId) => {
+  const { addresses } = await getJobAddresses(jobId);
+  const customers = [];
+  for (const address of addresses) {
+    const customer = await getCustomer(address.customerId);
+    customers.push(customer);
+  }
+  return customers;
+};
+
 const getJobs = async (filters, order, nextTokenParam, paginate) => {
   let params = {
     TableName: TABLE_NAME,
@@ -1211,6 +1221,7 @@ module.exports = {
   getCustomers,
   getJob,
   getJobAddresses,
+  getJobCustomers,
   getJobs,
   setCustomerTaxData,
 };

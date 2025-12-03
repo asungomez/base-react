@@ -26,6 +26,7 @@ const {
   getCustomers,
   getJob,
   getJobAddresses,
+  getJobCustomers,
   getJobs,
   setCustomerTaxData,
 } = require("./db");
@@ -44,6 +45,8 @@ const {
   getUserInfo,
   getJobUsers,
 } = require("./authentication");
+
+const { emailCustomerAboutJob } = require("./mailer");
 
 // declare a new express app
 const app = express();
@@ -351,6 +354,10 @@ app.post("/jobs", async function (req, res) {
     }
     const mappedJob = mapJobFromRequestBody(job, assignedTo);
     const createdJob = await createJob(mappedJob);
+    const customers = await getJobCustomers(createdJob.id);
+    for (const customer of customers) {
+      await emailCustomerAboutJob(customer, createdJob);
+    }
     res.json({ job: createdJob });
   } catch (e) {
     if (e.message === "Address does not exist") {

@@ -17,5 +17,5 @@
     "jsx": "react-jsx",
     "types": ["cypress", "@testing-library/cypress"]
   },
-  "include": ["src", "cypress", "./*.ts"]
+  "include": ["src", "cypress", "./*.ts", "./amplify/backend/**/*.ts"]
 }
