@@ -1,0 +1,10 @@
+[
+  {
+    "Action": ["ses:SendEmail", "ses:SendRawEmail"],
+    "Resource": [
+      "arn:aws:ses:eu-west-1:291311682549:identity/agcastro7@gmail.com",
+      "arn:aws:ses:eu-west-1:291311682549:identity/asunparaaws@gmail.com",
+      "arn:aws:ses:eu-west-1:291311682549:identity/netflixcasa98@gmail.com"
+    ]
+  }
+]

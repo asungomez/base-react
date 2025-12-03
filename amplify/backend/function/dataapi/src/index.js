@@ -6,6 +6,8 @@ const app = require("./app");
  */
 const server = awsServerlessExpress.createServer(app);
 
+const USER_ID = "0a36f4f5-6598-4cf0-9a07-1563c7b182ba";
+
 /**
  * @type {import('@types/aws-lambda').APIGatewayProxyHandler}
  */

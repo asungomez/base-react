@@ -7,7 +7,7 @@ const emailCustomerAboutJob = async (customer, job) => {
   // should come from an env var, but let's hardcode it for now
   const senderEmail = "asunparaaws@gmail.com";
 
-  const subject = "Example message";
+  const subject = "New job created";
   const textBody = emailCustomerAboutJobTextTemplate(customer, job);
   const htmlBody = emailCustomerAboutJobHtmlTemplate(customer, job);
 
