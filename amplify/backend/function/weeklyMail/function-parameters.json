@@ -2,14 +2,10 @@
   "lambdaLayers": [],
   "permissions": {
     "auth": {
-      "auth": [
-        "read"
-      ]
+      "auth": ["read"]
     },
     "storage": {
-      "carlos": [
-        "read"
-      ]
+      "carlos": ["read"]
     }
   }
 }
