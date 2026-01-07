@@ -61,6 +61,8 @@ app.use(async function (req, res, next) {
   next();
 });
 
+// GET requests
+
 app.get("/addresses", async function (req, res) {
   const nextTokenParam = req.query?.nextToken;
   const searchInput = req.query?.search;
@@ -82,6 +84,16 @@ app.get("/customers", async function (req, res) {
   res.json({ customers: items, nextToken });
 });
 
+app.get("/customers/:customerId", async function (req, res) {
+  const id = req.params.customerId;
+  const customer = await getCustomer(id);
+  if (!customer) {
+    res.status(404).json({ error: "Customer not found" });
+    return;
+  }
+  res.json({ customer });
+});
+
 app.get("/customers/:customerId/addresses", async function (req, res) {
   try {
     const id = req.params.customerId;
@@ -98,16 +110,6 @@ app.get("/customers/:customerId/addresses", async function (req, res) {
     }
     throw e;
   }
-});
-
-app.get("/customers/:customerId", async function (req, res) {
-  const id = req.params.customerId;
-  const customer = await getCustomer(id);
-  if (!customer) {
-    res.status(404).json({ error: "Customer not found" });
-    return;
-  }
-  res.json({ customer });
 });
 
 app.get("/customers/:customerId/main-address", async function (req, res) {
@@ -206,6 +208,8 @@ app.get("/jobs/:jobId/addresses", async function (req, res) {
   const { addresses, nextToken } = await getJobAddresses(jobId, nextTokenParam);
   res.json({ addresses, nextToken });
 });
+
+// POST requests
 
 app.post("/customers", async function (req, res) {
   try {
@@ -354,10 +358,6 @@ app.post("/jobs", async function (req, res) {
     }
     const mappedJob = mapJobFromRequestBody(job, assignedTo);
     const createdJob = await createJob(mappedJob);
-    const customers = await getJobCustomers(createdJob.id);
-    for (const customer of customers) {
-      await emailCustomerAboutJob(customer, createdJob);
-    }
     res.json({ job: createdJob });
   } catch (e) {
     if (e.message === "Address does not exist") {
@@ -368,33 +368,21 @@ app.post("/jobs", async function (req, res) {
   }
 });
 
-app.put("/customers/:customerId/tax-data", async function (req, res) {
-  try {
-    const customerId = req.params.customerId;
-    const taxData = req.body;
-    validateTaxData(taxData);
-    const updatedTaxData = await setCustomerTaxData(customerId, taxData);
-    res.json({ taxData: updatedTaxData });
-  } catch (e) {
-    if (e.message === "Tax ID is required") {
-      res.status(400).json({ error: e.message });
-      return;
-    }
-    if (e.message === "Company name is required") {
-      res.status(400).json({ error: e.message });
-      return;
-    }
-    if (e.message === "Company address is required") {
-      res.status(400).json({ error: e.message });
-      return;
-    }
-    if (e.message === "Customer not found") {
-      res.status(404).json({ error: e.message });
-      return;
-    }
-    throw e;
+app.post("/notifications/job-created/:jobId", async function (req, res) {
+  const jobId = req.params.jobId;
+  const job = await getJob(jobId);
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
   }
+  const customers = await getJobCustomers(jobId);
+  for (const customer of customers) {
+    await emailCustomerAboutJob(customer, job);
+  }
+  res.json({ message: "Notification sent" });
 });
+
+// PUT requests
 
 app.put("/customers/:customerId", async function (req, res) {
   try {
@@ -461,6 +449,34 @@ app.put(
   }
 );
 
+app.put("/customers/:customerId/tax-data", async function (req, res) {
+  try {
+    const customerId = req.params.customerId;
+    const taxData = req.body;
+    validateTaxData(taxData);
+    const updatedTaxData = await setCustomerTaxData(customerId, taxData);
+    res.json({ taxData: updatedTaxData });
+  } catch (e) {
+    if (e.message === "Tax ID is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Company name is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Company address is required") {
+      res.status(400).json({ error: e.message });
+      return;
+    }
+    if (e.message === "Customer not found") {
+      res.status(404).json({ error: e.message });
+      return;
+    }
+    throw e;
+  }
+});
+
 app.put("/jobs/:jobId", async function (req, res) {
   const jobId = req.params.jobId;
   const job = req.body;
@@ -468,6 +484,8 @@ app.put("/jobs/:jobId", async function (req, res) {
   const updatedJob = await editJob(jobId, mappedJob);
   res.json({ job: updatedJob });
 });
+
+// DELETE requests
 
 app.delete("/customers/:customerId", async function (req, res) {
   const id = req.params.customerId;
@@ -485,16 +503,16 @@ app.delete(
   }
 );
 
-app.delete("/customers/:customerId/tax-data", async function (req, res) {
-  const customerId = req.params.customerId;
-  await deleteTaxDataFromCustomer(customerId);
-  res.json({ message: `Tax data for customer ${customerId} deleted` });
-});
-
 app.delete("/customers/:customerId/main-address", async function (req, res) {
   const customerId = req.params.customerId;
   await deleteMainAddressFromCustomer(customerId);
   res.json({ message: `Main address for customer ${customerId} deleted` });
+});
+
+app.delete("/customers/:customerId/tax-data", async function (req, res) {
+  const customerId = req.params.customerId;
+  await deleteTaxDataFromCustomer(customerId);
+  res.json({ message: `Tax data for customer ${customerId} deleted` });
 });
 
 app.delete(
