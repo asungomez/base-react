@@ -104,8 +104,9 @@ export const JobDetailsPage: FC = () => {
           <Grid
             size={{
               xs: 12,
-              md: 6
-            }}>
+              md: 6,
+            }}
+          >
             <JobImageWrapper>
               <JobImage src={job.imageUrl} alt="Job" />
             </JobImageWrapper>
@@ -114,8 +115,9 @@ export const JobDetailsPage: FC = () => {
         <Grid
           size={{
             xs: 12,
-            md: job?.imageUrl ? 6 : 12
-          }}>
+            md: job?.imageUrl ? 6 : 12,
+          }}
+        >
           <List>
             <ListItem disablePadding>
               <ListItemIcon>
