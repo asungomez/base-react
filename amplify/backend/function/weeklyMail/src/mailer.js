@@ -1,5 +1,5 @@
-const AWS = require("aws-sdk");
-const ses = new AWS.SES();
+const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
+const client = new SESClient({ region: "eu-west-1" });
 
 const groupJobsByDate = (jobs) => {
   const groupedByDate = jobs.reduce((acc, job) => {
@@ -56,7 +56,7 @@ const emailUserTimetable = async (user, jobs) => {
       },
     },
   };
-  await ses.sendEmail(params).promise();
+  await client.send(new SendEmailCommand(params));
 };
 
 const emailUserTimetableTextTemplate = (user, jobs) => `Hello ${user.name},

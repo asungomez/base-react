@@ -1,11 +1,7 @@
-const AWS = require("aws-sdk");
 const dayjs = require("dayjs");
+const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
 
-AWS.config.update({ region: "eu-west-1" });
-const ddb = new AWS.DynamoDB({
-  apiVersion: "2012-08-10",
-  params: { TableName: process.env.STORAGE_CARLOS_ARN },
-});
+const client = new DynamoDBClient({ region: "eu-west-1" });
 
 const mapJobFromDB = (item) => {
   const start = +item.start.N;
@@ -44,13 +40,13 @@ const getNextWeekJobs = async (userId) => {
   let lastEvaluatedKey;
   let jobs = [];
   do {
-    const result = await ddb
-      .scan({ ...params, ExclusiveStartKey: lastEvaluatedKey })
-      .promise();
-    jobs.push(...result.Items);
+    const result = await client.send(
+      new ScanCommand({ ...params, ExclusiveStartKey: lastEvaluatedKey })
+    );
+    jobs.push(...(result.Items ?? []));
     lastEvaluatedKey = result.LastEvaluatedKey;
   } while (lastEvaluatedKey);
-  return jobs.map(mapJobFromDB);
+  return jobs.map(mapJobFromDB) ?? [];
 };
 
 module.exports = {

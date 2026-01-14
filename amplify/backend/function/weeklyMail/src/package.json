@@ -8,7 +8,9 @@
     "@types/aws-lambda": "^8.10.92"
   },
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.968.0",
+    "@aws-sdk/client-dynamodb": "^3.968.0",
+    "@aws-sdk/client-ses": "^3.968.0",
     "dayjs": "^1.11.19"
   }
 }

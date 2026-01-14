@@ -39,7 +39,7 @@
         },
         "weeklyMail": {
           "deploymentBucketName": "amplify-auth-dev-110238-deployment",
-          "s3Key": "amplify-builds/weeklyMail-6b6a316570667661384b-build.zip"
+          "s3Key": "amplify-builds/weeklyMail-575a564e33734c574c39-build.zip"
         }
       },
       "api": {
