@@ -101,13 +101,21 @@ export const JobDetailsPage: FC = () => {
         direction={{ xs: "column", md: "row-reverse" }}
       >
         {job?.imageUrl && (
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <JobImageWrapper>
               <JobImage src={job.imageUrl} alt="Job" />
             </JobImageWrapper>
           </Grid>
         )}
-        <Grid item xs={12} md={job?.imageUrl ? 6 : 12}>
+        <Grid
+          size={{
+            xs: 12,
+            md: job?.imageUrl ? 6 : 12
+          }}>
           <List>
             <ListItem disablePadding>
               <ListItemIcon>
