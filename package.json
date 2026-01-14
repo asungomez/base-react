@@ -19,7 +19,7 @@
     "dayjs": "^1.11.11",
     "formik": "^2.2.9",
     "node-uuid": "^1.4.8",
-    "react": "^18.1.0",
+    "react": "^19.2.3",
     "react-big-calendar": "^1.13.4",
     "react-color": "^2.19.3",
     "react-dom": "^18.1.0",
