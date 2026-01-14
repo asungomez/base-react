@@ -97,9 +97,9 @@
     graphql "^15.5.0"
 
 "@aws-cdk/asset-awscli-v1@^2.2.229":
-  version "2.2.259"
-  resolved "https://artifacts.jll.com/artifactory/api/npm/jllt-npm-release/@aws-cdk/asset-awscli-v1/-/asset-awscli-v1-2.2.259.tgz#db87794d6e0ce2ed51211cbba9cb4061c9c4d1b8"
-  integrity sha512-+FRt70Ekh/aV4Ewux4DTctnxSHFg9M7AeirLLsDDVwtbIOIltgEBE8V0NDIOoJX026gBnrCGOv7TyXf22LuKVA==
+  version "2.2.261"
+  resolved "https://artifacts.jll.com/artifactory/api/npm/jllt-npm-release/@aws-cdk/asset-awscli-v1/-/asset-awscli-v1-2.2.261.tgz#3e578c7f6dbf00282cafb01e4315ed2025a89f1f"
+  integrity sha512-XkKvgG/OxrEYtVTt2Q9gaD58Qn90fnX/dNczL4k6myeii7UgAGPmqh+I+1uKohCWGKIKd+4Gz2xWBL/tPi4YIA==
 
 "@aws-cdk/asset-node-proxy-agent-v6@^2.1.0":
   version "2.1.0"
@@ -115,9 +115,9 @@
     semver "^7.7.1"
 
 "@aws-sdk/util-arn-parser@^3.893.0":
-  version "3.957.0"
-  resolved "https://artifacts.jll.com/artifactory/api/npm/jllt-npm-release/@aws-sdk/util-arn-parser/-/util-arn-parser-3.957.0.tgz#8e5898230d5e41e097ad484a714a004a0555b0fe"
-  integrity sha512-Aj6m+AyrhWyg8YQ4LDPg2/gIfGHCEcoQdBt5DeSFogN5k9mmJPOJ+IAmNSWmWRjpOxEy6eY813RNDI6qS97M0g==
+  version "3.968.0"
+  resolved "https://artifacts.jll.com/artifactory/api/npm/jllt-npm-release/@aws-sdk/util-arn-parser/-/util-arn-parser-3.968.0.tgz#ca8d7d26ffafa340a9e441a40db886ddb587743f"
+  integrity sha512-gqqvYcitIIM2K4lrDX9de9YvOfXBcVdxfT/iLnvHJd4YHvSXlt+gs+AsL4FfPCxG4IG9A+FyulP9Sb1MEA75vw==
   dependencies:
     tslib "^2.6.2"
 

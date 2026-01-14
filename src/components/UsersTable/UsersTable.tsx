@@ -25,7 +25,7 @@ const columns: GridColDef[] = [
     field: "color",
     headerName: "Color",
     renderCell: (params) =>
-      params.value ? <UserColor color={params.value as string} /> : null,
+      params.value ? <UserColor color={params.value as string} /> : undefined,
   },
 ];
 
