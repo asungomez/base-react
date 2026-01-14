@@ -10,9 +10,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { LoadingButton } from "@mui/lab";
 
 type JobAddressesProps = {
   jobId: string;
@@ -65,9 +65,9 @@ export const JobAddresses: FC<JobAddressesProps> = ({ jobId }) => {
         </Table>
       </TableContainer>
       {moreToLoad && (
-        <LoadingButton variant="text" onClick={loadMore} loading={loadingMore}>
+        <Button variant="text" onClick={loadMore} loading={loadingMore}>
           Load more
-        </LoadingButton>
+        </Button>
       )}
     </>
   );

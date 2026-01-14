@@ -1,12 +1,17 @@
-import { LoadingButton } from "@mui/lab";
-import { FC } from "react";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardMedia,
+} from "@mui/material";
+import { ComponentType, FC } from "react";
 import { EmailInput } from "../EmailInput/EmailInput";
 import { Form } from "../Form/Form";
 import { PasswordInput } from "../PasswordInput/PasswordInput";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { CirclePicker, ColorResult } from "react-color";
-import { Card, CardContent, CardHeader, CardMedia } from "@mui/material";
+import { CirclePicker, CirclePickerProps, ColorResult } from "react-color";
 
 export type CreateUserFormValues = {
   email: string;
@@ -31,6 +36,8 @@ type CreateUserFormProps = {
   loading?: boolean;
   initialValues?: CreateUserFormValues;
 };
+
+const CirclePickerComponent = CirclePicker as ComponentType<CirclePickerProps>;
 
 export const CreateUserForm: FC<CreateUserFormProps> = ({
   onSubmit,
@@ -70,16 +77,16 @@ export const CreateUserForm: FC<CreateUserFormProps> = ({
           component="div"
         />
         <CardContent>
-          <CirclePicker
+          <CirclePickerComponent
             color={formik.values.color}
             onChange={colorChangeHandler}
           />
         </CardContent>
       </Card>
 
-      <LoadingButton loading={loading} variant="outlined" type="submit">
+      <Button loading={loading} variant="outlined" type="submit">
         Create
-      </LoadingButton>
+      </Button>
     </Form>
   );
 };

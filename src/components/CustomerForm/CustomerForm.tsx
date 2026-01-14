@@ -3,9 +3,8 @@ import { CUSTOMER_TYPES, CustomerType } from "../../services/customers";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { EmailInput } from "../EmailInput/EmailInput";
-import { MenuItem, Select, TextField } from "@mui/material";
+import { Button, MenuItem, Select, TextField } from "@mui/material";
 import { Form } from "../Form/Form";
-import { LoadingButton } from "@mui/lab";
 
 export type CustomerFormValues = {
   email: string;
@@ -79,9 +78,9 @@ export const CustomerForm: FC<CustomerFormProps> = ({
           </MenuItem>
         ))}
       </Select>
-      <LoadingButton loading={loading} variant="outlined" type="submit">
+      <Button loading={loading} variant="outlined" type="submit">
         Submit
-      </LoadingButton>
+      </Button>
     </Form>
   );
 };

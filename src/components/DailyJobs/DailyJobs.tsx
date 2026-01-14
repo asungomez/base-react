@@ -1,8 +1,7 @@
 import { FC } from "react";
 import { useJobs } from "../../hooks/jobs/useJobs";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
-import { LoadingButton } from "@mui/lab";
 import dayjs from "dayjs";
 import { JobsList } from "../JobsList/JobsList";
 
@@ -31,9 +30,9 @@ export const DailyJobs: FC<DailyJobs> = ({ date }) => {
     <>
       <JobsList jobs={jobs} />
       {moreToLoad && (
-        <LoadingButton loading={loadingMore} onClick={loadMore}>
+        <Button loading={loadingMore} onClick={loadMore}>
           Load more
-        </LoadingButton>
+        </Button>
       )}
     </>
   );

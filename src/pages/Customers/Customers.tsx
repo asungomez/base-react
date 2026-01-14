@@ -11,7 +11,6 @@ import { Customer } from "../../services/customers";
 import { useNavigate } from "react-router-dom";
 import { useCustomers } from "../../hooks/customers/useCustomers";
 import { ErrorMessage } from "../../components/ErrorMessage/ErrorMessage";
-import { LoadingButton } from "@mui/lab";
 import { SearchBar } from "../../components/SearchBar/SearchBar";
 
 export const CustomersPage: FC = () => {
@@ -74,13 +73,13 @@ export const CustomersPage: FC = () => {
           ))}
         </CustomersList>
         {moreToLoad && (
-          <LoadingButton
+          <Button
             variant="text"
             onClick={loadMore}
             loading={loadingMore}
           >
             Load more
-          </LoadingButton>
+          </Button>
         )}
       </>
     </>

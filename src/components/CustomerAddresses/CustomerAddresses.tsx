@@ -3,7 +3,6 @@ import { FC, useState } from "react";
 import { Button, CircularProgress, Typography } from "@mui/material";
 import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 import AddIcon from "@mui/icons-material/Add";
-import { LoadingButton } from "@mui/lab";
 import { useCustomerAddresses } from "../../hooks/customers/address/useCustomerAddresses";
 import { CustomerAddressesTable } from "../CustomerAddressesTable/CustomerAddressesTable";
 import { CustomerAddressModal } from "../CustomerAddressModal/CustomerAddressModal";
@@ -71,9 +70,9 @@ export const CustomerAddresses: FC<CustomerAddressesProps> = ({
         onEditClick={openModal}
       />
       {moreToLoad && (
-        <LoadingButton variant="text" onClick={loadMore} loading={loadingMore}>
+        <Button variant="text" onClick={loadMore} loading={loadingMore}>
           Load more
-        </LoadingButton>
+        </Button>
       )}
       <CustomerAddressModal
         customerId={customerId}

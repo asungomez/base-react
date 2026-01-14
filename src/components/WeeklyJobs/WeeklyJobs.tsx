@@ -1,6 +1,12 @@
-import { FC, useState } from "react";
+import { ComponentType, FC, useState } from "react";
 import { Job } from "../../services/jobs";
-import { Calendar, momentLocalizer, Event, SlotInfo } from "react-big-calendar";
+import {
+  Calendar,
+  CalendarProps,
+  Event,
+  SlotInfo,
+  momentLocalizer,
+} from "react-big-calendar";
 import moment from "moment";
 import dayjs, { Dayjs } from "dayjs";
 import { CalendarWrapper } from "./WeeklyJobs.style";
@@ -13,6 +19,10 @@ type WeeklyJobsProps = {
   jobs: Job[];
   onJobCreated?: () => void;
 };
+
+const CalendarComponent = Calendar as ComponentType<
+  CalendarProps<Event, object>
+>;
 
 export const WeeklyJobs: FC<WeeklyJobsProps> = ({
   startDate,
@@ -77,7 +87,7 @@ export const WeeklyJobs: FC<WeeklyJobsProps> = ({
   return (
     <>
       <CalendarWrapper>
-        <Calendar
+        <CalendarComponent
           localizer={localizer}
           events={events}
           defaultView="week"

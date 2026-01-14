@@ -2,8 +2,7 @@ import { useFormik } from "formik";
 import { FC } from "react";
 import * as yup from "yup";
 import { Form } from "../Form/Form";
-import { TextField } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import { Button, TextField } from "@mui/material";
 
 type TaxDataFormProps = {
   onSubmit: (values: TaxDataFormValues) => void;
@@ -80,9 +79,9 @@ export const TaxDataForm: FC<TaxDataFormProps> = ({
             : undefined
         }
       />
-      <LoadingButton loading={loading} variant="outlined" type="submit">
+      <Button loading={loading} variant="outlined" type="submit">
         Save
-      </LoadingButton>
+      </Button>
     </Form>
   );
 };

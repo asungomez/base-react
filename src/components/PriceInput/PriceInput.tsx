@@ -1,7 +1,6 @@
-import { TextField, TextFieldProps } from "@mui/material";
+import { FormHelperText, TextField, TextFieldProps } from "@mui/material";
 import { FC } from "react";
 import { NumericFormat, NumericFormatProps } from "react-number-format";
-import { FormHelperText } from "@mui/material";
 
 type PriceInputProps = Omit<
   NumericFormatProps,

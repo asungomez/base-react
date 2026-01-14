@@ -2,8 +2,7 @@ import { useFormik } from "formik";
 import { FC, useState } from "react";
 import * as yup from "yup";
 import { Form } from "../Form/Form";
-import { Container, TextField } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import { Button, Container, TextField } from "@mui/material";
 import { JobAddressesInput } from "../JobAddressesInput/JobAddressesInput";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -169,14 +168,14 @@ export const JobForm: FC<JobFormProps> = ({
           onChange={changeImageHandler}
           value={formik.values.imageUrl}
         />
-        <LoadingButton
+        <Button
           loading={loading}
           variant="outlined"
           type="submit"
           sx={{ marginY: "10px" }}
         >
           Submit
-        </LoadingButton>
+        </Button>
       </Form>
     </Container>
   );

@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { LoadingButton } from "@mui/lab";
+import { Button } from "@mui/material";
 import { ErrorCode } from "../../services/error";
 import { useDeleteCustomer } from "../../hooks/customers/useDeleteCustomer";
 
@@ -25,13 +25,13 @@ export const DeleteCustomerButton: FC<DeleteCustomerButtonProps> = ({
       });
   };
   return (
-    <LoadingButton
+    <Button
       variant="contained"
       color="error"
       onClick={deleteHandler}
       loading={loading}
     >
       Delete
-    </LoadingButton>
+    </Button>
   );
 };

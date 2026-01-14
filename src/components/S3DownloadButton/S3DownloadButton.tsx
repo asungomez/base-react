@@ -1,4 +1,4 @@
-import { LoadingButton } from "@mui/lab";
+import { Button } from "@mui/material";
 import { FC, useState } from "react";
 import { getFileUrl } from "../../services/files";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -39,13 +39,13 @@ export const S3DownloadButton: FC<S3DownloadButtonProps> = ({
       });
   };
   return (
-    <LoadingButton
+    <Button
       variant="contained"
       loading={isLoading}
       onClick={clickHandler}
       startIcon={<DownloadIcon />}
     >
       {label}
-    </LoadingButton>
+    </Button>
   );
 };

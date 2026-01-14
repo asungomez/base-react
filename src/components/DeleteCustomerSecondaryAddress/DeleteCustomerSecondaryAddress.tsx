@@ -1,4 +1,4 @@
-import { LoadingButton } from "@mui/lab";
+import { Button } from "@mui/material";
 import { FC } from "react";
 import { useDeleteCustomerSecondaryAddress } from "../../hooks/customers/secondary-address/useDeleteCustomerSecondaryAddress";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -19,13 +19,13 @@ export const DeleteCustomerSecondaryAddress: FC<
     });
   };
   return (
-    <LoadingButton
+    <Button
       variant="contained"
       color="error"
       onClick={clickHander}
       loading={loading}
     >
       <DeleteIcon />
-    </LoadingButton>
+    </Button>
   );
 };

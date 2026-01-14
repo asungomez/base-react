@@ -4,7 +4,6 @@ import * as yup from "yup";
 import { Form } from "../Form/Form";
 import { Button, InputAdornment, TextField } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
-import { LoadingButton } from "@mui/lab";
 
 export type CustomerExternalLinkFormValues = {
   url: string;
@@ -59,14 +58,14 @@ export const CustomerExternalLinkForm: FC<CustomerExternalLinkFormProps> = ({
           ),
         }}
       />
-      <LoadingButton
+      <Button
         loading={loading}
         variant="text"
         type="submit"
         size="small"
       >
         Save
-      </LoadingButton>
+      </Button>
       <Button size="small" color="error" onClick={onCancel}>
         Cancel
       </Button>

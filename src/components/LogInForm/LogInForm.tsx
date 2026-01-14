@@ -1,4 +1,4 @@
-import { LoadingButton } from "@mui/lab";
+import { Button } from "@mui/material";
 import { FC } from "react";
 import { EmailInput } from "../EmailInput/EmailInput";
 import { Form } from "../Form/Form";
@@ -50,9 +50,9 @@ export const LogInForm: FC<LogInFormProps> = ({
         onChange={formik.handleChange}
         errorMessage={formik.touched.password ? formik.errors.password : null}
       />
-      <LoadingButton loading={loading} variant="outlined" type="submit">
+      <Button loading={loading} variant="outlined" type="submit">
         Log in
-      </LoadingButton>
+      </Button>
     </Form>
   );
 };

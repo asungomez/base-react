@@ -1,4 +1,4 @@
-import { LoadingButton } from "@mui/lab";
+import { Button } from "@mui/material";
 import { FC } from "react";
 import { ErrorCode } from "../../services/error";
 import { useDeleteCustomerTaxData } from "../../hooks/customers/tax-data/useDeleteCustomerTaxData";
@@ -20,13 +20,13 @@ export const DeleteCustomerTaxDataButton: FC<
     });
   };
   return (
-    <LoadingButton
+    <Button
       variant="contained"
       color="error"
       onClick={clickHander}
       loading={loading}
     >
       Delete
-    </LoadingButton>
+    </Button>
   );
 };
