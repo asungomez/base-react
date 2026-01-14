@@ -5,6 +5,12 @@ import "./index.css";
 import { Amplify } from "aws-amplify";
 import AWSConfig from "./aws-exports";
 
+// Ensure Node-style globals exist for browser bundles (used by aws-amplify).
+if (typeof global === "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).global = window;
+}
+
 Amplify.configure(AWSConfig);
 
 const root = ReactDOM.createRoot(

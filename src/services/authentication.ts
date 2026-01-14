@@ -56,7 +56,7 @@ const findAttributeValue = (user: UserResponse, attribute: string) =>
 export const forgotPassword = async (email: string) => {
   try {
     await Auth.forgotPassword(email, {
-      redirectTo: process.env.REACT_APP_HOST || "",
+      redirectTo: import.meta.env.VITE_HOST || "",
     });
   } catch (error) {
     if (hasCode(error)) {
@@ -92,7 +92,7 @@ export const getUsers = async (): Promise<User[]> => {
       return { id, email, name, color };
     }).filter(Boolean);
     return users;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };
@@ -102,7 +102,7 @@ export const getAuthenticatedUser =
     try {
       const user = await Auth.currentAuthenticatedUser();
       return user;
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   };
@@ -176,7 +176,7 @@ export const logIn = async (
 export const logOut = async () => {
   try {
     await Auth.signOut();
-  } catch (e) {
+  } catch (_e) {
     throw new Error("INTERNAL_ERROR");
   }
 };

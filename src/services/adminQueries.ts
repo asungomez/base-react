@@ -1,9 +1,9 @@
 import { API, Auth } from "aws-amplify";
 
-const PATHS = ["/listUsers", "/createUser"] as const;
+const _PATHS = ["/listUsers", "/createUser"] as const;
 
 export const get = async (
-  path: typeof PATHS[number],
+  path: typeof _PATHS[number],
   queryParams: { [param: string]: string } = {}
 ) => {
   return API.get("AdminQueries", path, {
@@ -18,7 +18,7 @@ export const get = async (
 };
 
 export const post = async (
-  path: typeof PATHS[number],
+  path: typeof _PATHS[number],
   body: { [param: string]: string } = {}
 ) => {
   return API.post("AdminQueries", path, {

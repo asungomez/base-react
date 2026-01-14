@@ -97,7 +97,7 @@ export const createJob = async (formValues: JobFormValues): Promise<Job> => {
       throw new Error("INTERNAL_ERROR");
     }
     return response.job;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };
@@ -105,7 +105,7 @@ export const createJob = async (formValues: JobFormValues): Promise<Job> => {
 export const deleteJob = async (jobId: string): Promise<void> => {
   try {
     await del(`/jobs/${jobId}`);
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };
@@ -127,7 +127,7 @@ export const editJob = async (
       response.job.imageUrl = imageUrl;
     }
     return response.job;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };
@@ -171,7 +171,7 @@ export const getJobAddresses = async (
       throw new Error("INTERNAL_ERROR");
     }
     return response;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };
@@ -198,7 +198,7 @@ export const getJobs = async (
       throw new Error("INTERNAL_ERROR");
     }
     return response;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };

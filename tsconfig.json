@@ -15,7 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["cypress", "@testing-library/cypress"]
+    "types": ["vite/client", "cypress", "@testing-library/cypress"]
   },
   "include": ["src", "cypress", "./*.ts", "./amplify/backend/**/*.ts"]
 }

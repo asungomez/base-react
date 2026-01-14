@@ -503,7 +503,7 @@ export const getCustomers = async (
     const customers = response.customers as Customer[];
     const responseToken = response.nextToken as string | undefined;
     return { customers, nextToken: responseToken };
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };
@@ -587,7 +587,7 @@ export const searchAddresses = async (
       throw new Error("INTERNAL_ERROR");
     }
     return response.addresses;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("INTERNAL_ERROR");
   }
 };
