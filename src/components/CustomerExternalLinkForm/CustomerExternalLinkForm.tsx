@@ -58,12 +58,7 @@ export const CustomerExternalLinkForm: FC<CustomerExternalLinkFormProps> = ({
           ),
         }}
       />
-      <Button
-        loading={loading}
-        variant="text"
-        type="submit"
-        size="small"
-      >
+      <Button loading={loading} variant="text" type="submit" size="small">
         Save
       </Button>
       <Button size="small" color="error" onClick={onCancel}>

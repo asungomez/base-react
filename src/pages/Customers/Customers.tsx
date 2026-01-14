@@ -73,11 +73,7 @@ export const CustomersPage: FC = () => {
           ))}
         </CustomersList>
         {moreToLoad && (
-          <Button
-            variant="text"
-            onClick={loadMore}
-            loading={loadingMore}
-          >
+          <Button variant="text" onClick={loadMore} loading={loadingMore}>
             Load more
           </Button>
         )}
