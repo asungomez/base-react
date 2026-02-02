@@ -51,7 +51,8 @@
         "exercisesstorage": {}
       },
       "custom": {
-        "sesEmail": {}
+        "sesEmail": {},
+        "monitoring": {}
       }
     }
   }
