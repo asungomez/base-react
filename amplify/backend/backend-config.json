@@ -4,12 +4,17 @@
       "authorizationType": "AMAZON_COGNITO_USER_POOLS",
       "dependsOn": [
         {
-          "attributes": ["UserPoolId"],
+          "attributes": [
+            "UserPoolId"
+          ],
           "category": "auth",
           "resourceName": "auth"
         },
         {
-          "attributes": ["Arn", "Name"],
+          "attributes": [
+            "Arn",
+            "Name"
+          ],
           "category": "function",
           "resourceName": "AdminQueries56514224"
         }
@@ -20,17 +25,24 @@
     "dataapi": {
       "dependsOn": [
         {
-          "attributes": ["Name", "Arn"],
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
           "category": "function",
           "resourceName": "dataapi"
         },
         {
-          "attributes": ["UserPoolId"],
+          "attributes": [
+            "UserPoolId"
+          ],
           "category": "auth",
           "resourceName": "auth"
         },
         {
-          "attributes": ["AdminGroupRole"],
+          "attributes": [
+            "AdminGroupRole"
+          ],
           "category": "auth",
           "resourceName": "userPoolGroups"
         }
@@ -44,7 +56,10 @@
       "customAuth": false,
       "dependsOn": [
         {
-          "attributes": ["Arn", "Name"],
+          "attributes": [
+            "Arn",
+            "Name"
+          ],
           "category": "function",
           "resourceName": "authCustomMessage",
           "triggerProvider": "Cognito"
@@ -52,15 +67,23 @@
       ],
       "frontendAuthConfig": {
         "mfaConfiguration": "OFF",
-        "mfaTypes": ["SMS"],
+        "mfaTypes": [
+          "SMS"
+        ],
         "passwordProtectionSettings": {
           "passwordPolicyCharacters": [],
           "passwordPolicyMinLength": 8
         },
-        "signupAttributes": ["EMAIL"],
+        "signupAttributes": [
+          "EMAIL"
+        ],
         "socialProviders": [],
-        "usernameAttributes": ["EMAIL"],
-        "verificationMechanisms": ["EMAIL"]
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
@@ -86,7 +109,12 @@
     "monitoring": {
       "dependsOn": [
         {
-          "attributes": ["RootUrl", "ApiName", "ApiId", "DeploymentId"],
+          "attributes": [
+            "RootUrl",
+            "ApiName",
+            "ApiId",
+            "DeploymentId"
+          ],
           "category": "api",
           "resourceName": "dataapi"
         }
@@ -104,7 +132,9 @@
       "build": true,
       "dependsOn": [
         {
-          "attributes": ["UserPoolId"],
+          "attributes": [
+            "UserPoolId"
+          ],
           "category": "auth",
           "resourceName": "auth"
         }
@@ -127,12 +157,18 @@
       "build": true,
       "dependsOn": [
         {
-          "attributes": ["UserPoolId"],
+          "attributes": [
+            "UserPoolId"
+          ],
           "category": "auth",
           "resourceName": "auth"
         },
         {
-          "attributes": ["Name", "Arn", "StreamArn"],
+          "attributes": [
+            "Name",
+            "Arn",
+            "StreamArn"
+          ],
           "category": "storage",
           "resourceName": "carlos"
         }
@@ -238,12 +274,16 @@
     "exercisesstorage": {
       "dependsOn": [
         {
-          "attributes": ["UserPoolId"],
+          "attributes": [
+            "UserPoolId"
+          ],
           "category": "auth",
           "resourceName": "auth"
         },
         {
-          "attributes": ["AdminGroupRole"],
+          "attributes": [
+            "AdminGroupRole"
+          ],
           "category": "auth",
           "resourceName": "userPoolGroups"
         }
