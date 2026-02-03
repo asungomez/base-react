@@ -53,7 +53,9 @@
     },
     "LambdaFunction": {
       "Type": "AWS::Lambda::Function",
-      "DependsOn": ["LambdaLogGroup"],
+      "DependsOn": [
+        "LambdaLogGroup"
+      ],
       "Metadata": {
         "aws:asset:path": "./src",
         "aws:asset:property": "Code"
@@ -100,9 +102,12 @@
           }
         },
         "Role": {
-          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+          "Fn::GetAtt": [
+            "LambdaExecutionRole",
+            "Arn"
+          ]
         },
-        "Runtime": "nodejs16.x",
+        "Runtime": "nodejs22.x",
         "Layers": [],
         "Timeout": 25
       }
@@ -134,16 +139,22 @@
             {
               "Effect": "Allow",
               "Principal": {
-                "Service": ["lambda.amazonaws.com"]
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
               },
-              "Action": ["sts:AssumeRole"]
+              "Action": [
+                "sts:AssumeRole"
+              ]
             }
           ]
         }
       }
     },
     "lambdaexecutionpolicy": {
-      "DependsOn": ["LambdaExecutionRole"],
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ],
       "Type": "AWS::IAM::Policy",
       "Properties": {
         "PolicyName": "lambda-execution-policy",
@@ -232,7 +243,10 @@
             {
               "Sid": "AllowSesSend",
               "Effect": "Allow",
-              "Action": ["ses:SendEmail", "ses:SendRawEmail"],
+              "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail"
+              ],
               "Resource": [
                 "arn:aws:ses:eu-west-1:291311682549:identity/agcastro7@gmail.com",
                 "arn:aws:ses:eu-west-1:291311682549:identity/asunparaaws@gmail.com",
@@ -241,7 +255,10 @@
             },
             {
               "Effect": "Allow",
-              "Action": ["xray:PutTraceSegments", "xray:PutTelemetryRecords"],
+              "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords"
+              ],
               "Resource": "*"
             }
           ]
@@ -257,7 +274,10 @@
     },
     "Arn": {
       "Value": {
-        "Fn::GetAtt": ["LambdaFunction", "Arn"]
+        "Fn::GetAtt": [
+          "LambdaFunction",
+          "Arn"
+        ]
       }
     },
     "Region": {
@@ -272,7 +292,10 @@
     },
     "LambdaExecutionRoleArn": {
       "Value": {
-        "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+        "Fn::GetAtt": [
+          "LambdaExecutionRole",
+          "Arn"
+        ]
       }
     }
   }
