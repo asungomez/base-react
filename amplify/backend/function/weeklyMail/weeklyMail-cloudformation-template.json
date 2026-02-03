@@ -44,8 +44,34 @@
     }
   },
   "Resources": {
+    "LambdaLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "/aws/lambda/weeklyMail",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "/aws/lambda/weeklyMail-",
+                  {
+                    "Ref": "env"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "RetentionInDays": 7
+      }
+    },
     "LambdaFunction": {
       "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "LambdaLogGroup"
+      ],
       "Metadata": {
         "aws:asset:path": "./src",
         "aws:asset:property": "Code"

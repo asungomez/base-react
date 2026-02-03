@@ -27,8 +27,34 @@
     }
   },
   "Resources": {
+    "LambdaLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "/aws/lambda/AdminQueries56514224",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "/aws/lambda/AdminQueries56514224-",
+                  {
+                    "Ref": "env"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "RetentionInDays": 7
+      }
+    },
     "LambdaFunction": {
       "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "LambdaLogGroup"
+      ],
       "Metadata": {
         "aws:asset:path": "./src",
         "aws:asset:property": "Code"
