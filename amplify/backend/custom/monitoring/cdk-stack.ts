@@ -14,8 +14,6 @@ export class cdkStack extends cdk.Stack {
     amplifyResourceProps?: AmplifyHelpers.AmplifyResourceProps
   ) {
     super(scope, id, props);
-
-    /* Do not remove - Amplify CLI automatically injects the current deployment environment in this input parameter */
     new cdk.CfnParameter(this, "env", {
       type: "String",
       description: "Current Amplify CLI env name",
@@ -43,7 +41,7 @@ export class cdkStack extends cdk.Stack {
       logGroupName: `/aws/apigateway/${
         amplifyProjectInfo.projectName
       }-dataapi-${cdk.Fn.ref("env")}`,
-      retention: logs.RetentionDays.ONE_MONTH,
+      retention: logs.RetentionDays.ONE_WEEK,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
