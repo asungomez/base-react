@@ -21,29 +21,51 @@ export class cdkStack extends cdk.Stack {
 
     const amplifyProjectInfo = AmplifyHelpers.getProjectInfo();
 
-    // Add dependency on the dataapi REST API
+    // Add dependency on both REST APIs
     const dependencies: AmplifyDependentResourcesAttributes =
       AmplifyHelpers.addResourceDependency(
         this,
         amplifyResourceProps!.category,
         amplifyResourceProps!.resourceName,
-        [{ category: "api", resourceName: "dataapi" }]
+        [
+          { category: "api", resourceName: "dataapi" },
+          { category: "api", resourceName: "AdminQueries" },
+        ]
       );
 
-    // Get the API ID and Deployment ID from the dependencies
-    const apiId = cdk.Fn.ref(dependencies.api.dataapi.ApiId);
-    const deploymentId = cdk.Fn.ref(dependencies.api.dataapi.DeploymentId);
+    // Get the API IDs and Deployment IDs from the dependencies
+    const dataApiId = cdk.Fn.ref(dependencies.api.dataapi.ApiId);
+    const dataApiDeploymentId = cdk.Fn.ref(
+      dependencies.api.dataapi.DeploymentId
+    );
+
+    const adminApiId = cdk.Fn.ref(dependencies.api.AdminQueries.ApiId);
+    const adminApiDeploymentId = cdk.Fn.ref(
+      dependencies.api.AdminQueries.DeploymentId
+    );
 
     // ===========================================
-    // CloudWatch Log Group for API Gateway access logs
+    // CloudWatch Log Groups for API Gateway access logs
     // ===========================================
-    const accessLogGroup = new logs.LogGroup(this, "ApiAccessLogs", {
+    const dataApiAccessLogGroup = new logs.LogGroup(this, "DataApiAccessLogs", {
       logGroupName: `/aws/apigateway/${
         amplifyProjectInfo.projectName
       }-dataapi-${cdk.Fn.ref("env")}`,
       retention: logs.RetentionDays.ONE_WEEK,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
+
+    const adminApiAccessLogGroup = new logs.LogGroup(
+      this,
+      "AdminApiAccessLogs",
+      {
+        logGroupName: `/aws/apigateway/${
+          amplifyProjectInfo.projectName
+        }-adminqueries-${cdk.Fn.ref("env")}`,
+        retention: logs.RetentionDays.ONE_WEEK,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      }
+    );
 
     // ===========================================
     // IAM Role for API Gateway CloudWatch logging
@@ -72,62 +94,81 @@ export class cdkStack extends cdk.Stack {
       }
     );
 
-    // ===========================================
-    // API Gateway Stage with full monitoring
-    // ===========================================
-    const stage = new apigateway.CfnStage(this, "ApiStage", {
-      restApiId: apiId,
-      deploymentId: deploymentId,
-      stageName: cdk.Fn.ref("env"),
-
-      // Access logging - logs each request with correlation data
-      accessLogSetting: {
-        destinationArn: accessLogGroup.logGroupArn,
-        format: JSON.stringify({
-          requestId: "$context.requestId",
-          extendedRequestId: "$context.extendedRequestId",
-          ip: "$context.identity.sourceIp",
-          caller: "$context.identity.caller",
-          user: "$context.identity.user",
-          requestTime: "$context.requestTime",
-          httpMethod: "$context.httpMethod",
-          resourcePath: "$context.resourcePath",
-          path: "$context.path",
-          status: "$context.status",
-          protocol: "$context.protocol",
-          responseLength: "$context.responseLength",
-          responseLatency: "$context.responseLatency",
-          integrationLatency: "$context.integrationLatency",
-          integrationStatus: "$context.integrationStatus",
-          errorMessage: "$context.error.message",
-          errorType: "$context.error.responseType",
-        }),
-      },
-
-      // Enable X-Ray tracing for distributed tracing
-      tracingEnabled: true,
-
-      // Method settings for detailed CloudWatch metrics
-      methodSettings: [
-        {
-          httpMethod: "*",
-          resourcePath: "/*",
-          metricsEnabled: true,
-          dataTraceEnabled: true,
-          loggingLevel: "INFO",
-        },
-      ],
+    // Access log format (shared by both APIs)
+    const accessLogFormat = JSON.stringify({
+      requestId: "$context.requestId",
+      extendedRequestId: "$context.extendedRequestId",
+      ip: "$context.identity.sourceIp",
+      caller: "$context.identity.caller",
+      user: "$context.identity.user",
+      requestTime: "$context.requestTime",
+      httpMethod: "$context.httpMethod",
+      resourcePath: "$context.resourcePath",
+      path: "$context.path",
+      status: "$context.status",
+      protocol: "$context.protocol",
+      responseLength: "$context.responseLength",
+      responseLatency: "$context.responseLatency",
+      integrationLatency: "$context.integrationLatency",
+      integrationStatus: "$context.integrationStatus",
+      errorMessage: "$context.error.message",
+      errorType: "$context.error.responseType",
     });
 
-    // Ensure the account config is set before creating the stage
-    stage.addDependency(apiGatewayAccount);
+    // Method settings (shared by both APIs)
+    const methodSettings = [
+      {
+        httpMethod: "*",
+        resourcePath: "/*",
+        metricsEnabled: true,
+        dataTraceEnabled: true,
+        loggingLevel: "INFO",
+      },
+    ];
+
+    // ===========================================
+    // DataAPI Stage with full monitoring
+    // ===========================================
+    const dataApiStage = new apigateway.CfnStage(this, "DataApiStage", {
+      restApiId: dataApiId,
+      deploymentId: dataApiDeploymentId,
+      stageName: cdk.Fn.ref("env"),
+      accessLogSetting: {
+        destinationArn: dataApiAccessLogGroup.logGroupArn,
+        format: accessLogFormat,
+      },
+      tracingEnabled: true,
+      methodSettings: methodSettings,
+    });
+    dataApiStage.addDependency(apiGatewayAccount);
+
+    // ===========================================
+    // AdminQueries API Stage with full monitoring
+    // ===========================================
+    const adminApiStage = new apigateway.CfnStage(this, "AdminApiStage", {
+      restApiId: adminApiId,
+      deploymentId: adminApiDeploymentId,
+      stageName: cdk.Fn.ref("env"),
+      accessLogSetting: {
+        destinationArn: adminApiAccessLogGroup.logGroupArn,
+        format: accessLogFormat,
+      },
+      tracingEnabled: true,
+      methodSettings: methodSettings,
+    });
+    adminApiStage.addDependency(apiGatewayAccount);
 
     // ===========================================
     // Outputs
     // ===========================================
-    new cdk.CfnOutput(this, "AccessLogGroupName", {
-      value: accessLogGroup.logGroupName,
-      description: "CloudWatch Log Group for API Gateway access logs",
+    new cdk.CfnOutput(this, "DataApiAccessLogGroupName", {
+      value: dataApiAccessLogGroup.logGroupName,
+      description: "CloudWatch Log Group for DataAPI access logs",
+    });
+
+    new cdk.CfnOutput(this, "AdminApiAccessLogGroupName", {
+      value: adminApiAccessLogGroup.logGroupName,
+      description: "CloudWatch Log Group for AdminQueries API access logs",
     });
 
     new cdk.CfnOutput(this, "ApiGatewayLogsRoleArn", {
