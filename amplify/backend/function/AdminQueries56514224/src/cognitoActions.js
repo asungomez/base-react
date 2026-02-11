@@ -11,10 +11,16 @@
  * and limitations under the License.
  */
 
-const { CognitoIdentityServiceProvider } = require("aws-sdk");
+const {
+  AdminAddUserToGroupCommand,
+  AdminCreateUserCommand,
+  AdminRemoveUserFromGroupCommand,
+  ListUsersCommand,
+  CognitoIdentityProviderClient,
+} = require("@aws-sdk/client-cognito-identity-provider");
 
-const cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider();
 const userPoolId = process.env.USERPOOL;
+const client = new CognitoIdentityProviderClient({});
 
 async function addUserToGroup(username, groupname) {
   const params = {
@@ -26,7 +32,8 @@ async function addUserToGroup(username, groupname) {
   console.log(`Attempting to add ${username} to ${groupname}`);
 
   try {
-    await cognitoIdentityServiceProvider.adminAddUserToGroup(params).promise();
+    const command = new AdminAddUserToGroupCommand(params);
+    await client.send(command);
     console.log(`Success adding ${username} to ${groupname}`);
     return {
       message: `Success adding ${username} to ${groupname}`,
@@ -47,9 +54,8 @@ async function removeUserFromGroup(username, groupname) {
   console.log(`Attempting to remove ${username} from ${groupname}`);
 
   try {
-    await cognitoIdentityServiceProvider
-      .adminRemoveUserFromGroup(params)
-      .promise();
+    const command = new AdminRemoveUserFromGroupCommand(params);
+    await client.send(command);
     console.log(`Removed ${username} from ${groupname}`);
     return {
       message: `Removed ${username} from ${groupname}`,
@@ -70,14 +76,8 @@ async function listUsers(Limit, PaginationToken) {
   console.log("Attempting to list users");
 
   try {
-    const result = await cognitoIdentityServiceProvider
-      .listUsers(params)
-      .promise();
-
-    // Rename to NextToken for consistency with other Cognito APIs
-    result.NextToken = result.PaginationToken;
-    delete result.PaginationToken;
-
+    const command = new ListUsersCommand(params);
+    const result = await client.send(command);
     return result;
   } catch (err) {
     console.log(err);
@@ -105,9 +105,8 @@ async function createUser(user) {
   console.log(`Attempting to create user with email ${user.email}`);
 
   try {
-    const result = await cognitoIdentityServiceProvider
-      .adminCreateUser(params)
-      .promise();
+    const command = new AdminCreateUserCommand(params);
+    const result = await client.send(command);
     return result;
   } catch (err) {
     console.log(err);
