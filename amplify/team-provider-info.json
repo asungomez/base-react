@@ -31,7 +31,7 @@
         },
         "AdminQueries56514224": {
           "deploymentBucketName": "amplify-auth-dev-110238-deployment",
-          "s3Key": "amplify-builds/AdminQueries56514224-6653476365784f724e6a-build.zip"
+          "s3Key": "amplify-builds/AdminQueries56514224-6c48506f723042427165-build.zip"
         },
         "dataapi": {
           "deploymentBucketName": "amplify-auth-dev-110238-deployment",
