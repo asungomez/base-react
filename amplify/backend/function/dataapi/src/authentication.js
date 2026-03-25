@@ -3,7 +3,14 @@ const { CognitoIdentityServiceProvider } = require("aws-sdk");
 const cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider();
 const userPoolId = "eu-west-1_r97wuTAVq";
 
+const MOCK_USER_SUB = "0a36f4f5-6598-4cf0-9a07-1563c7b182ba";
+
 const extractAuthData = async (req) => {
+  if (process.env.MOCK_USER === "true") {
+    const groups = process.env.MOCK_USER_ADMIN === "true" ? ["Admin"] : [];
+    return { userSub: MOCK_USER_SUB, groups };
+  }
+
   const provider =
     req.apiGateway?.event?.requestContext?.identity
       ?.cognitoAuthenticationProvider;
