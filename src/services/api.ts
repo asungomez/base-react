@@ -5,7 +5,10 @@ const API_URL = import.meta.env.VITE_API_URL as string | undefined;
 const localFetch = async (
   method: string,
   path: string,
-  { queryParams, body }: { queryParams?: Record<string, string | undefined>; body?: unknown } = {}
+  {
+    queryParams,
+    body,
+  }: { queryParams?: Record<string, string | undefined>; body?: unknown } = {}
 ) => {
   const url = new URL(path, API_URL);
   if (queryParams) {
